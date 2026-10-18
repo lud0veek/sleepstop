@@ -10,7 +10,7 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_settingsKey);
     if (raw == null || raw.isEmpty) {
-      return const SleepSettings();
+      return const SleepSettings(isHydrated: true);
     }
     return SleepSettings.decode(raw);
   }

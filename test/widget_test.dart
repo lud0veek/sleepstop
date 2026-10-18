@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sleep_stop/main.dart';
 import 'package:sleep_stop/services/ble_heart_rate_service.dart';
 import 'package:sleep_stop/services/motion_detector_service.dart';
@@ -51,15 +53,31 @@ void main() {
   testWidgets('SleepStopApp renders cleanly even on narrow Fold cover screen', (
     WidgetTester tester,
   ) async {
+    SharedPreferences.setMockInitialValues({
+      'sleepstop_settings_v1': jsonEncode({'onboardingCompleted': true}),
+    });
     tester.view.physicalSize = const Size(320, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(const ProviderScope(child: SleepStopApp()));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('SleepStop'), findsOneWidget);
     expect(find.text('Montre (BLE)'), findsOneWidget);
     expect(find.text('Démarrer la veille'), findsOneWidget);
+  });
+
+  testWidgets('a fresh install opens on the introduction, not the dashboard', (
+    WidgetTester tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(const ProviderScope(child: SleepStopApp()));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Suivant'), findsOneWidget);
+    expect(find.text('Démarrer la veille'), findsNothing);
   });
 }

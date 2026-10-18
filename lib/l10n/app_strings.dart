@@ -1204,4 +1204,122 @@ class AppStrings {
     de: 'Wiedergabe fortgesetzt. Schwelle für heute Nacht angepasst.',
     es: 'Reproducción reanudada. Umbral ajustado para esta noche.',
   );
+
+  // ===========================================================================
+  // Onboarding (first launch)
+  // ===========================================================================
+  String get onbSkip => tr(fr: 'Passer', nl: 'Overslaan', de: 'Überspringen', es: 'Omitir');
+  String get onbNext => tr(fr: 'Suivant', nl: 'Volgende', de: 'Weiter', es: 'Siguiente');
+  String get onbAllowAndStart => tr(
+    fr: 'Autoriser et commencer',
+    nl: 'Toestaan en beginnen',
+    de: 'Erlauben und loslegen',
+    es: 'Permitir y empezar',
+  );
+  String get onbRecommended => tr(fr: 'CONSEILLÉ', nl: 'AANBEVOLEN', de: 'EMPFOHLEN', es: 'RECOMENDADO');
+
+  String get onbPromiseTitle => tr(
+    fr: 'Ton livre audio s\'arrête à la seconde où tu t\'endors.',
+    nl: 'Je luisterboek stopt op de seconde dat je in slaap valt.',
+    de: 'Dein Hörbuch stoppt in der Sekunde, in der du einschläfst.',
+    es: 'Tu audiolibro se detiene en el segundo en que te duermes.',
+  );
+  String get onbPromiseBody => tr(
+    fr: 'Plus de minuteur à deviner. SleepStop lit ton corps, baisse le son en douceur et met en pause au bon moment.',
+    nl: 'Geen timer meer om te gokken. SleepStop leest je lichaam, dimt het geluid zacht en pauzeert op het juiste moment.',
+    de: 'Kein Timer mehr zum Raten. SleepStop liest deinen Körper, blendet den Ton sanft aus und pausiert im richtigen Moment.',
+    es: 'Se acabó adivinar el temporizador. SleepStop lee tu cuerpo, baja el sonido suavemente y pausa en el momento justo.',
+  );
+  String get onbPromiseBullet1 => tr(
+    fr: 'Avec ta montre cardio, ou juste ton téléphone.',
+    nl: 'Met je hartslaghorloge, of gewoon je telefoon.',
+    de: 'Mit deiner Pulsuhr oder nur mit dem Telefon.',
+    es: 'Con tu reloj cardíaco, o solo con tu teléfono.',
+  );
+  String get onbPromiseBullet2 => tr(
+    fr: 'Ton pouls ne quitte jamais ton téléphone.',
+    nl: 'Je hartslag verlaat nooit je telefoon.',
+    de: 'Dein Puls verlässt nie dein Telefon.',
+    es: 'Tu pulso nunca sale de tu teléfono.',
+  );
+  String get onbPromiseBullet3 => tr(
+    fr: 'Le matin, tu retrouves le chapitre exact.',
+    nl: '\'s Ochtends vind je het exacte hoofdstuk terug.',
+    de: 'Morgens findest du das genaue Kapitel wieder.',
+    es: 'Por la mañana, recuperas el capítulo exacto.',
+  );
+
+  String get onbModeTitle => tr(
+    fr: 'Comment veux-tu détecter ton sommeil ?',
+    nl: 'Hoe wil je je slaap detecteren?',
+    de: 'Wie möchtest du deinen Schlaf erkennen?',
+    es: '¿Cómo quieres detectar tu sueño?',
+  );
+  String get onbModeBody => tr(
+    fr: 'Tu pourras changer à tout moment depuis l\'écran principal.',
+    nl: 'Je kunt dit altijd wijzigen vanaf het hoofdscherm.',
+    de: 'Du kannst das jederzeit auf dem Hauptbildschirm ändern.',
+    es: 'Podrás cambiarlo en cualquier momento desde la pantalla principal.',
+  );
+  String get onbModeWatchTitle => tr(fr: 'Montre cardio', nl: 'Hartslaghorloge', de: 'Pulsuhr', es: 'Reloj cardíaco');
+  String get onbModeWatchBody => tr(
+    fr: 'Garmin, Polar, Coros, Whoop… SleepStop lit ton pouls en Bluetooth et détecte la vraie bascule vers le sommeil.',
+    nl: 'Garmin, Polar, Coros, Whoop… SleepStop leest je hartslag via Bluetooth en herkent de echte overgang naar slaap.',
+    de: 'Garmin, Polar, Coros, Whoop… SleepStop liest deinen Puls per Bluetooth und erkennt den echten Übergang in den Schlaf.',
+    es: 'Garmin, Polar, Coros, Whoop… SleepStop lee tu pulso por Bluetooth y detecta el verdadero paso al sueño.',
+  );
+  String get onbModePhoneTitle => tr(fr: 'Téléphone seul', nl: 'Alleen telefoon', de: 'Nur Telefon', es: 'Solo teléfono');
+  String get onbModePhoneBody => tr(
+    fr: 'Le son baisse doucement à intervalles réguliers. Encore réveillé ? Un petit geste suffit pour continuer.',
+    nl: 'Het geluid dimt zacht met regelmatige tussenpozen. Nog wakker? Een klein gebaar volstaat om door te gaan.',
+    de: 'Der Ton wird in regelmäßigen Abständen sanft leiser. Noch wach? Eine kleine Bewegung genügt, um weiterzuhören.',
+    es: 'El sonido baja suavemente a intervalos regulares. ¿Aún despierto? Un pequeño gesto basta para continuar.',
+  );
+  String get onbWatchHowTo => tr(
+    fr: 'Comment activer la diffusion du pouls sur ma montre',
+    nl: 'Hartslag uitzenden inschakelen op mijn horloge',
+    de: 'Pulsübertragung auf meiner Uhr aktivieren',
+    es: 'Cómo activar la emisión del pulso en mi reloj',
+  );
+
+  String get onbNightTitle => tr(
+    fr: 'Comment se passe la nuit',
+    nl: 'Zo verloopt de nacht',
+    de: 'So läuft die Nacht ab',
+    es: 'Así transcurre la noche',
+  );
+  String get onbNightBody => tr(
+    fr: 'Trois étapes, zéro manipulation une fois couché.',
+    nl: 'Drie stappen, niets meer te doen zodra je ligt.',
+    de: 'Drei Schritte, nichts mehr zu tun, sobald du liegst.',
+    es: 'Tres pasos, nada que hacer una vez acostado.',
+  );
+  String get onbNightStep1Title => tr(fr: 'Lance la veille et pose le téléphone', nl: 'Start de bewaking en leg de telefoon neer', de: 'Starte die Überwachung und lege das Telefon ab', es: 'Inicia la vigilancia y deja el teléfono');
+  String get onbNightStep1Body => tr(
+    fr: 'Démarre ton livre audio ou ta vidéo, appuie sur Démarrer, verrouille l\'écran. C\'est tout.',
+    nl: 'Start je luisterboek of video, tik op Starten, vergrendel het scherm. Dat is alles.',
+    de: 'Starte dein Hörbuch oder Video, tippe auf Starten, sperre den Bildschirm. Das war\'s.',
+    es: 'Inicia tu audiolibro o vídeo, pulsa Iniciar, bloquea la pantalla. Eso es todo.',
+  );
+  String get onbNightStep2Title => tr(fr: 'Le son baisse quand tu t\'endors', nl: 'Het geluid dimt wanneer je inslaapt', de: 'Der Ton wird leiser, wenn du einschläfst', es: 'El sonido baja cuando te duermes');
+  String get onbNightStep2Body => tr(
+    fr: 'Fondu progressif, puis pause. Fausse alerte ? Secoue le téléphone ou appuie sur « Encore réveillé » : la lecture reprend.',
+    nl: 'Geleidelijke fade, dan pauze. Vals alarm? Schud de telefoon of tik op "Nog wakker": het afspelen hervat.',
+    de: 'Sanftes Ausblenden, dann Pause. Fehlalarm? Schüttle das Telefon oder tippe „Noch wach“: die Wiedergabe läuft weiter.',
+    es: 'Fundido progresivo, luego pausa. ¿Falsa alarma? Agita el teléfono o pulsa «Aún despierto»: la reproducción continúa.',
+  );
+  String get onbNightStep3Title => tr(fr: 'Le matin, retrouve ton chapitre', nl: '\'s Ochtends, vind je hoofdstuk terug', de: 'Morgens dein Kapitel wiederfinden', es: 'Por la mañana, recupera tu capítulo');
+  String get onbNightStep3Body => tr(
+    fr: 'Une notification te dit à quelle heure tu t\'es endormi et de combien revenir en arrière.',
+    nl: 'Een melding vertelt je hoe laat je in slaap viel en hoever je moet terugspoelen.',
+    de: 'Eine Benachrichtigung zeigt, wann du eingeschlafen bist und wie weit du zurückspulen musst.',
+    es: 'Una notificación te dice a qué hora te dormiste y cuánto retroceder.',
+  );
+
+  String get replayOnboarding => tr(
+    fr: 'Revoir l\'introduction',
+    nl: 'Introductie opnieuw bekijken',
+    de: 'Einführung erneut ansehen',
+    es: 'Volver a ver la introducción',
+  );
 }

@@ -29,7 +29,13 @@ class SettingsNotifier extends Notifier<SleepSettings> {
   }
 
   Future<void> _loadInitial() async {
-    final loaded = await _storage.loadSettings();
+    SleepSettings loaded;
+    try {
+      loaded = await _storage.loadSettings();
+    } catch (_) {
+      // No platform storage (tests / unsupported): behave like a fresh install.
+      loaded = const SleepSettings(isHydrated: true);
+    }
     state = loaded;
     unawaited(
       TelemetryService.instance.recordAppOpen(
@@ -149,6 +155,13 @@ class SettingsNotifier extends Notifier<SleepSettings> {
   Future<void> markOnboardingPermissionsShown() =>
       _update(state.copyWith(onboardingPermissionsShown: true));
 
+  Future<void> markOnboardingCompleted() =>
+      _update(state.copyWith(onboardingCompleted: true));
+
+  /// "Replay the introduction" from Settings.
+  Future<void> replayOnboarding() =>
+      _update(state.copyWith(onboardingCompleted: false));
+
   /// Resets tuning and learned data, but keeps entitlement, trial usage,
   /// language and onboarding state (those must survive a "reset").
   Future<void> resetAllSettingsAndLearnedData() async {
@@ -159,6 +172,8 @@ class SettingsNotifier extends Notifier<SleepSettings> {
       anonymousTelemetryEnabled: state.anonymousTelemetryEnabled,
       trialNightsUsed: state.trialNightsUsed,
       onboardingPermissionsShown: state.onboardingPermissionsShown,
+      onboardingCompleted: state.onboardingCompleted,
+      isHydrated: true,
     );
     state = fresh;
     await _storage.saveSettings(fresh);

@@ -83,6 +83,14 @@ class SleepSettings {
   /// True once the first-start permission explainer has been shown.
   final bool onboardingPermissionsShown;
 
+  /// True once the 4-page introduction has been completed or skipped.
+  final bool onboardingCompleted;
+
+  /// Runtime only (never persisted): false until settings were read from
+  /// disk, so the root widget can avoid flashing the onboarding to returning
+  /// users.
+  final bool isHydrated;
+
   static const int totalFreeTrialNights = 5;
 
   int get remainingTrialNights =>
@@ -111,6 +119,8 @@ class SleepSettings {
     this.anonymousTelemetryEnabled = true,
     this.trialNightsUsed = 0,
     this.onboardingPermissionsShown = false,
+    this.onboardingCompleted = false,
+    this.isHydrated = false,
   });
 
   SleepSettings copyWith({
@@ -138,6 +148,8 @@ class SleepSettings {
     bool? anonymousTelemetryEnabled,
     int? trialNightsUsed,
     bool? onboardingPermissionsShown,
+    bool? onboardingCompleted,
+    bool? isHydrated,
   }) {
     return SleepSettings(
       preferredMode: preferredMode ?? this.preferredMode,
@@ -172,6 +184,8 @@ class SleepSettings {
       trialNightsUsed: trialNightsUsed ?? this.trialNightsUsed,
       onboardingPermissionsShown:
           onboardingPermissionsShown ?? this.onboardingPermissionsShown,
+      onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+      isHydrated: isHydrated ?? this.isHydrated,
     );
   }
 
@@ -199,6 +213,7 @@ class SleepSettings {
       'anonymousTelemetryEnabled': anonymousTelemetryEnabled,
       'trialNightsUsed': trialNightsUsed,
       'onboardingPermissionsShown': onboardingPermissionsShown,
+      'onboardingCompleted': onboardingCompleted,
     };
   }
 
@@ -257,6 +272,8 @@ class SleepSettings {
       trialNightsUsed: (json['trialNightsUsed'] as num?)?.toInt() ?? 0,
       onboardingPermissionsShown:
           json['onboardingPermissionsShown'] as bool? ?? false,
+      onboardingCompleted: json['onboardingCompleted'] as bool? ?? false,
+      isHydrated: true,
     );
   }
 
@@ -266,7 +283,7 @@ class SleepSettings {
     try {
       return SleepSettings.fromJson(jsonDecode(raw) as Map<String, dynamic>);
     } catch (_) {
-      return const SleepSettings();
+      return const SleepSettings(isHydrated: true);
     }
   }
 }
