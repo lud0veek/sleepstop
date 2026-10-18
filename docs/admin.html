@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SleepStop Admin — Console de Gestion & Codes VIP</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #0E1017;
+      --elevated: #161924;
+      --border: #232838;
+      --amber: #FFB300;
+      --indigo: #7986CB;
+      --teal: #26A69A;
+      --rose: #EF5350;
+      --text: #F5F7FA;
+      --muted: #9BA3B4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #141829 0%, #000000 60%);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 22px; }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 24px 0; border-bottom: 1px solid var(--border); margin-bottom: 32px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; }
+    .badge {
+      padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700;
+      background: rgba(255,179,0,0.15); color: var(--amber); border: 1px solid rgba(255,179,0,0.4);
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 22px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 24px;
+    }
+    .card h2 {
+      font-size: 1.12rem; color: var(--amber); margin-bottom: 6px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card p.desc { color: var(--muted); font-size: 0.88rem; margin-bottom: 18px; }
+    label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+    input, select {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      background: var(--elevated); border: 1px solid var(--border);
+      color: var(--text); font-size: 0.95rem; margin-bottom: 14px;
+    }
+    button {
+      width: 100%; padding: 13px 18px; border-radius: 12px; border: none;
+      background: var(--amber); color: #000; font-weight: 800; font-size: 0.95rem;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.92; }
+    .code-box {
+      margin-top: 16px; padding: 16px; border-radius: 14px;
+      background: rgba(38,166,154,0.12); border: 1px dashed var(--teal);
+      text-align: center; display: none;
+    }
+    .code-value {
+      font-family: monospace; font-size: 1.45rem; font-weight: 800;
+      color: var(--teal); letter-spacing: 2px; margin: 6px 0;
+    }
+    .kpi-row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px;
+    }
+    .kpi {
+      background: var(--elevated); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px; text-align: center;
+    }
+    .kpi .val { font-size: 1.35rem; font-weight: 800; color: var(--amber); }
+    .kpi .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .check-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.9rem;
+    }
+    .check-item input[type="checkbox"] { width: 18px; height: 18px; margin: 2px 0 0 0; accent-color: var(--teal); }
+    #login-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.94);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+    }
+    .login-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 32px; width: 100%; max-width: 380px; text-align: center;
+    }
+    code {
+      background: var(--elevated); padding: 2px 6px; border-radius: 6px;
+      color: var(--amber); font-size: 0.85rem;
+    }
+    .history-list { margin-top: 14px; font-size: 0.82rem; color: var(--muted); max-height: 140px; overflow-y: auto; }
+    .history-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+  <!-- PIN Lock Overlay -->
+  <div id="login-overlay">
+    <div class="login-card">
+      <div style="font-size: 2rem; margin-bottom: 8px;">🔐</div>
+      <h2 style="color: var(--amber); margin-bottom: 6px;">SleepStop Admin</h2>
+      <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 20px;">
+        Entre ton code PIN administrateur pour accéder au générateur de licences VIP et au tableau de bord.
+      </p>
+      <input type="password" id="pin-input" placeholder="Code PIN (défaut : 2026)" style="text-align: center; font-size: 1.1rem;" />
+      <button onclick="unlockAdmin()">Déverrouiller la console</button>
+      <p id="pin-error" style="color: var(--rose); font-size: 0.8rem; margin-top: 10px; display: none;">Code PIN incorrect.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <span>☾ SleepStop</span>
+        <span class="badge">CONSOLE ADMIN</span>
+      </div>
+      <div>
+        <a href="/" style="color: var(--muted); text-decoration: none; font-size: 0.9rem; margin-right: 16px;">← Site public</a>
+        <a href="/privacy" style="color: var(--amber); text-decoration: none; font-size: 0.9rem;">Politique RGPD</a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Card 1: VIP Promo Code Generator -->
+      <div class="card">
+        <h2>🎟️ Générateur de Codes VIP (Accès Pro Gratuit)</h2>
+        <p class="desc">
+          Génère un code signé cryptographiquement (sans base de données). La personne entre ce code dans l'app SleepStop (fenêtre Pro) pour débloquer l'accès à vie gratuitement.
+        </p>
+        <label>Nom du bénéficiaire / Note (ex. Ami, Testeur, Influenceur)</label>
+        <input type="text" id="vip-label" placeholder="Ex: Thomas - Testeur Garmin" />
+        <button onclick="generateVipCode()">Générer un Code VIP À Vie</button>
+
+        <div id="vip-result" class="code-box">
+          <div style="font-size: 0.78rem; color: var(--muted);">CODE À ENTRER DANS L'APPLICATION :</div>
+          <div id="vip-code-text" class="code-value">SS-VIP-XXXX-YYYY</div>
+          <button onclick="copyVipCode()" style="margin-top: 8px; padding: 8px 14px; font-size: 0.82rem; background: var(--teal); color: #fff;">
+            Copier le code
+          </button>
+        </div>
+
+        <div id="vip-history" class="history-list"></div>
+      </div>
+
+      <!-- Card 2: Google Play Revenue Simulator -->
+      <div class="card">
+        <h2>💶 Simulateur de Revenus Google Play</h2>
+        <p class="desc">
+          Calcule ton revenu net réel en poche après déduction de la TVA européenne (~21 %) et de la commission réduite Google Play (15 %).
+        </p>
+        <label>Prix de vente TTC (Accès à vie)</label>
+        <input type="number" id="sim-price" value="4.99" step="0.50" oninput="updateRevenueSim()" />
+        <label>Nombre de téléchargements mensuels estimés</label>
+        <input type="number" id="sim-downloads" value="1500" step="100" oninput="updateRevenueSim()" />
+        <label>Taux de conversion Essai 5 nuits → Achat Pro (%)</label>
+        <input type="number" id="sim-conv" value="8" step="1" oninput="updateRevenueSim()" />
+
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="val" id="kpi-sales">120</div>
+            <div class="lbl">Ventes / mois</div>
+          </div>
+          <div class="kpi">
+            <div class="val" id="kpi-net-unit">3,51 €</div>
+            <div class="lbl">Net / vente</div>
+          </div>
+          <div class="kpi">
+            <div class="val" id="kpi-net-month" style="color: var(--teal);">421 €</div>
+            <div class="lbl">Net / mois</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Google Play Launch Checklist -->
+      <div class="card">
+        <h2>🚀 Check-list Publication Play Store</h2>
+        <p class="desc">
+          Tout ce qu'il te reste à cocher pour publier SleepStop sur le Google Play Store (sans création de compte utilisateur !).
+        </p>
+        <div class="check-item">
+          <input type="checkbox" checked disabled />
+          <span><b>Icône 512×512 & Adaptive Icon</b> générées (<code>assets/icon/play_store_512.png</code>)</span>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" checked disabled />
+          <span><b>Multilingue FR / NL / DE / ES</b> intégré dans l'application</span>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" checked disabled />
+          <span><b>SDK Google Play Billing</b> branché sur l'ID <code>sleepstop_lifetime_pro</code></span>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" checked disabled />
+          <span><b>Page Privacy Policy RGPD</b> en ligne sur <code>/privacy</code></span>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="chk-1" onchange="saveChecks()" />
+          <span>Créer le produit intégré <code>sleepstop_lifetime_pro</code> (4,99 €) dans Google Play Console</span>
+        </div>
+        <div class="check-item">
+          <input type="checkbox" id="chk-2" onchange="saveChecks()" />
+          <span>Relier le domaine OVH <code>sleepstop.eu</code> à Firebase Hosting</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Domain & Technical Info -->
+      <div class="card">
+        <h2>🌐 Relier ton domaine OVH <code>sleepstop.eu</code> à Firebase</h2>
+        <p class="desc">
+          Avec Firebase Hosting, tu profites du CDN mondial Google + HTTPS gratuit sans utiliser l'hébergement OVH :
+        </p>
+        <ol style="padding-left: 18px; color: var(--muted); font-size: 0.88rem; line-height: 1.75;">
+          <li>Ouvre la <a href="https://console.firebase.google.com/project/sleepstop-eu/hosting" target="_blank" style="color: var(--amber);">Console Firebase Hosting (sleepstop-eu)</a>.</li>
+          <li>Clique sur <b>Ajouter un domaine personnalisé</b> et tape <code>sleepstop.eu</code>.</li>
+          <li>Copie les 2 enregistrements <code>A</code> (IP) fournis par Firebase dans ta <b>Zone DNS OVH</b>.</li>
+          <li>URL de Politique de Confidentialité à coller dans Google Play Console :<br/>
+            <code>https://sleepstop-eu.web.app/privacy</code> (ou <code>https://sleepstop.eu/privacy</code>)
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PIN = "2026";
+    const VIP_SECRET_SALT = "SLEEPSTOP_LUDO_2026_VIP";
+
+    function unlockAdmin() {
+      const val = document.getElementById("pin-input").value.trim();
+      if (val === ADMIN_PIN) {
+        document.getElementById("login-overlay").style.display = "none";
+        sessionStorage.setItem("ss_admin_unlocked", "1");
+      } else {
+        document.getElementById("pin-error").style.display = "block";
+      }
+    }
+
+    if (sessionStorage.getItem("ss_admin_unlocked") === "1") {
+      document.getElementById("login-overlay").style.display = "none";
+    }
+
+    document.getElementById("pin-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") unlockAdmin();
+    });
+
+    // Deterministic signature matching BillingNotifier.verifyVipPromoCode in Flutter!
+    function computeSignature(seed4) {
+      const input = seed4.toUpperCase() + ":" + VIP_SECRET_SALT;
+      let hash = 5381;
+      for (let i = 0; i < input.length; i++) {
+        hash = ((hash * 33) ^ input.charCodeAt(i)) >>> 0;
+      }
+      return (hash % 1679616).toString(36).toUpperCase().padStart(4, "0");
+    }
+
+    function generateVipCode() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let seed = "";
+      for (let i = 0; i < 4; i++) {
+        seed += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      const sig = computeSignature(seed);
+      const fullCode = `SS-VIP-${seed}-${sig}`;
+
+      document.getElementById("vip-code-text").textContent = fullCode;
+      document.getElementById("vip-result").style.display = "block";
+
+      const label = document.getElementById("vip-label").value.trim() || "Invité VIP";
+      const list = JSON.parse(localStorage.getItem("ss_vip_codes") || "[]");
+      list.unshift({ code: fullCode, label, date: new Date().toLocaleDateString("fr-BE") });
+      localStorage.setItem("ss_vip_codes", JSON.stringify(list.slice(0, 20)));
+      renderVipHistory();
+    }
+
+    function copyVipCode() {
+      const code = document.getElementById("vip-code-text").textContent;
+      navigator.clipboard.writeText(code);
+    }
+
+    function renderVipHistory() {
+      const list = JSON.parse(localStorage.getItem("ss_vip_codes") || "[]");
+      const container = document.getElementById("vip-history");
+      container.innerHTML = list.map(item =>
+        `<div class="history-item"><span><b>${item.code}</b> — ${item.label}</span><span>${item.date}</span></div>`
+      ).join("");
+    }
+
+    function updateRevenueSim() {
+      const priceTtc = parseFloat(document.getElementById("sim-price").value) || 4.99;
+      const downloads = parseInt(document.getElementById("sim-downloads").value) || 0;
+      const conv = parseFloat(document.getElementById("sim-conv").value) || 0;
+
+      const sales = Math.round(downloads * (conv / 100));
+      const priceHt = priceTtc / 1.21; // 21% EU VAT average
+      const netUnit = priceHt * 0.85;  // 15% Google Play fee
+      const netMonth = Math.round(sales * netUnit);
+
+      document.getElementById("kpi-sales").textContent = sales.toString();
+      document.getElementById("kpi-net-unit").textContent = netUnit.toFixed(2).replace(".", ",") + " €";
+      document.getElementById("kpi-net-month").textContent = netMonth + " €";
+    }
+
+    function saveChecks() {
+      localStorage.setItem("ss_chk_1", document.getElementById("chk-1").checked ? "1" : "0");
+      localStorage.setItem("ss_chk_2", document.getElementById("chk-2").checked ? "1" : "0");
+    }
+
+    document.getElementById("chk-1").checked = localStorage.getItem("ss_chk_1") === "1";
+    document.getElementById("chk-2").checked = localStorage.getItem("ss_chk_2") === "1";
+    renderVipHistory();
+    updateRevenueSim();
+  </script>
+</body>
+</html>

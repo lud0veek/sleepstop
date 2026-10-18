@@ -241,28 +241,51 @@ class ProUnlockSheet extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Center(
-                child: TextButton(
-                  onPressed: billing.isLoading
-                      ? null
-                      : () async {
-                          await ref
-                              .read(billingProvider.notifier)
-                              .restorePurchases();
-                          if (!context.mounted) return;
-                          if (ref.read(settingsProvider).isProUnlocked) {
-                            Navigator.of(context).pop();
-                          }
-                        },
-                  child: Text(
-                    s.restorePurchaseBtn,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: OledColors.textSecondary,
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: billing.isLoading
+                        ? null
+                        : () async {
+                            await ref
+                                .read(billingProvider.notifier)
+                                .restorePurchases();
+                            if (!context.mounted) return;
+                            if (ref.read(settingsProvider).isProUnlocked) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                    child: Text(
+                      s.restorePurchaseBtn,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: OledColors.textSecondary,
+                      ),
                     ),
                   ),
-                ),
+                  const Text(
+                    '•',
+                    style: TextStyle(color: OledColors.textMuted),
+                  ),
+                  TextButton(
+                    onPressed: () => _showVipCodeDialog(context, ref, s),
+                    child: Text(
+                      tr(
+                        fr: 'Code VIP',
+                        nl: 'VIP-code',
+                        de: 'VIP-Code',
+                        es: 'Código VIP',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: OledColors.calmTeal,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ] else ...[
               SizedBox(
@@ -293,6 +316,81 @@ class ProUnlockSheet extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showVipCodeDialog(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic s,
+  ) {
+    final controller = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (dialogCtx) {
+        return AlertDialog(
+          backgroundColor: OledColors.cardSurface,
+          title: const Text(
+            'Code VIP SleepStop',
+            style: TextStyle(
+              color: OledColors.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          content: TextField(
+            controller: controller,
+            textCapitalization: TextCapitalization.characters,
+            style: const TextStyle(color: OledColors.textPrimary),
+            decoration: InputDecoration(
+              hintText: 'SS-VIP-XXXX-YYYY',
+              hintStyle: const TextStyle(color: OledColors.textMuted),
+              filled: true,
+              fillColor: OledColors.elevatedSurface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: OledColors.subtleBorder),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+              child: const Text('Annuler'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final ok = await ref
+                    .read(billingProvider.notifier)
+                    .verifyAndRedeemVipCode(controller.text);
+                if (!dialogCtx.mounted) return;
+                Navigator.of(dialogCtx).pop();
+                if (ok && context.mounted) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(s.proActiveBadge as String),
+                      backgroundColor: OledColors.elevatedSurface,
+                    ),
+                  );
+                } else if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Code VIP invalide.'),
+                      backgroundColor: OledColors.elevatedSurface,
+                    ),
+                  );
+                }
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: OledColors.warmAmber,
+                foregroundColor: OledColors.trueBlack,
+              ),
+              child: const Text('Activer'),
+            ),
+          ],
+        );
+      },
     );
   }
 

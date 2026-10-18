@@ -180,4 +180,32 @@ class BillingNotifier extends Notifier<BillingState> {
       state = state.copyWith(isLoading: false);
     }
   }
+
+  static String computeVipSignature(String seed4) {
+    const salt = 'SLEEPSTOP_LUDO_2026_VIP';
+    final input = '${seed4.toUpperCase()}:$salt';
+    int hash = 5381;
+    for (int i = 0; i < input.length; i++) {
+      hash = ((hash * 33) ^ input.codeUnitAt(i)) & 0xFFFFFFFF;
+    }
+    return (hash % 1679616).toRadixString(36).toUpperCase().padLeft(4, '0');
+  }
+
+  Future<bool> verifyAndRedeemVipCode(String rawCode) async {
+    final cleaned = rawCode.trim().toUpperCase();
+    final parts = cleaned.split('-');
+    // Expected format: SS-VIP-XXXX-YYYY
+    if (parts.length == 4 &&
+        parts[0] == 'SS' &&
+        parts[1] == 'VIP' &&
+        parts[2].length == 4 &&
+        parts[3].length == 4) {
+      final expectedSig = computeVipSignature(parts[2]);
+      if (parts[3] == expectedSig) {
+        await ref.read(settingsProvider.notifier).setProUnlocked(true);
+        return true;
+      }
+    }
+    return false;
+  }
 }
