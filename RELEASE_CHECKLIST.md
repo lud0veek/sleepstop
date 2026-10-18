@@ -63,7 +63,12 @@ Si ton compte Play a été créé après novembre 2023 en tant que **personne ph
 
 ## 2. À corriger avant la production (pas bloquant pour le test interne)
 
-État au 18/10/2026 (build 1.0.0+2) : **2.1, 2.3, 2.4 et 2.5 corrigés** (compteur d'essai persistant, localisation limitée à Android ≤ 11 avec `neverForLocation`, feuille explicative des permissions au premier démarrage, notifications/tuile/raisons d'historique traduites FR/NL/DE/ES). Restent 2.2, 2.6 à 2.10.
+État au 18/10/2026 (build 1.0.0+3) : **2.1, 2.3, 2.4, 2.5, 2.7 corrigés**, 2.2 reformulé dans l'app (« quitter le plein écran » plutôt que « tuer »). Restent 2.6 (wording README/site « zéro cloud »), 2.8 (consentement télémétrie), 2.9 (étiquette des boutons de test), 2.10 (plafond historique).
+
+Également livré dans 1.0.0+3 :
+- Détection : garde de fraîcheur BLE + reconnexion auto, fenêtre « Encore réveillé » de 90 s (secousse, bouton dashboard, bouton de notification), calibration par plateau stable (2 à 5 min), critère de plateau durci (≥ 4 BPM / 5 %), HRV en accélérateur, courbe de nuit échantillonnée toutes les 30 s.
+- Onboarding 4 écrans au premier lancement (relançable depuis Réglages → À propos).
+- Page Réglages unique (5 sections), barre du haut réduite à Pro + Réglages, bandeau Pro doré, courbe live sur le dashboard.
 
 | # | Sujet | Fichier | Détail |
 |---|-------|---------|--------|
@@ -83,7 +88,7 @@ Si ton compte Play a été créé après novembre 2023 en tant que **personne ph
 ## 3. Versioning (règles pro)
 
 - **Source unique** : `version: X.Y.Z+N` dans [pubspec.yaml](pubspec.yaml:4). `X.Y.Z` = `versionName` (visible utilisateur), `N` = `versionCode` (entier, strictement croissant, jamais réutilisé, même pour un upload refusé).
-- Convention : 1.0.0+1 (jamais uploadé), **1.0.0+2 = premier upload test interne**, 1.0.0+3 (correctifs test fermé), 1.0.0+4 (production). Patch = 1.0.1, nouvelles fonctionnalités = 1.1.0.
+- Convention : 1.0.0+1 et +2 jamais uploadés, **1.0.0+3 = premier upload test interne**, 1.0.0+4 (correctifs test fermé), 1.0.0+5 (production). `lib/app_info.dart` doit suivre le `version:` du pubspec. Patch = 1.0.1, nouvelles fonctionnalités = 1.1.0.
 - À chaque build de release : commit, puis tag git `v1.0.0+3`, puis build. Ne jamais builder depuis un arbre non commité.
 - Tenir un `CHANGELOG.md` ; les notes de version Play (500 caractères, par langue FR/NL/DE/ES/EN) en sont extraites.
 - Commande de build reproductible :
