@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_strings.dart';
@@ -89,8 +90,11 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   /// Current UI language strings (notifications, tile, history reasons).
   AppStrings get _s => ref.read(appStringsProvider);
 
+  void _log(String msg) => debugPrint('[SleepStop] $msg');
+
   @override
   ActiveSessionState build() {
+    _log('provider build()');
     _mediaControl = ref.read(mediaControlServiceProvider);
     _bleService = ref.read(bleHeartRateServiceProvider);
     _motionService = ref.read(motionDetectorServiceProvider);
@@ -154,6 +158,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
 
   void _onForegroundTaskData(Object data) {
     if (data is! Map) return;
+    if (data['event'] != 'heartbeat') _log('fg data: ${data['event']}');
     switch (data['event']) {
       case 'stop_session':
         stopSession(reason: 'Stopped from notification');
@@ -796,6 +801,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   // Grace window: "still awake?"
   // ===========================================================================
   Future<void> _enterGraceWindow() async {
+    _log('grace window start');
     _graceTimer?.cancel();
     state = state.copyWith(
       phase: SessionPhase.graceWindow,
@@ -856,6 +862,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
           withStillAwakeButton: true,
         );
       }
+      if (remaining % 10 == 0) _log('grace remaining=$remaining');
       if (remaining <= 0) {
         _graceTimer?.cancel();
         _graceTimer = null;
@@ -867,6 +874,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   /// The user says they are still awake: resume playback, forget this
   /// detection, harden the threshold for the night and keep monitoring.
   Future<void> stillAwake() async {
+    _log('stillAwake() running=${state.isRunning} phase=${state.phase}');
     if (!state.isRunning || !state.isInGraceWindow) return;
     _graceTimer?.cancel();
     _graceTimer = null;
@@ -940,6 +948,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   /// learn, notify, and release everything.
   Future<void> _finalizeNight() async {
     final pending = _pendingNight;
+    _log('finalize start, pending=${pending != null}');
     if (pending == null) {
       await stopSession(reason: 'Session ended');
       return;
@@ -1029,6 +1038,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       ),
     );
 
+    _log('finalize done');
     state = state.copyWith(
       isRunning: false,
       isFading: false,
@@ -1269,6 +1279,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   }
 
   Future<void> stopSession({String reason = 'Session stopped by user'}) async {
+    _log('stopSession($reason)');
     _isStoppingOrCompleting = true;
     _sessionTicker?.cancel();
     _sessionTicker = null;
