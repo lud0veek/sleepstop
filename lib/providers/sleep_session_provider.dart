@@ -96,7 +96,10 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     _motionService = ref.read(motionDetectorServiceProvider);
 
     FlutterForegroundTask.addTaskDataCallback(_onForegroundTaskData);
-    _mediaControl.setQuickTileToggleListener(_handleQuickTileToggle);
+    _mediaControl.setNativeCallbacks(
+      onQuickTileToggle: _handleQuickTileToggle,
+      onStillAwake: stillAwake,
+    );
 
     Future.microtask(() async {
       final launchedFromTile = await _mediaControl
@@ -812,8 +815,18 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       subtitle: _s.tileGrace,
     );
 
-    // A shake means "I'm awake" in both modes.
+    // Night veil over the media app (if the user granted the overlay
+    // permission): the OLED goes black at minimum brightness right away.
     final settings = ref.read(settingsProvider);
+    if (settings.returnToHomeOnSleep) {
+      await _mediaControl.showNightOverlay(
+        title: _s.veilTitle,
+        hint: _s.veilHint,
+        countdown: _s.veilCountdown(graceWindowSeconds),
+      );
+    }
+
+    // A shake means "I'm awake" in both modes.
     _motionService.startMonitoring(
       threshold: settings.shakeSensitivity,
       onMagnitudeUpdate: (_) {},
@@ -831,6 +844,11 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
         graceRemainingSeconds: remaining.clamp(0, graceWindowSeconds),
         elapsedSeconds: state.elapsedSeconds + 1,
       );
+      if (remaining > 0 && remaining % 5 == 0) {
+        await _mediaControl.updateNightOverlay(
+          countdown: _s.veilCountdown(remaining),
+        );
+      }
       if (remaining % 15 == 0 && remaining > 0) {
         await ForegroundTaskService.instance.updateNotification(
           title: _s.fgGraceTitle,
@@ -858,6 +876,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     _nightThresholdPenaltyBpm += _stillAwakePenaltyBpm;
     _lowSecondsAccum = 0.0;
 
+    await _mediaControl.hideNightOverlay();
     await _mediaControl.resumeMedia();
 
     final settings = ref.read(settingsProvider);
@@ -931,12 +950,20 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     final settings = ref.read(settingsProvider);
 
     List<String> closedAppsList = const [];
-    if (settings.closeAppsOnSleep) {
+    if (settings.closeAppsOnSleep || settings.returnToHomeOnSleep) {
       closedAppsList = await _mediaControl.closeTargetApps(
-        packages: settings.targetAppsToClose.keys.toList(),
+        packages: settings.closeAppsOnSleep
+            ? settings.targetAppsToClose.keys.toList()
+            : const [],
         goHome: settings.returnToHomeOnSleep,
       );
     }
+    // The veil stays (without tap-to-resume) until the system switches the
+    // display off; it removes itself on ACTION_SCREEN_OFF.
+    await _mediaControl.finalizeNightOverlay(
+      title: _s.veilGoodNight,
+      hint: _s.veilGoodNightHint,
+    );
 
     if (pending.mode == DetectionMode.watchBle) {
       await _packetSubscription?.cancel();
@@ -1255,6 +1282,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     _packetSubscription = null;
 
     _motionService.stopMonitoring();
+    await _mediaControl.hideNightOverlay();
     await _mediaControl.cancelFadeAndRestoreVolume();
     await _bleService.disconnect();
     await ForegroundTaskService.instance.stopMonitoringService();

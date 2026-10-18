@@ -137,7 +137,7 @@ Archiver `build/symbols/<version>` (nécessaire pour désobfusquer les stack tra
 | Fonctionnalités gouvernementales / financières | Non |
 | **Applications de santé** | Oui : fonctionnalité « Suivi du sommeil » / « Fréquence cardiaque » traitée localement. Obligatoire depuis 2024 pour toute app lisant des données de santé. |
 | **Autorisations de service de premier plan** | Déclarer `connectedDevice` (lecture BLE continue) et `specialUse` (surveillance mouvement + fondu audio écran éteint). Une **vidéo de démonstration** (lien YouTube non répertorié) montrant la notification persistante est exigée. |
-| Autorisations sensibles | `BIND_NOTIFICATION_LISTENER_SERVICE` : justifier « détection de la session média active pour la mettre en pause ». Après 2.3, plus de déclaration Localisation nécessaire. |
+| Autorisations sensibles | `BIND_NOTIFICATION_LISTENER_SERVICE` : justifier « détection de la session média active pour la mettre en pause ». `SYSTEM_ALERT_WINDOW` (afficher par-dessus) : justifier « voile noir à luminosité minimale sur la vidéo à l'endormissement + sortie du plein écran » ; l'utilisateur l'accorde lui-même dans les réglages Android. Après 2.3, plus de déclaration Localisation nécessaire. |
 
 ### 5.4 Pistes de test
 1. **Test interne** (aujourd'hui) : jusqu'à 100 testeurs par e-mail, disponible en quelques minutes. Vérifie l'achat réel avec un compte de test de licence, la restauration, le code VIP, une vraie nuit en mode montre et une en mode téléphone.

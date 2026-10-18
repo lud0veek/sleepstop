@@ -13,6 +13,7 @@ import android.media.AudioManager
 import android.media.MediaMetadata
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -36,6 +37,17 @@ class MainActivity : FlutterActivity() {
 
         @Volatile
         private var pendingQuickTileToggle: Boolean = false
+
+        /** Called by the night veil when the user taps it ("still awake"). */
+        fun dispatchStillAwakeFromNative() {
+            val channel = activeChannel ?: return
+            Handler(Looper.getMainLooper()).post {
+                try {
+                    channel.invokeMethod("onStillAwake", null)
+                } catch (_: Exception) {
+                }
+            }
+        }
 
         fun dispatchQuickTileToggleFromService(): Boolean {
             val channel = activeChannel ?: return false
@@ -161,6 +173,51 @@ class MainActivity : FlutterActivity() {
                             val goHome = call.argument<Boolean>("goHome") ?: true
                             val closedAppNames = closeAppsAndReturnHome(packages, goHome)
                             result.success(closedAppNames)
+                        }
+
+                        "canDrawOverlays" -> {
+                            result.success(NightOverlay.canDraw(this))
+                        }
+
+                        "openOverlayPermissionSettings" -> {
+                            val intent = Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:$packageName")
+                            ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                            startActivity(intent)
+                            result.success(true)
+                        }
+
+                        "showNightOverlay" -> {
+                            NightOverlay.show(
+                                this,
+                                title = call.argument<String>("title") ?: "",
+                                hint = call.argument<String>("hint") ?: "",
+                                countdown = call.argument<String>("countdown") ?: ""
+                            ) { dispatchStillAwakeFromNative() }
+                            result.success(NightOverlay.isShowing() || NightOverlay.canDraw(this))
+                        }
+
+                        "updateNightOverlay" -> {
+                            NightOverlay.update(
+                                countdown = call.argument<String>("countdown"),
+                                title = call.argument<String>("title"),
+                                hint = call.argument<String>("hint")
+                            )
+                            result.success(true)
+                        }
+
+                        "finalizeNightOverlay" -> {
+                            NightOverlay.setFinal(
+                                title = call.argument<String>("title") ?: "",
+                                hint = call.argument<String>("hint") ?: ""
+                            )
+                            result.success(true)
+                        }
+
+                        "hideNightOverlay" -> {
+                            NightOverlay.hide(this)
+                            result.success(true)
                         }
 
                         "requestRuntimePermissions" -> {

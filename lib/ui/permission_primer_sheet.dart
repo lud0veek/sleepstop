@@ -85,6 +85,13 @@ class PermissionPrimerSheet extends ConsumerWidget {
               title: s.permBatteryTitle,
               body: s.permBatteryBody,
             ),
+            const SizedBox(height: 12),
+            _PermissionRow(
+              icon: Icons.brightness_2_rounded,
+              accent: OledColors.textSecondary,
+              title: '${s.overlayPermTitle} • ${s.overlayPermOptional}',
+              body: s.overlayPermBody,
+            ),
             const SizedBox(height: 22),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),

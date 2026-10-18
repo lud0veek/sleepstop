@@ -498,6 +498,8 @@ class DashboardTab extends ConsumerWidget {
                         .markOnboardingPermissionsShown();
                     await PermissionService.instance
                         .requestAllRequiredPermissions();
+                    await PermissionService.instance
+                        .requestOverlayPermissionIfMissing();
                   }
                   notifier.startSession();
                 }

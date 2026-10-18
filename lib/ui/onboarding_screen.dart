@@ -49,6 +49,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (requestPermissions) {
       await notifier.markOnboardingPermissionsShown();
       await PermissionService.instance.requestAllRequiredPermissions();
+      await PermissionService.instance.requestOverlayPermissionIfMissing();
     }
     await notifier.markOnboardingCompleted();
     // The root widget swaps to HomeScreen as soon as the flag flips.
@@ -349,6 +350,12 @@ class _PermissionsPage extends StatelessWidget {
           color: OledColors.calmTeal,
           title: s.permBatteryTitle,
           text: s.permBatteryBody,
+        ),
+        _Bullet(
+          icon: Icons.brightness_2_rounded,
+          color: OledColors.textSecondary,
+          title: '${s.overlayPermTitle} • ${s.overlayPermOptional}',
+          text: s.overlayPermBody,
         ),
       ],
     );

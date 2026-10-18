@@ -42,12 +42,83 @@ class MediaControlService {
 
   int? get capturedOriginalVolume => _capturedOriginalVolume;
 
-  void setQuickTileToggleListener(void Function() onToggle) {
+  void setNativeCallbacks({
+    required void Function() onQuickTileToggle,
+    required void Function() onStillAwake,
+  }) {
     _channel.setMethodCallHandler((call) async {
-      if (call.method == 'onQuickTileToggle') {
-        onToggle();
+      switch (call.method) {
+        case 'onQuickTileToggle':
+          onQuickTileToggle();
+        case 'onStillAwake':
+          onStillAwake();
       }
     });
+  }
+
+  // ---- Night veil (black overlay at minimum brightness) ------------------
+
+  Future<bool> canDrawOverlays() async {
+    try {
+      return await _channel.invokeMethod<bool>('canDrawOverlays') ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> openOverlayPermissionSettings() async {
+    try {
+      await _channel.invokeMethod<bool>('openOverlayPermissionSettings');
+    } catch (_) {}
+  }
+
+  Future<bool> showNightOverlay({
+    required String title,
+    required String hint,
+    required String countdown,
+  }) async {
+    try {
+      return await _channel.invokeMethod<bool>('showNightOverlay', {
+            'title': title,
+            'hint': hint,
+            'countdown': countdown,
+          }) ??
+          false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> updateNightOverlay({
+    String? countdown,
+    String? title,
+    String? hint,
+  }) async {
+    try {
+      await _channel.invokeMethod<bool>('updateNightOverlay', {
+        'countdown': countdown,
+        'title': title,
+        'hint': hint,
+      });
+    } catch (_) {}
+  }
+
+  Future<void> finalizeNightOverlay({
+    required String title,
+    required String hint,
+  }) async {
+    try {
+      await _channel.invokeMethod<bool>('finalizeNightOverlay', {
+        'title': title,
+        'hint': hint,
+      });
+    } catch (_) {}
+  }
+
+  Future<void> hideNightOverlay() async {
+    try {
+      await _channel.invokeMethod<bool>('hideNightOverlay');
+    } catch (_) {}
   }
 
   Future<void> updateQuickTileState({

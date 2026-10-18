@@ -248,16 +248,16 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _Toggle(
                 title: s.tr(
-                  fr: 'Quitter le plein écran vidéo',
-                  nl: 'Volledig scherm verlaten',
-                  de: 'Video-Vollbild beenden',
-                  es: 'Salir de pantalla completa',
+                  fr: 'Écran noir et sortie du plein écran',
+                  nl: 'Zwart scherm en volledig scherm verlaten',
+                  de: 'Schwarzer Bildschirm und Vollbild beenden',
+                  es: 'Pantalla negra y salir de pantalla completa',
                 ),
                 subtitle: s.tr(
-                  fr: 'Revient à l\'accueil pour que YouTube, Netflix ou Twitch laisse l\'écran s\'éteindre.',
-                  nl: 'Keert terug naar het startscherm zodat YouTube, Netflix of Twitch het scherm laat uitgaan.',
-                  de: 'Kehrt zum Startbildschirm zurück, damit YouTube, Netflix oder Twitch das Display ausschalten lässt.',
-                  es: 'Vuelve al inicio para que YouTube, Netflix o Twitch deje apagar la pantalla.',
+                  fr: 'Voile noir sur la vidéo pendant « Encore réveillé ? », puis retour à l\'accueil pour que l\'écran s\'éteigne tout seul.',
+                  nl: 'Zwart scherm over de video tijdens "Nog wakker?", daarna terug naar het startscherm zodat het scherm vanzelf uitgaat.',
+                  de: 'Schwarzer Schleier über dem Video während „Noch wach?“, danach zurück zum Startbildschirm, damit das Display von selbst ausgeht.',
+                  es: 'Velo negro sobre el vídeo durante «¿Aún despierto?», luego vuelta al inicio para que la pantalla se apague sola.',
                 ),
                 value: settings.returnToHomeOnSleep,
                 onChanged: notifier.setReturnToHomeOnSleep,
@@ -279,6 +279,7 @@ class SettingsScreen extends ConsumerWidget {
                 onChanged: notifier.setCloseAppsOnSleep,
               ),
               const SizedBox(height: 4),
+              _OverlayPermissionRow(s: s),
               _LinkRow(
                 icon: Icons.apps_rounded,
                 color: OledColors.softIndigo,
@@ -955,6 +956,76 @@ class _LinkRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// "Display over other apps" status + shortcut to the system toggle.
+class _OverlayPermissionRow extends ConsumerStatefulWidget {
+  final AppStrings s;
+  const _OverlayPermissionRow({required this.s});
+
+  @override
+  ConsumerState<_OverlayPermissionRow> createState() =>
+      _OverlayPermissionRowState();
+}
+
+class _OverlayPermissionRowState extends ConsumerState<_OverlayPermissionRow>
+    with WidgetsBindingObserver {
+  bool? _granted;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _refresh();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refresh();
+  }
+
+  Future<void> _refresh() async {
+    final ok = await ref.read(mediaControlServiceProvider).canDrawOverlays();
+    if (mounted) setState(() => _granted = ok);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.s;
+    final granted = _granted;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _LinkRow(
+          icon: Icons.brightness_2_rounded,
+          color: granted == true ? OledColors.calmTeal : OledColors.warmAmber,
+          label: s.overlayPermTitle,
+          trailing: granted == null
+              ? null
+              : (granted ? s.overlayPermGranted : s.overlayPermMissing),
+          onTap: () =>
+              ref.read(mediaControlServiceProvider).openOverlayPermissionSettings(),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(33, 0, 8, 10),
+          child: Text(
+            s.overlayPermBody,
+            style: const TextStyle(
+              fontSize: 11.5,
+              height: 1.35,
+              color: OledColors.textSecondary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

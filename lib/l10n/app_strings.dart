@@ -1326,4 +1326,54 @@ class AppStrings {
     de: 'Einführung erneut ansehen',
     es: 'Volver a ver la introducción',
   );
+
+  // ===========================================================================
+  // Night veil (black overlay) & overlay permission
+  // ===========================================================================
+  String get veilTitle => tr(
+    fr: 'SleepStop a mis le média en pause',
+    nl: 'SleepStop heeft de media gepauzeerd',
+    de: 'SleepStop hat die Wiedergabe pausiert',
+    es: 'SleepStop ha pausado el contenido',
+  );
+  String get veilHint => tr(
+    fr: 'Encore réveillé ? Touche l\'écran, la lecture reprend.',
+    nl: 'Nog wakker? Raak het scherm aan, het afspelen hervat.',
+    de: 'Noch wach? Tippe auf den Bildschirm, die Wiedergabe läuft weiter.',
+    es: '¿Aún despierto? Toca la pantalla y la reproducción continúa.',
+  );
+  String veilCountdown(int seconds) => tr(
+    fr: 'Bonne nuit dans ${seconds}s',
+    nl: 'Welterusten over ${seconds}s',
+    de: 'Gute Nacht in ${seconds}s',
+    es: 'Buenas noches en ${seconds}s',
+  );
+  String get veilGoodNight => tr(
+    fr: 'Bonne nuit',
+    nl: 'Welterusten',
+    de: 'Gute Nacht',
+    es: 'Buenas noches',
+  );
+  String get veilGoodNightHint => tr(
+    fr: 'L\'écran s\'éteindra tout seul. Ton chapitre t\'attend demain matin.',
+    nl: 'Het scherm gaat vanzelf uit. Je hoofdstuk wacht morgenochtend op je.',
+    de: 'Der Bildschirm schaltet sich von selbst aus. Dein Kapitel wartet morgen früh.',
+    es: 'La pantalla se apagará sola. Tu capítulo te espera mañana por la mañana.',
+  );
+
+  String get overlayPermTitle => tr(
+    fr: 'Écran noir à l\'endormissement',
+    nl: 'Zwart scherm bij het inslapen',
+    de: 'Schwarzer Bildschirm beim Einschlafen',
+    es: 'Pantalla negra al dormirse',
+  );
+  String get overlayPermBody => tr(
+    fr: 'Autorisation « Afficher par-dessus les autres apps » : pose un voile noir à luminosité minimale sur la vidéo, puis quitte le plein écran pour que l\'écran s\'éteigne.',
+    nl: 'Toestemming "Over andere apps weergeven": legt een zwart scherm op minimale helderheid over de video en verlaat daarna het volledig scherm zodat het scherm uitgaat.',
+    de: 'Berechtigung „Über anderen Apps anzeigen“: legt einen schwarzen Schleier bei minimaler Helligkeit über das Video und verlässt dann den Vollbildmodus, damit das Display ausgeht.',
+    es: 'Permiso «Mostrar sobre otras apps»: pone un velo negro al mínimo brillo sobre el vídeo y luego sale de la pantalla completa para que la pantalla se apague.',
+  );
+  String get overlayPermGranted => tr(fr: 'Autorisé', nl: 'Toegestaan', de: 'Erlaubt', es: 'Permitido');
+  String get overlayPermMissing => tr(fr: 'À autoriser', nl: 'Nog toestaan', de: 'Noch erlauben', es: 'Por permitir');
+  String get overlayPermOptional => tr(fr: 'Optionnel', nl: 'Optioneel', de: 'Optional', es: 'Opcional');
 }

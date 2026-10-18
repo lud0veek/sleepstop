@@ -33,4 +33,17 @@ class PermissionService {
       }
     } catch (_) {}
   }
+
+  /// "Display over other apps" is a special access: Android only offers a
+  /// settings screen, so we open it once right after the first-start prompts.
+  Future<void> requestOverlayPermissionIfMissing() async {
+    if (!Platform.isAndroid) return;
+    try {
+      final granted =
+          await _channel.invokeMethod<bool>('canDrawOverlays') ?? false;
+      if (!granted) {
+        await _channel.invokeMethod<bool>('openOverlayPermissionSettings');
+      }
+    } catch (_) {}
+  }
 }
