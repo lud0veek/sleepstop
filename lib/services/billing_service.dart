@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -53,6 +55,8 @@ final billingProvider = NotifierProvider<BillingNotifier, BillingState>(
 class BillingNotifier extends Notifier<BillingState> {
   /// Exact Product ID (SKU) to create in Google Play Console > Monetize > In-app products
   static const String kLifetimeProProductId = 'sleepstop_lifetime_pro';
+  static const String _firestoreBase =
+      'https://firestore.googleapis.com/v1/projects/sleepstop-eu/databases/(default)/documents';
 
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
 
@@ -66,6 +70,7 @@ class BillingNotifier extends Notifier<BillingState> {
   }
 
   Future<void> _initBilling() async {
+    unawaited(_verifyActiveVipCodeStatus());
     try {
       final iap = InAppPurchase.instance;
       final available = await iap.isAvailable();
@@ -92,6 +97,45 @@ class BillingNotifier extends Notifier<BillingState> {
       );
     } catch (_) {
       state = state.copyWith(isStoreAvailable: false);
+    }
+  }
+
+  /// Checks if a previously redeemed VIP code was deleted or suspended in the Admin Console.
+  Future<void> _verifyActiveVipCodeStatus() async {
+    await Future<void>.delayed(const Duration(seconds: 2));
+    final settings = ref.read(settingsProvider);
+    final vipCode = settings.redeemedVipCode;
+    if (!settings.isProUnlocked || vipCode == null || vipCode.isEmpty) return;
+
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 4);
+    try {
+      final uri = Uri.parse('$_firestoreBase/vip_codes/$vipCode');
+      final req = await client.getUrl(uri);
+      final resp = await req.close().timeout(const Duration(seconds: 4));
+      if (resp.statusCode == 404) {
+        // Code was deleted by Admin -> revoke VIP unlock
+        await ref
+            .read(settingsProvider.notifier)
+            .setProUnlocked(false, clearVipCode: true);
+      } else if (resp.statusCode == 200) {
+        final body = await resp.transform(utf8.decoder).join();
+        final data = jsonDecode(body) as Map<String, dynamic>;
+        final fields = data['fields'] as Map<String, dynamic>?;
+        final active =
+            (fields?['active'] as Map<String, dynamic>?)?['booleanValue']
+                as bool? ??
+            true;
+        if (!active) {
+          await ref
+              .read(settingsProvider.notifier)
+              .setProUnlocked(false, clearVipCode: true);
+        }
+      }
+    } catch (_) {
+      // Offline: keep existing unlock
+    } finally {
+      client.close();
     }
   }
 
@@ -123,7 +167,9 @@ class BillingNotifier extends Notifier<BillingState> {
             ),
           );
         }
-        await ref.read(settingsProvider.notifier).setProUnlocked(true);
+        await ref
+            .read(settingsProvider.notifier)
+            .setProUnlocked(true, clearVipCode: true);
         state = state.copyWith(isLoading: false, clearError: true);
       } else if (purchase.status == PurchaseStatus.canceled) {
         state = state.copyWith(isLoading: false);
@@ -210,25 +256,94 @@ class BillingNotifier extends Notifier<BillingState> {
   Future<bool> verifyAndRedeemVipCode(String rawCode) async {
     final cleaned = rawCode.trim().toUpperCase();
     final parts = cleaned.split('-');
-    if (parts.length == 4 &&
-        parts[0] == 'SS' &&
-        parts[1] == 'VIP' &&
-        parts[2].length == 4 &&
-        parts[3].length == 4) {
-      final expectedSig = computeVipSignature(parts[2]);
-      if (parts[3] == expectedSig) {
-        final settings = ref.read(settingsProvider);
-        unawaited(
-          TelemetryService.instance.recordProUnlocked(
-            enabled: settings.anonymousTelemetryEnabled,
-            languageCode: settings.languageCode,
-            isVipCode: true,
-          ),
-        );
-        await ref.read(settingsProvider.notifier).setProUnlocked(true);
-        return true;
-      }
+    if (parts.length != 4 ||
+        parts[0] != 'SS' ||
+        parts[1] != 'VIP' ||
+        parts[2].length != 4 ||
+        parts[3].length != 4) {
+      return false;
     }
-    return false;
+
+    final expectedSig = computeVipSignature(parts[2]);
+    if (parts[3] != expectedSig) {
+      return false;
+    }
+
+    // Check against Firestore vip_codes collection (so deleted or suspended codes are rejected)
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 4);
+    try {
+      final getUri = Uri.parse('$_firestoreBase/vip_codes/$cleaned');
+      final getReq = await client.getUrl(getUri);
+      final getResp = await getReq.close().timeout(const Duration(seconds: 4));
+
+      if (getResp.statusCode == 404) {
+        // Code was deleted or never saved in Admin Console
+        return false;
+      }
+
+      if (getResp.statusCode == 200) {
+        final body = await getResp.transform(utf8.decoder).join();
+        final data = jsonDecode(body) as Map<String, dynamic>;
+        final fields = data['fields'] as Map<String, dynamic>?;
+        final active =
+            (fields?['active'] as Map<String, dynamic>?)?['booleanValue']
+                as bool? ??
+            true;
+        if (!active) {
+          return false;
+        }
+
+        // Increment usesCount and set lastUsedAt in Firestore
+        final commitUri = Uri.parse('$_firestoreBase:commit');
+        final commitReq = await client.postUrl(commitUri);
+        commitReq.headers.set(
+          HttpHeaders.contentTypeHeader,
+          'application/json',
+        );
+        final commitPayload = jsonEncode({
+          'writes': [
+            {
+              'transform': {
+                'document':
+                    'projects/sleepstop-eu/databases/(default)/documents/vip_codes/$cleaned',
+                'fieldTransforms': [
+                  {
+                    'fieldPath': 'usesCount',
+                    'increment': {'integerValue': '1'},
+                  },
+                  {
+                    'fieldPath': 'lastUsedAt',
+                    'setToServerValue': 'REQUEST_TIME',
+                  },
+                ],
+              },
+            },
+          ],
+        });
+        commitReq.add(utf8.encode(commitPayload));
+        final commitResp = await commitReq.close().timeout(
+          const Duration(seconds: 4),
+        );
+        await commitResp.drain<void>();
+      }
+    } catch (_) {
+      // If device has no internet connection during redemption, allow valid cryptographic signature
+    } finally {
+      client.close();
+    }
+
+    final settings = ref.read(settingsProvider);
+    unawaited(
+      TelemetryService.instance.recordProUnlocked(
+        enabled: settings.anonymousTelemetryEnabled,
+        languageCode: settings.languageCode,
+        isVipCode: true,
+      ),
+    );
+    await ref
+        .read(settingsProvider.notifier)
+        .setProUnlocked(true, vipCode: cleaned);
+    return true;
   }
 }

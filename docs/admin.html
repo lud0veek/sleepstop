@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SleepStop Admin — Analytics Temps Réel & Console VIP (Belgique)</title>
+  <title>SleepStop Admin — Analytics Temps Réel & Gestionnaire VIP (Belgique)</title>
   <link rel="icon" type="image/png" href="icon-512.png" />
   <style>
     :root {
@@ -15,6 +15,7 @@
       --orange: #ff7043;
       --indigo: #7986cb;
       --teal: #4db6ac;
+      --rose: #e57373;
       --text: #e8e6e3;
       --muted: #9e9d99;
     }
@@ -26,7 +27,7 @@
       padding: 28px 18px 80px;
       line-height: 1.55;
     }
-    .container { max-width: 1120px; margin: 0 auto; }
+    .container { max-width: 1140px; margin: 0 auto; }
     .header {
       display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 14px;
@@ -63,32 +64,29 @@
     .card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 22px; padding: 22px;
+      margin-bottom: 20px;
     }
-    h2 { font-size: 1.05rem; color: var(--amber); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+    h2 { font-size: 1.05rem; color: var(--amber); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     p.sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 14px; }
     input {
       width: 100%; padding: 11px 14px; border-radius: 12px;
       background: var(--elevated); border: 1px solid var(--border);
-      color: var(--text); font-size: 0.92rem; margin-bottom: 10px;
+      color: var(--text); font-size: 0.92rem;
     }
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       padding: 11px 16px; border-radius: 12px; border: none; cursor: pointer;
       font-weight: 700; font-size: 0.88rem; background: var(--amber); color: #000;
-      width: 100%; transition: opacity 0.15s;
+      transition: opacity 0.15s; white-space: nowrap;
     }
     .btn:hover { opacity: 0.9; }
     .btn-sm {
-      width: auto; padding: 7px 14px; font-size: 0.8rem;
-      background: var(--elevated); color: var(--amber);
-      border: 1px solid rgba(255,183,77,0.4);
+      padding: 6px 11px; font-size: 0.78rem; border-radius: 9px;
+      background: var(--elevated); color: var(--text);
+      border: 1px solid var(--border); font-weight: 600; cursor: pointer;
     }
-    .code-box {
-      margin-top: 12px; padding: 14px; border-radius: 14px;
-      background: rgba(77, 182, 172, 0.1); border: 1px dashed var(--teal);
-      text-align: center; font-family: monospace; font-size: 1.25rem;
-      font-weight: 800; color: var(--teal); letter-spacing: 1.5px;
-    }
+    .btn-sm:hover { border-color: var(--amber); color: var(--amber); }
+    .btn-danger:hover { border-color: var(--rose); color: var(--rose); }
     .bar-row { margin-bottom: 12px; }
     .bar-head { display: flex; justify-content: space-between; font-size: 0.84rem; margin-bottom: 4px; }
     .bar-track {
@@ -105,6 +103,32 @@
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
     }
     .event-time { color: var(--muted); font-family: monospace; font-size: 0.76rem; }
+    .vip-form {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .vip-form input { flex: 1; min-width: 220px; }
+    .vip-table-wrap { overflow-x: auto; }
+    table.vip-table {
+      width: 100%; border-collapse: collapse; font-size: 0.86rem;
+    }
+    table.vip-table th, table.vip-table td {
+      padding: 12px 10px; border-bottom: 1px solid var(--border); text-align: left;
+    }
+    table.vip-table th {
+      color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.7px;
+    }
+    .code-pill {
+      font-family: monospace; font-weight: 800; font-size: 0.94rem;
+      color: var(--teal); background: rgba(77,182,172,0.12);
+      padding: 4px 9px; border-radius: 8px; border: 1px solid rgba(77,182,172,0.35);
+      letter-spacing: 0.8px;
+    }
+    .status-pill {
+      display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 0.74rem; font-weight: 700;
+    }
+    .status-active { background: rgba(77,182,172,0.16); color: var(--teal); }
+    .status-paused { background: rgba(255,112,67,0.16); color: var(--orange); }
+    .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
     #loginGate { max-width: 420px; margin: 80px auto; text-align: center; }
   </style>
 </head>
@@ -113,10 +137,10 @@
     <!-- PIN Gate -->
     <div id="loginGate" class="card">
       <img src="icon-512.png" alt="SleepStop" style="width:64px;height:64px;border-radius:16px;margin-bottom:12px;" />
-      <h2>Console Admin SleepStop</h2>
-      <p class="sub">Entre ton code PIN administrateur pour accéder aux statistiques temps réel (Firestore Belgique) et au générateur VIP.</p>
-      <input type="password" id="pinInput" placeholder="Code PIN (ex: 2026)" />
-      <button class="btn" onclick="unlockAdmin()">Déverrouiller le Dashboard</button>
+      <h2 style="justify-content:center;">Console Admin SleepStop</h2>
+      <p class="sub">Entre ton code PIN administrateur pour accéder aux statistiques temps réel (Firestore Belgique) et au gestionnaire de codes VIP.</p>
+      <input type="password" id="pinInput" placeholder="Code PIN (ex: 2026)" style="margin-bottom:12px;" onkeydown="if(event.key==='Enter') unlockAdmin()" />
+      <button class="btn" style="width:100%;" onclick="unlockAdmin()">Déverrouiller le Dashboard</button>
       <p id="pinError" style="color:var(--orange);font-size:0.82rem;margin-top:10px;display:none;">Code PIN incorrect.</p>
     </div>
 
@@ -132,8 +156,8 @@
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="badge" id="syncStatusBadge">● En direct</span>
-          <button class="btn btn-sm" onclick="fetchTelemetry()">↻ Actualiser</button>
-          <a href="/privacy" class="btn btn-sm" style="text-decoration:none;color:var(--teal);border-color:rgba(77,182,172,0.4);">🇧🇪 Page RGPD</a>
+          <button class="btn-sm" onclick="refreshAll()">↻ Actualiser</button>
+          <a href="/privacy" class="btn-sm" style="text-decoration:none;color:var(--teal);border-color:rgba(77,182,172,0.4);">🇧🇪 Page RGPD</a>
         </div>
       </div>
 
@@ -152,7 +176,7 @@
         <div class="kpi-card">
           <div class="kpi-label">😴 Endormissements détectés</div>
           <div class="kpi-val" id="kpiSleepDetected">0</div>
-          <div class="kpi-sub" id="kpiSleepRate">Taux de coupure auto : --%</div>
+          <div class="kpi-sub" id="kpiSleepRate">Taux d'endormissement : --%</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">🎧 Temps d'écoute surveillé</div>
@@ -171,9 +195,41 @@
         </div>
       </div>
 
+      <!-- Full CRUD VIP Code Manager -->
+      <div class="card">
+        <h2>
+          <span>🎁 Gestionnaire de Codes Promo / VIP (Accès à vie — 9,99 € offert)</span>
+          <span style="font-size:0.78rem;color:var(--muted);font-weight:500;">Synchronisé avec l'app Android (Révocation à distance incluse)</span>
+        </h2>
+        <p class="sub">Crée un code personnalisé pour un proche ou un testeur. Tu peux modifier son nom, le suspendre temporairement ou le supprimer (ce qui désactive immédiatement l'accès Pro sur son téléphone).</p>
+
+        <div class="vip-form">
+          <input type="text" id="vipLabelInput" placeholder="Nom du bénéficiaire / Note (ex: Thomas - Garmin Fenix 7, Maman, Testeur Reddit...)" onkeydown="if(event.key==='Enter') createNewVipCode()" />
+          <button class="btn" onclick="createNewVipCode()">+ Créer & Enregistrer un Code VIP</button>
+        </div>
+
+        <div class="vip-table-wrap">
+          <table class="vip-table">
+            <thead>
+              <tr>
+                <th>Code VIP</th>
+                <th>Nom / Bénéficiaire</th>
+                <th>Statut</th>
+                <th>Utilisations</th>
+                <th>Créé le</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="vipTableBody">
+              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:20px;">Chargement des codes VIP...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="grid">
         <!-- Language & App Distribution -->
-        <div class="card">
+        <div class="card" style="margin-bottom:0;">
           <h2>🌍 Répartition par Langue (FR / NL / DE / ES)</h2>
           <p class="sub">Langues actives choisies par les utilisateurs dans l'application.</p>
           <div id="langBars"></div>
@@ -184,10 +240,10 @@
         </div>
 
         <!-- Live Anonymous Event Stream -->
-        <div class="card">
+        <div class="card" style="margin-bottom:0;">
           <h2>
             <span>⚡ Flux d'activité anonyme en direct</span>
-            <button class="btn btn-sm" onclick="sendTestEvent()">+ Tester un événement</button>
+            <button class="btn-sm" onclick="sendTestEvent()">+ Tester un événement</button>
           </h2>
           <p class="sub">Derniers événements reçus sur <code>sleepstop-eu (europe-west1 Belgique)</code> — Zéro donnée personnelle ni BPM.</p>
           <div class="event-list" id="eventList">
@@ -196,28 +252,17 @@
         </div>
       </div>
 
-      <div class="grid">
-        <!-- VIP Code Generator -->
-        <div class="card">
-          <h2>🎁 Générateur de Codes Promo / VIP (À vie)</h2>
-          <p class="sub">Génère un code signé hors-ligne pour débloquer <strong>SleepStop Pro (À vie)</strong> gratuitement pour tes proches ou testeurs.</p>
-          <input type="text" id="vipNote" placeholder="Nom de l'ami / testeur (optionnel)" />
-          <button class="btn" onclick="generateVipCode()">Générer un Code VIP</button>
-          <div class="code-box" id="vipOutput">SS-VIP-XXXX-YYYY</div>
-          <button class="btn" style="margin-top:10px;background:var(--elevated);color:var(--text);border:1px solid var(--border);" onclick="copyVipCode()">Copier le code</button>
-        </div>
-
-        <!-- Belgian GDPR & Play Store Info -->
-        <div class="card">
-          <h2>🇧🇪 Conformité RGPD Belgique & Google Play</h2>
-          <p class="sub">Tout est configuré sans compte utilisateur obligatoire et hébergé en Belgique.</p>
-          <div style="font-size:0.86rem;color:var(--muted);display:flex;flex-direction:column;gap:8px;">
-            <div>✅ <strong>Région Cloud Firestore :</strong> <code>europe-west1</code> (Saint-Ghislain, Belgique)</div>
-            <div>✅ <strong>Données de santé (Art. 9 RGPD) :</strong> 100 % locales sur le téléphone (aucun BPM sur le serveur)</div>
-            <div>✅ <strong>Opt-out intégré :</strong> Interrupteur dans l'écran <em>Confidentialité & RGPD (Belgique)</em> de l'app</div>
-            <div>✅ <strong>Autorité belge mentionnée :</strong> APD / GBA (Rue de la Presse 35, 1000 Bruxelles)</div>
-            <div>✅ <strong>SKU Google Play Billing :</strong> <code>sleepstop_lifetime_pro</code> (9,99 € TTC paiement unique)</div>
-          </div>
+      <!-- Belgian GDPR & Play Store Info -->
+      <div class="card">
+        <h2>🇧🇪 Conformité RGPD Belgique & Google Play</h2>
+        <p class="sub">Tout est configuré sans compte utilisateur obligatoire et hébergé en Belgique.</p>
+        <div style="font-size:0.86rem;color:var(--muted);display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;">
+          <div>✅ <strong>Région Cloud Firestore :</strong> <code>europe-west1</code> (Saint-Ghislain, Belgique)</div>
+          <div>✅ <strong>Données de santé (Art. 9 RGPD) :</strong> 100 % locales sur le téléphone (aucun BPM sur le serveur)</div>
+          <div>✅ <strong>Opt-out intégré :</strong> Interrupteur dans l'écran <em>Confidentialité & RGPD (Belgique)</em> de l'app</div>
+          <div>✅ <strong>Autorité belge mentionnée :</strong> APD / GBA (Rue de la Presse 35, 1000 Bruxelles)</div>
+          <div>✅ <strong>SKU Google Play Billing :</strong> <code>sleepstop_lifetime_pro</code> (9,99 € TTC paiement unique)</div>
+          <div>✅ <strong>Bundle AAB signé :</strong> <code>build/app/outputs/bundle/release/app-release.aab</code></div>
         </div>
       </div>
     </div>
@@ -234,12 +279,16 @@
       if (val === ADMIN_PIN) {
         document.getElementById("loginGate").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
-        generateVipCode();
-        fetchTelemetry();
-        refreshInterval = setInterval(fetchTelemetry, 15000);
+        refreshAll();
+        refreshInterval = setInterval(refreshAll, 15000);
       } else {
         document.getElementById("pinError").style.display = "block";
       }
+    }
+
+    function refreshAll() {
+      fetchTelemetry();
+      fetchVipCodes();
     }
 
     function intField(fields, key) {
@@ -250,6 +299,153 @@
     function strField(fields, key, fallback = "") {
       if (!fields || !fields[key]) return fallback;
       return fields[key].stringValue || fallback;
+    }
+
+    function boolField(fields, key, fallback = true) {
+      if (!fields || !fields[key]) return fallback;
+      if (typeof fields[key].booleanValue === "boolean") return fields[key].booleanValue;
+      return fallback;
+    }
+
+    function computeVipSignature(seed4) {
+      const input = seed4.toUpperCase() + ":" + VIP_SALT;
+      let hash = 5381;
+      for (let i = 0; i < input.length; i++) {
+        hash = (((hash * 33) ^ input.charCodeAt(i)) >>> 0);
+      }
+      return (hash % 1679616).toString(36).toUpperCase().padStart(4, "0");
+    }
+
+    function makeRandomVipCode() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let seed = "";
+      for (let i = 0; i < 4; i++) {
+        seed += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      const sig = computeVipSignature(seed);
+      return `SS-VIP-${seed}-${sig}`;
+    }
+
+    async function createNewVipCode() {
+      const labelInput = document.getElementById("vipLabelInput");
+      const label = labelInput.value.trim() || "Invité VIP";
+      const code = makeRandomVipCode();
+      const nowIso = new Date().toISOString();
+
+      await fetch(`${FIRESTORE_BASE}/vip_codes/${code}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: {
+            code: { stringValue: code },
+            label: { stringValue: label },
+            active: { booleanValue: true },
+            usesCount: { integerValue: "0" },
+            createdAt: { stringValue: nowIso }
+          }
+        })
+      });
+
+      labelInput.value = "";
+      await fetchVipCodes();
+    }
+
+    async function fetchVipCodes() {
+      const tbody = document.getElementById("vipTableBody");
+      try {
+        const res = await fetch(`${FIRESTORE_BASE}/vip_codes?pageSize=100`);
+        if (!res.ok) {
+          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);text-align:center;">Erreur de lecture Firestore.</td></tr>`;
+          return;
+        }
+        const data = await res.json();
+        const docs = (data.documents || []).slice().sort((a, b) => {
+          return strField(b.fields, "createdAt").localeCompare(strField(a.fields, "createdAt"));
+        });
+
+        if (docs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:22px;">Aucun code VIP enregistré. Entre un nom ci-dessus et clique sur « + Créer & Enregistrer un Code VIP ».</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = docs.map(doc => {
+          const f = doc.fields || {};
+          const code = strField(f, "code") || doc.name.split("/").pop();
+          const label = strField(f, "label", "Sans nom");
+          const active = boolField(f, "active", true);
+          const uses = intField(f, "usesCount");
+          const createdRaw = strField(f, "createdAt");
+          const createdStr = createdRaw ? new Date(createdRaw).toLocaleDateString("fr-BE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "-";
+          const safeLabel = label.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+          return `<tr>
+            <td><span class="code-pill">${code}</span></td>
+            <td><strong>${label}</strong></td>
+            <td>
+              <span class="status-pill ${active ? 'status-active' : 'status-paused'}">
+                ${active ? '● Actif' : '⏸ Suspendu'}
+              </span>
+            </td>
+            <td><strong>${uses}</strong> activation(s)</td>
+            <td style="color:var(--muted);font-size:0.8rem;">${createdStr}</td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn-sm" onclick="copyCode('${code}')">📋 Copier</button>
+                <button class="btn-sm" onclick="editVipLabel('${code}', '${safeLabel}')">✏️ Éditer nom</button>
+                <button class="btn-sm" onclick="toggleVipActive('${code}', ${!active})">${active ? '⏸ Suspendre' : '▶ Réactiver'}</button>
+                <button class="btn-sm btn-danger" onclick="deleteVipCode('${code}')">🗑️ Supprimer</button>
+              </div>
+            </td>
+          </tr>`;
+        }).join("");
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);text-align:center;">Hors ligne.</td></tr>`;
+      }
+    }
+
+    function copyCode(code) {
+      navigator.clipboard.writeText(code);
+      alert("Code VIP copié : " + code);
+    }
+
+    async function editVipLabel(code, currentLabel) {
+      const nextLabel = prompt(`Modifier le nom / bénéficiaire pour le code ${code} :`, currentLabel);
+      if (nextLabel === null) return;
+      const trimmed = nextLabel.trim() || "Sans nom";
+
+      await fetch(`${FIRESTORE_BASE}/vip_codes/${code}?updateMask.fieldPaths=label`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: {
+            label: { stringValue: trimmed }
+          }
+        })
+      });
+      await fetchVipCodes();
+    }
+
+    async function toggleVipActive(code, nextActive) {
+      await fetch(`${FIRESTORE_BASE}/vip_codes/${code}?updateMask.fieldPaths=active`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: {
+            active: { booleanValue: nextActive }
+          }
+        })
+      });
+      await fetchVipCodes();
+    }
+
+    async function deleteVipCode(code) {
+      if (!confirm(`Supprimer définitivement le code ${code} ?\n(Si un téléphone utilisait ce code, son accès VIP Pro sera automatiquement révoqué.)`)) {
+        return;
+      }
+      await fetch(`${FIRESTORE_BASE}/vip_codes/${code}`, {
+        method: "DELETE"
+      });
+      await fetchVipCodes();
     }
 
     async function fetchTelemetry() {
@@ -302,7 +498,6 @@
         document.getElementById("kpiProTotal").textContent = (proUnlocks + vipRedeemed);
         document.getElementById("kpiProBreakdown").textContent = "Play Store : " + proUnlocks + " • Codes VIP : " + vipRedeemed;
 
-        // Render language bars
         const langs = [
           { label: "🇫🇷 Français (FR)", val: Math.max(0, intField(gf, "lang_fr")), color: "#ffb74d" },
           { label: "🇳🇱 Nederlands (NL)", val: Math.max(0, intField(gf, "lang_nl")), color: "#4db6ac" },
@@ -318,7 +513,6 @@
           </div>`;
         }).join("");
 
-        // Render app bars
         const apps = [
           { label: "Audible", val: intField(gf, "app_Audible") },
           { label: "YouTube", val: intField(gf, "app_YouTube") },
@@ -336,7 +530,6 @@
           </div>`;
         }).join("");
 
-        // Render live events
         const docs = (eventsData.documents || []).slice().sort((a, b) => {
           const ta = strField(a.fields, "createdAt");
           const tb = strField(b.fields, "createdAt");
@@ -344,7 +537,7 @@
         });
 
         if (docs.length === 0) {
-          document.getElementById("eventList").innerHTML = `<div class="event-item">Aucun événement récent. Lance une session sur ton téléphone ou clique sur « + Tester un événement ».</div>`;
+          document.getElementById("eventList").innerHTML = `<div class="event-item">Aucun événement récent.</div>`;
         } else {
           document.getElementById("eventList").innerHTML = docs.slice(0, 12).map(doc => {
             const f = doc.fields || {};
@@ -427,31 +620,6 @@
         })
       });
       await fetchTelemetry();
-    }
-
-    function computeVipSignature(seed4) {
-      const input = seed4.toUpperCase() + ":" + VIP_SALT;
-      let hash = 5381;
-      for (let i = 0; i < input.length; i++) {
-        hash = (((hash * 33) ^ input.charCodeAt(i)) >>> 0);
-      }
-      return (hash % 1679616).toString(36).toUpperCase().padStart(4, "0");
-    }
-
-    function generateVipCode() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let seed = "";
-      for (let i = 0; i < 4; i++) {
-        seed += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      const sig = computeVipSignature(seed);
-      document.getElementById("vipOutput").textContent = `SS-VIP-${seed}-${sig}`;
-    }
-
-    function copyVipCode() {
-      const code = document.getElementById("vipOutput").textContent;
-      navigator.clipboard.writeText(code);
-      alert("Code VIP copié : " + code);
     }
   </script>
 </body>

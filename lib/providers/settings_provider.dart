@@ -125,8 +125,17 @@ class SettingsNotifier extends Notifier<SleepSettings> {
     );
   }
 
-  Future<void> setProUnlocked(bool unlocked) =>
-      _update(state.copyWith(isProUnlocked: unlocked));
+  Future<void> setProUnlocked(
+    bool unlocked, {
+    String? vipCode,
+    bool clearVipCode = false,
+  }) => _update(
+    state.copyWith(
+      isProUnlocked: unlocked,
+      redeemedVipCode: vipCode,
+      clearRedeemedVipCode: clearVipCode,
+    ),
+  );
 
   Future<void> setAnonymousTelemetryEnabled(bool enabled) =>
       _update(state.copyWith(anonymousTelemetryEnabled: enabled));

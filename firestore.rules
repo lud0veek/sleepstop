@@ -21,5 +21,10 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasOnly(['type', 'mode', 'lang', 'mediaApp', 'durationMin', 'createdAt']);
       allow update, delete: if false;
     }
+
+    // Managed VIP Promo Codes (CRUD from Admin Console + validation/redemption from App)
+    match /vip_codes/{codeId} {
+      allow read, create, update, delete: if codeId.matches('^SS-VIP-[A-Z0-9]{4}-[A-Z0-9]{4}$');
+    }
   }
 }
