@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_strings.dart';
 import '../models/sleep_settings.dart';
 import '../services/storage_service.dart';
+import '../services/telemetry_service.dart';
 
 final storageServiceProvider = Provider<StorageService>((ref) {
   return StorageService();
@@ -29,6 +31,12 @@ class SettingsNotifier extends Notifier<SleepSettings> {
   Future<void> _loadInitial() async {
     final loaded = await _storage.loadSettings();
     state = loaded;
+    unawaited(
+      TelemetryService.instance.recordAppOpen(
+        enabled: loaded.anonymousTelemetryEnabled,
+        languageCode: loaded.languageCode,
+      ),
+    );
   }
 
   Future<void> _update(SleepSettings updated) async {
@@ -109,9 +117,23 @@ class SettingsNotifier extends Notifier<SleepSettings> {
     return _update(state.copyWith(learnedSleepingBpm: updatedLearned));
   }
 
-  Future<void> setLanguageCode(String code) =>
-      _update(state.copyWith(languageCode: code));
+  Future<void> setLanguageCode(String code) async {
+    await _update(state.copyWith(languageCode: code));
+    await TelemetryService.instance.recordLanguageSwitch(
+      enabled: state.anonymousTelemetryEnabled,
+      newLanguageCode: code,
+    );
+  }
 
   Future<void> setProUnlocked(bool unlocked) =>
       _update(state.copyWith(isProUnlocked: unlocked));
+
+  Future<void> setAnonymousTelemetryEnabled(bool enabled) =>
+      _update(state.copyWith(anonymousTelemetryEnabled: enabled));
+
+  Future<void> resetAllSettingsAndLearnedData() async {
+    const fresh = SleepSettings();
+    state = fresh;
+    await _storage.saveSettings(fresh);
+  }
 }

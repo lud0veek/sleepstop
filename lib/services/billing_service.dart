@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import '../providers/settings_provider.dart';
+import 'telemetry_service.dart';
 
 enum BillingResultStatus {
   launchedStoreSheet,
@@ -107,11 +108,20 @@ class BillingNotifier extends Notifier<BillingState> {
         );
       } else if (purchase.status == PurchaseStatus.purchased ||
           purchase.status == PurchaseStatus.restored) {
-        // Mandatory on Google Play: acknowledge/complete the purchase within 3 days
         if (purchase.pendingCompletePurchase) {
           try {
             await InAppPurchase.instance.completePurchase(purchase);
           } catch (_) {}
+        }
+        final settings = ref.read(settingsProvider);
+        if (!settings.isProUnlocked) {
+          unawaited(
+            TelemetryService.instance.recordProUnlocked(
+              enabled: settings.anonymousTelemetryEnabled,
+              languageCode: settings.languageCode,
+              isVipCode: false,
+            ),
+          );
         }
         await ref.read(settingsProvider.notifier).setProUnlocked(true);
         state = state.copyWith(isLoading: false, clearError: true);
@@ -150,9 +160,15 @@ class BillingNotifier extends Notifier<BillingState> {
         }
       }
 
-      // If running in debug mode before the SKU is created in Google Play Console,
-      // allow unlocking locally for testing.
       if (kDebugMode) {
+        final settings = ref.read(settingsProvider);
+        unawaited(
+          TelemetryService.instance.recordProUnlocked(
+            enabled: settings.anonymousTelemetryEnabled,
+            languageCode: settings.languageCode,
+            isVipCode: false,
+          ),
+        );
         await ref.read(settingsProvider.notifier).setProUnlocked(true);
         state = state.copyWith(isLoading: false);
         return BillingResultStatus.unlockedDebugFallback;
@@ -194,7 +210,6 @@ class BillingNotifier extends Notifier<BillingState> {
   Future<bool> verifyAndRedeemVipCode(String rawCode) async {
     final cleaned = rawCode.trim().toUpperCase();
     final parts = cleaned.split('-');
-    // Expected format: SS-VIP-XXXX-YYYY
     if (parts.length == 4 &&
         parts[0] == 'SS' &&
         parts[1] == 'VIP' &&
@@ -202,6 +217,14 @@ class BillingNotifier extends Notifier<BillingState> {
         parts[3].length == 4) {
       final expectedSig = computeVipSignature(parts[2]);
       if (parts[3] == expectedSig) {
+        final settings = ref.read(settingsProvider);
+        unawaited(
+          TelemetryService.instance.recordProUnlocked(
+            enabled: settings.anonymousTelemetryEnabled,
+            languageCode: settings.languageCode,
+            isVipCode: true,
+          ),
+        );
         await ref.read(settingsProvider.notifier).setProUnlocked(true);
         return true;
       }

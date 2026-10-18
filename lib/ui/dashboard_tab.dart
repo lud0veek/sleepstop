@@ -6,6 +6,7 @@ import '../models/sleep_settings.dart';
 import '../providers/session_logs_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/sleep_session_provider.dart';
+import 'privacy_sheet.dart';
 import 'pro_unlock_sheet.dart';
 import 'settings_bottom_sheet.dart';
 import 'target_apps_sheet.dart';
@@ -325,6 +326,73 @@ class DashboardTab extends ConsumerWidget {
                   style: const TextStyle(
                     color: OledColors.warmAmber,
                     fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: OledColors.cardSurface,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: OledColors.subtleBorder),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.verified_user_outlined,
+                color: OledColors.calmTeal,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      s.tr(
+                        fr: 'Confidentialité & RGPD (Belgique 🇧🇪)',
+                        nl: 'Privacy & AVG / GDPR (België 🇧🇪)',
+                        de: 'Datenschutz & DSGVO (Belgien 🇧🇪)',
+                        es: 'Privacidad y RGPD (Bélgica 🇧🇪)',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: OledColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      s.tr(
+                        fr: '100 % local pour le pouls • Loi belge du 30 juillet 2018 & APD',
+                        nl: '100% lokaal voor hartslag • Belgische wet van 30 juli 2018 & GBA',
+                        de: '100 % lokal für Herzfrequenz • Belgisches Gesetz & APD/GBA',
+                        es: '100 % local para el pulso • Ley belga del 30 de julio de 2018 y APD',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: OledColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: () => PrivacySheet.show(context),
+                child: Text(
+                  s.tr(
+                    fr: 'Infos RGPD',
+                    nl: 'AVG-info',
+                    de: 'DSGVO-Info',
+                    es: 'Info RGPD',
+                  ),
+                  style: const TextStyle(
+                    color: OledColors.calmTeal,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),

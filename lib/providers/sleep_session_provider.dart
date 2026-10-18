@@ -10,6 +10,7 @@ import '../services/foreground_task_service.dart';
 import '../services/media_control_service.dart';
 import '../services/motion_detector_service.dart';
 import '../services/notification_service.dart';
+import '../services/telemetry_service.dart';
 import 'session_logs_provider.dart';
 import 'settings_provider.dart';
 
@@ -143,6 +144,14 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     final initialVol = await _mediaControl.getCurrentVolume();
     final maxVol = await _mediaControl.getMaxVolume();
     _lastKnownMediaInfo = await _mediaControl.getActiveMediaInfo();
+
+    unawaited(
+      TelemetryService.instance.recordSessionStarted(
+        enabled: settings.anonymousTelemetryEnabled,
+        mode: mode,
+        languageCode: settings.languageCode,
+      ),
+    );
 
     if (mode == DetectionMode.watchBle) {
       await _startWatchBleSession(
@@ -674,6 +683,16 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     await ref.read(sessionLogsProvider.notifier).addSessionLog(log);
     await NotificationService.instance.showSleepSummaryNotification(log);
 
+    unawaited(
+      TelemetryService.instance.recordSleepDetected(
+        enabled: settings.anonymousTelemetryEnabled,
+        mode: DetectionMode.watchBle,
+        languageCode: settings.languageCode,
+        listeningMinutes: (listeningSeconds / 60).ceil().clamp(1, 720),
+        mediaAppName: log.mediaAppName,
+      ),
+    );
+
     state = state.copyWith(
       isRunning: false,
       isFading: false,
@@ -870,6 +889,16 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
 
     await ref.read(sessionLogsProvider.notifier).addSessionLog(log);
     await NotificationService.instance.showSleepSummaryNotification(log);
+
+    unawaited(
+      TelemetryService.instance.recordSleepDetected(
+        enabled: settings.anonymousTelemetryEnabled,
+        mode: DetectionMode.phoneFadeShake,
+        languageCode: settings.languageCode,
+        listeningMinutes: (listeningSeconds / 60).ceil().clamp(1, 720),
+        mediaAppName: log.mediaAppName,
+      ),
+    );
 
     state = state.copyWith(
       isRunning: false,

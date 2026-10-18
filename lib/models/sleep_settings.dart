@@ -73,6 +73,7 @@ class SleepSettings {
   final double? learnedSleepingBpm;
   final String languageCode;
   final bool isProUnlocked;
+  final bool anonymousTelemetryEnabled;
 
   static const int totalFreeTrialNights = 5;
 
@@ -95,6 +96,7 @@ class SleepSettings {
     this.learnedSleepingBpm,
     this.languageCode = 'fr',
     this.isProUnlocked = false,
+    this.anonymousTelemetryEnabled = true,
   });
 
   SleepSettings copyWith({
@@ -117,6 +119,7 @@ class SleepSettings {
     double? learnedSleepingBpm,
     String? languageCode,
     bool? isProUnlocked,
+    bool? anonymousTelemetryEnabled,
   }) {
     return SleepSettings(
       preferredMode: preferredMode ?? this.preferredMode,
@@ -143,6 +146,8 @@ class SleepSettings {
       learnedSleepingBpm: learnedSleepingBpm ?? this.learnedSleepingBpm,
       languageCode: languageCode ?? this.languageCode,
       isProUnlocked: isProUnlocked ?? this.isProUnlocked,
+      anonymousTelemetryEnabled:
+          anonymousTelemetryEnabled ?? this.anonymousTelemetryEnabled,
     );
   }
 
@@ -166,6 +171,7 @@ class SleepSettings {
       'learnedSleepingBpm': learnedSleepingBpm,
       'languageCode': languageCode,
       'isProUnlocked': isProUnlocked,
+      'anonymousTelemetryEnabled': anonymousTelemetryEnabled,
     };
   }
 
@@ -218,6 +224,8 @@ class SleepSettings {
       learnedSleepingBpm: (json['learnedSleepingBpm'] as num?)?.toDouble(),
       languageCode: (json['languageCode'] as String?) ?? 'fr',
       isProUnlocked: json['isProUnlocked'] as bool? ?? false,
+      anonymousTelemetryEnabled:
+          json['anonymousTelemetryEnabled'] as bool? ?? true,
     );
   }
 

@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // GDPR-compliant anonymous aggregate counters (Saint-Ghislain, Belgium - europe-west1)
+    match /stats/global {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if false;
+    }
+
+    // Anonymous daily aggregate counters (YYYY-MM-DD)
+    match /daily/{dayId} {
+      allow read: if true;
+      allow create, update: if dayId.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+      allow delete: if false;
+    }
+
+    // Anonymous non-PII event stream (no IP, no heart rate values, no user IDs)
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['type', 'mode', 'lang', 'mediaApp', 'durationMin', 'createdAt']);
+      allow update, delete: if false;
+    }
+  }
+}

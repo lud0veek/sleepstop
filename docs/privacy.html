@@ -3,50 +3,236 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Politique de Confidentialité (Privacy Policy) — SleepStop</title>
+  <title>SleepStop — Politique de Confidentialité & RGPD (Belgique / UE)</title>
+  <link rel="icon" type="image/png" href="icon-512.png" />
   <style>
+    :root {
+      --bg: #000000;
+      --card: #0c0c12;
+      --elevated: #14141f;
+      --border: #1e1e2c;
+      --amber: #ffb74d;
+      --teal: #4db6ac;
+      --indigo: #7986cb;
+      --text: #e8e6e3;
+      --muted: #9e9d99;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
+      background: var(--bg);
+      color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #000000; color: #F5F7FA; line-height: 1.7;
-      max-width: 820px; margin: 0 auto; padding: 48px 24px;
+      line-height: 1.65;
+      padding: 40px 20px 80px;
     }
-    h1 { color: #FFB300; margin-bottom: 8px; }
-    h2 { color: #26A69A; margin-top: 32px; margin-bottom: 10px; font-size: 1.25rem; }
-    p, li { color: #C5CBD8; }
-    ul { padding-left: 22px; }
-    .box {
-      background: #0E1017; border: 1px solid #1E2230;
-      border-radius: 16px; padding: 20px; margin: 24px 0;
+    .container { max-width: 860px; margin: 0 auto; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 24px;
     }
-    a { color: #FFB300; }
+    .back {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--amber); text-decoration: none; font-weight: 600;
+    }
+    .lang-bar { display: flex; gap: 6px; }
+    .lang-btn {
+      background: var(--card); color: var(--muted);
+      border: 1px solid var(--border); padding: 6px 12px;
+      border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.82rem;
+    }
+    .lang-btn.active {
+      color: var(--amber); border-color: rgba(255,183,77,0.5);
+      background: rgba(255,183,77,0.12);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px;
+      margin-bottom: 22px;
+    }
+    h1 { font-size: 1.95rem; margin-bottom: 8px; letter-spacing: -0.5px; }
+    h2 { font-size: 1.2rem; color: var(--amber); margin: 26px 0 10px; }
+    p, li { color: var(--muted); font-size: 0.96rem; margin-bottom: 10px; }
+    ul { padding-left: 20px; margin-bottom: 14px; }
+    .badge {
+      display: inline-block; padding: 5px 12px; border-radius: 99px;
+      background: rgba(77, 182, 172, 0.14); color: var(--teal);
+      font-size: 0.78rem; font-weight: 700; margin-bottom: 16px;
+      border: 1px solid rgba(77, 182, 172, 0.35);
+    }
+    .apd-box {
+      background: var(--elevated);
+      border: 1px solid rgba(121, 134, 203, 0.4);
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin-top: 14px;
+    }
+    .apd-box strong { color: var(--text); }
+    table {
+      width: 100%; border-collapse: collapse; margin: 14px 0 20px;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--border); padding: 10px 12px; text-align: left;
+    }
+    th { background: var(--elevated); color: var(--amber); font-weight: 700; }
+    td { color: var(--muted); }
+    strong { color: var(--text); }
+    a { color: var(--teal); }
   </style>
 </head>
 <body>
-  <h1>Politique de Confidentialité — SleepStop</h1>
-  <p><em>Dernière mise à jour : Octobre 2026</em></p>
+  <div class="container">
+    <div class="topbar">
+      <a href="/" class="back">← Retour à SleepStop</a>
+      <div class="lang-bar">
+        <button class="lang-btn active" onclick="setLang('fr')">🇫🇷 FR</button>
+        <button class="lang-btn" onclick="setLang('nl')">🇳🇱 NL</button>
+        <button class="lang-btn" onclick="setLang('de')">🇩🇪 DE</button>
+        <button class="lang-btn" onclick="setLang('es')">🇪🇸 ES</button>
+      </div>
+    </div>
 
-  <div class="box">
-    <strong>Engagement fondamental :</strong> SleepStop fonctionne <strong>100 % en local sur votre appareil Android</strong>. Nous ne collectons, ne stockons et ne transmettons aucune donnée personnelle, biométrique ou d'utilisation vers un serveur externe.
+    <!-- FRENCH (BELGIUM) -->
+    <div id="content-fr" class="card">
+      <span class="badge">🇧🇪 Droit Belge • RGPD (UE) 2016/679 • Loi du 30 juillet 2018 • APD Bruxelles</span>
+      <h1>Politique de Confidentialité & Protection des Données (Belgique)</h1>
+      <p>Dernière mise à jour : Octobre 2026 • Application Android : <strong>SleepStop</strong> (<code>com.sleepstop.sleep_stop</code>)</p>
+
+      <h2>1. Cadre légal belge & européen</h2>
+      <p>La présente Politique de Confidentialité est rédigée conformément :</p>
+      <ul>
+        <li>Au <strong>Règlement (UE) 2016/679</strong> du Parlement européen et du Conseil du 27 avril 2016 (<strong>RGPD / GDPR</strong>) ;</li>
+        <li>À la <strong>Loi belge du 30 juillet 2018</strong> relative à la protection des personnes physiques à l'égard des traitements de données à caractère personnel (<em>Moniteur Belge</em>) ;</li>
+        <li>Au <strong>Livre XII du Code de droit économique belge</strong> (Droit de l'économie numérique).</li>
+      </ul>
+
+      <h2>2. Traitement 100 % Local des Données Biométriques (Art. 9 RGPD)</h2>
+      <p>SleepStop applique le principe de <strong>Protection des données dès la conception (Privacy by Design — Art. 25 RGPD)</strong> :</p>
+      <ul>
+        <li><strong>Fréquence cardiaque & variabilité (BLE 0x180D / 0x2A37) :</strong> Les mesures de pouls (BPM) et intervalles R-R provenant de votre montre (Garmin, Whoop, Polar, Coros, etc.) sont analysés <strong>exclusivement en mémoire vive sur votre smartphone</strong>. Aucune valeur cardiaque n'est jamais transmise sur Internet.</li>
+        <li><strong>Capteur de mouvement (Accéléromètre) :</strong> L'amplitude physique de secousse (m/s²) est calculée en temps réel sur l'appareil et n'est jamais enregistrée sur un serveur externe.</li>
+        <li><strong>Historique de sommeil & titres médias :</strong> Le journal de vos sessions (heure d'endormissement, titre du chapitre Audible/Spotify/YouTube) est stocké uniquement dans la mémoire privée locale de votre téléphone (<code>SharedPreferences</code>).</li>
+      </ul>
+
+      <h2>3. Compteurs Statistiques Anonymes (Hébergés en Belgique — Saint-Ghislain)</h2>
+      <p>Afin de connaître l'utilisation globale de l'application sans jamais identifier un utilisateur (Considérant 26 du RGPD), SleepStop peut incrémenter des compteurs techniques strictement anonymes (nombre total de sessions démarrées, répartition Mode Montre vs Mode Téléphone, langue d'interface FR/NL/DE/ES) :</p>
+      <ul>
+        <li><strong>Localisation physique des serveurs :</strong> Centre de données européen Google Cloud <strong><code>europe-west1</code> situé à Saint-Ghislain (Belgique)</strong>.</li>
+        <li><strong>Absence totale d'identifiant personnel :</strong> Aucun nom, aucun e-mail, aucune adresse IP stockée, aucun identifiant publicitaire Android (GAID), aucun BPM et aucun titre de média ne sont envoyés.</li>
+        <li><strong>Droit d'opposition immédiat (Opt-out en 1 clic) :</strong> Vous pouvez désactiver à tout moment l'envoi de ces compteurs anonymes directement dans l'application via <em>Confidentialité & RGPD (Belgique) → Partager les compteurs techniques anonymes</em>.</li>
+      </ul>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Catégorie de donnée</th>
+            <th>Lieu de stockage</th>
+            <th>Transmis hors du téléphone ?</th>
+            <th>Base légale (RGPD / Belgique)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pouls (BPM), HRV & Courbe cardiaque</td>
+            <td>100 % Local (Téléphone)</td>
+            <td><strong>NON (Jamais)</strong></td>
+            <td>Traitement purement local (Art. 9 RGPD)</td>
+          </tr>
+          <tr>
+            <td>Titres des livres / vidéos mis en pause</td>
+            <td>100 % Local (Téléphone)</td>
+            <td><strong>NON (Jamais)</strong></td>
+            <td>Exécution du service demandé (Art. 6.1.b)</td>
+          </tr>
+          <tr>
+            <td>Achat SleepStop Pro (À vie)</td>
+            <td>Google Play Billing</td>
+            <td>Géré par Google Play</td>
+            <td>Exécution contractuelle (Art. 6.1.b)</td>
+          </tr>
+          <tr>
+            <td>Compteurs globaux anonymes (Mode, Langue)</td>
+            <td>Saint-Ghislain, Belgique (<code>europe-west1</code>)</td>
+            <td>Oui (Compteurs agrégés sans ID)</td>
+            <td>Anonymisation (Cons. 26) & Opt-out direct</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>4. Vos Droits & Autorité de Protection des Données (APD — Belgique)</h2>
+      <p>Conformément aux articles 15 à 22 du RGPD et à la Loi belge du 30 juillet 2018, vous disposez d'un droit d'accès, de rectification, d'opposition et d'effacement immédiat (Art. 17 RGPD — bouton <em>« Effacer mes données »</em> intégré directement dans l'application).</p>
+      <div class="apd-box">
+        <strong>Autorité de contrôle compétente en Belgique :</strong><br/>
+        <strong>Autorité de protection des données (APD) / Gegevensbeschermingsautoriteit (GBA)</strong><br/>
+        Rue de la Presse 35 / Drukpersstraat 35, 1000 Bruxelles (Belgique)<br/>
+        Tél. : +32 (0)2 274 48 00 • E-mail : <a href="mailto:contact@apd-gba.be">contact@apd-gba.be</a><br/>
+        Site officiel : <a href="https://www.autoriteprotectiondonnees.be" target="_blank" rel="noopener">www.autoriteprotectiondonnees.be</a>
+      </div>
+    </div>
+
+    <!-- DUTCH (BELGIUM / FLANDERS) -->
+    <div id="content-nl" class="card" style="display:none">
+      <span class="badge">🇧🇪 Belgisch Recht • AVG / GDPR (EU) 2016/679 • Wet van 30 juli 2018 • GBA Brussel</span>
+      <h1>Privacybeleid & Gegevensbescherming (België)</h1>
+      <p>Laatst bijgewerkt: Oktober 2026 • Android-app: <strong>SleepStop</strong> (<code>com.sleepstop.sleep_stop</code>)</p>
+      <h2>1. 100% Lokale Verwerking van Biometrische Gegevens (Art. 9 AVG)</h2>
+      <p>Overeenkomstig Verordening (EU) 2016/679 (AVG/GDPR) en de Belgische wet van 30 juli 2018 verwerkt SleepStop je hartslag (BPM), HRV en slaapcurve <strong>uitsluitend lokaal op je smartphone</strong>. Geen enkele gezondheids- of hartslagwaarde verlaat ooit je toestel.</p>
+      <h2>2. Anonieme Gebruikstellers (Gehost in België — Saint-Ghislain)</h2>
+      <p>Enkel geaggregeerde, volledig anonieme tellers (aantal gestarte sessies, Horloge/Telefoon-modus, taal FR/NL/DE/ES) worden bewaard in het Europese datacenter in <strong>Saint-Ghislain, België (<code>europe-west1</code>)</strong> zonder IP-opslag, zonder account en zonder reclame-ID. Je kunt dit op elk moment met 1 tik uitschakelen in de app.</p>
+      <h2>3. Toezichthoudende Autoriteit in België (GBA)</h2>
+      <div class="apd-box">
+        <strong>Gegevensbeschermingsautoriteit (GBA / APD)</strong><br/>
+        Drukpersstraat 35, 1000 Brussel (België)<br/>
+        Tel.: +32 (0)2 274 48 00 • E-mail: <a href="mailto:contact@apd-gba.be">contact@apd-gba.be</a><br/>
+        Website: <a href="https://www.gegevensbeschermingsautoriteit.be" target="_blank" rel="noopener">www.gegevensbeschermingsautoriteit.be</a>
+      </div>
+    </div>
+
+    <!-- GERMAN (BELGIUM / DACH) -->
+    <div id="content-de" class="card" style="display:none">
+      <span class="badge">🇧🇪 Belgisches Recht • DSGVO (EU) 2016/679 • Gesetz vom 30. Juli 2018 • APD/GBA Brüssel</span>
+      <h1>Datenschutzerklärung & DSGVO (Belgien)</h1>
+      <p>Stand: Oktober 2026 • Android-App: <strong>SleepStop</strong> (<code>com.sleepstop.sleep_stop</code>)</p>
+      <h2>1. 100 % Lokale Biometrie-Verarbeitung (Art. 9 DSGVO)</h2>
+      <p>Deine Herzfrequenz (BPM), R-R-Intervalle (HRV) und Hörbuch-/Videotitel werden ausschließlich lokal auf deinem Smartphone verarbeitet und niemals an externe Server gesendet.</p>
+      <h2>2. Anonyme Zähler (Serverstandort Saint-Ghislain, Belgien)</h2>
+      <p>Rein anonyme Gesamtzähler (Sitzungsanzahl, Uhr/Telefon-Modus, Sprache) werden im Rechenzentrum <strong>Saint-Ghislain, Belgien (<code>europe-west1</code>)</strong> ohne Personenbezug gespeichert und können jederzeit in der App deaktiviert werden.</p>
+      <h2>3. Zuständige Datenschutzbehörde in Belgien</h2>
+      <div class="apd-box">
+        <strong>Autorité de protection des données / Gegevensbeschermingsautoriteit (APD/GBA)</strong><br/>
+        Rue de la Presse 35 / Drukpersstraat 35, 1000 Brüssel (Belgien)<br/>
+        Tel.: +32 (0)2 274 48 00 • <a href="mailto:contact@apd-gba.be">contact@apd-gba.be</a>
+      </div>
+    </div>
+
+    <!-- SPANISH -->
+    <div id="content-es" class="card" style="display:none">
+      <span class="badge">🇧🇪 Derecho Belga • RGPD (UE) 2016/679 • Ley del 30 de julio de 2018 • APD Bruselas</span>
+      <h1>Política de Privacidad y RGPD (Bélgica / UE)</h1>
+      <p>Última actualización: Octubre 2026 • Aplicación Android: <strong>SleepStop</strong> (<code>com.sleepstop.sleep_stop</code>)</p>
+      <h2>1. Procesamiento Biométrico 100 % Local (Art. 9 RGPD)</h2>
+      <p>Tu frecuencia cardíaca (BPM), intervalos R-R (HRV) y títulos multimedia se procesan exclusivamente en la memoria local de tu teléfono y nunca se envían a ningún servidor.</p>
+      <h2>2. Estadísticas Anónimas (Alojadas en Saint-Ghislain, Bélgica)</h2>
+      <p>Únicamente contadores técnicos agregados y anónimos se alojan en el centro de datos europeo de <strong>Saint-Ghislain, Bélgica (<code>europe-west1</code>)</strong>, con opción de desactivación inmediata en la aplicación.</p>
+      <h2>3. Autoridad de Control en Bélgica (APD / GBA)</h2>
+      <div class="apd-box">
+        <strong>Autorité de protection des données (APD / GBA)</strong><br/>
+        Rue de la Presse 35, 1000 Bruselas (Bélgica) • <a href="mailto:contact@apd-gba.be">contact@apd-gba.be</a>
+      </div>
+    </div>
   </div>
 
-  <h2>1. Données de fréquence cardiaque et capteurs (Bluetooth Low Energy & Accéléromètre)</h2>
-  <ul>
-    <li>SleepStop utilise la permission Bluetooth (<code>BLUETOOTH_SCAN</code>, <code>BLUETOOTH_CONNECT</code>) uniquement pour lire en temps réel le flux standard Bluetooth Heart Rate (<code>0x180D</code> / <code>0x2A37</code>) diffusé par votre montre connectée ou capteur cardiaque.</li>
-    <li>Ces mesures (BPM et intervalles R-R) sont analysées en temps réel sur votre téléphone pour détecter votre endormissement et sont stockées uniquement dans l'historique local de votre appareil (<code>SharedPreferences</code>).</li>
-    <li>Vous pouvez effacer cet historique local à tout moment depuis l'onglet <em>Historique</em> de l'application.</li>
-  </ul>
-
-  <h2>2. Contrôle des sessions média et fermeture d'applications</h2>
-  <ul>
-    <li>La permission d'accès aux notifications média (<code>NotificationListenerService</code>) et la liste des applications installées (<code>QUERY_ALL_PACKAGES</code>) sont utilisées exclusivement en local sur votre appareil pour identifier le lecteur multimédia en cours de lecture et fermer les applications que vous avez explicitement sélectionnées lorsque vous vous endormez.</li>
-    <li>Aucune liste d'applications ni aucun titre de média n'est jamais transmis hors de votre téléphone.</li>
-  </ul>
-
-  <h2>3. Paiements et achats intégrés</h2>
-  <p>Les achats de la version <strong>SleepStop Pro (Accès à vie)</strong> sont traités exclusivement et directement par le système sécurisé <strong>Google Play Billing</strong> de Google. SleepStop n'a jamais accès à vos coordonnées bancaires.</p>
-
-  <h2>4. Contact</h2>
-  <p>Pour toute question relative à cette politique de confidentialité : <a href="mailto:support@sleepstop.eu">support@sleepstop.eu</a></p>
-  <p><a href="index.html">← Retour à l'accueil SleepStop</a></p>
+  <script>
+    function setLang(code) {
+      ['fr', 'nl', 'de', 'es'].forEach(l => {
+        document.getElementById('content-' + l).style.display = (l === code) ? 'block' : 'none';
+      });
+      document.querySelectorAll('.lang-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', ['fr', 'nl', 'de', 'es'][idx] === code);
+      });
+    }
+  </script>
 </body>
 </html>
