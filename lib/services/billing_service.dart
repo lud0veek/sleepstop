@@ -269,66 +269,65 @@ class BillingNotifier extends Notifier<BillingState> {
       return false;
     }
 
-    // Check against Firestore vip_codes collection (so deleted or suspended codes are rejected)
+    // The signature above is only a cheap format check (the salt ships in the
+    // APK). The real gate is Firestore: the code must exist AND be active.
+    // No offline fallback: without network, redemption is refused.
     final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 4);
+      ..connectionTimeout = const Duration(seconds: 6);
     try {
       final getUri = Uri.parse('$_firestoreBase/vip_codes/$cleaned');
       final getReq = await client.getUrl(getUri);
-      final getResp = await getReq.close().timeout(const Duration(seconds: 4));
+      final getResp = await getReq.close().timeout(const Duration(seconds: 6));
 
-      if (getResp.statusCode == 404) {
-        // Code was deleted or never saved in Admin Console
+      if (getResp.statusCode != 200) {
+        // 404 = deleted or never issued; anything else = refuse rather than trust.
         return false;
       }
 
-      if (getResp.statusCode == 200) {
-        final body = await getResp.transform(utf8.decoder).join();
-        final data = jsonDecode(body) as Map<String, dynamic>;
-        final fields = data['fields'] as Map<String, dynamic>?;
-        final active =
-            (fields?['active'] as Map<String, dynamic>?)?['booleanValue']
-                as bool? ??
-            true;
-        if (!active) {
-          return false;
-        }
-
-        // Increment usesCount and set lastUsedAt in Firestore
-        final commitUri = Uri.parse('$_firestoreBase:commit');
-        final commitReq = await client.postUrl(commitUri);
-        commitReq.headers.set(
-          HttpHeaders.contentTypeHeader,
-          'application/json',
-        );
-        final commitPayload = jsonEncode({
-          'writes': [
-            {
-              'transform': {
-                'document':
-                    'projects/sleepstop-eu/databases/(default)/documents/vip_codes/$cleaned',
-                'fieldTransforms': [
-                  {
-                    'fieldPath': 'usesCount',
-                    'increment': {'integerValue': '1'},
-                  },
-                  {
-                    'fieldPath': 'lastUsedAt',
-                    'setToServerValue': 'REQUEST_TIME',
-                  },
-                ],
-              },
-            },
-          ],
-        });
-        commitReq.add(utf8.encode(commitPayload));
-        final commitResp = await commitReq.close().timeout(
-          const Duration(seconds: 4),
-        );
-        await commitResp.drain<void>();
+      final body = await getResp.transform(utf8.decoder).join();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final fields = data['fields'] as Map<String, dynamic>?;
+      final active =
+          (fields?['active'] as Map<String, dynamic>?)?['booleanValue']
+              as bool? ??
+          false;
+      if (!active) {
+        return false;
       }
+
+      // Increment usesCount and set lastUsedAt in Firestore (the security
+      // rules only allow exactly +1 on these two fields for anonymous writes).
+      final commitUri = Uri.parse('$_firestoreBase:commit');
+      final commitReq = await client.postUrl(commitUri);
+      commitReq.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+      final commitPayload = jsonEncode({
+        'writes': [
+          {
+            'transform': {
+              'document':
+                  'projects/sleepstop-eu/databases/(default)/documents/vip_codes/$cleaned',
+              'fieldTransforms': [
+                {
+                  'fieldPath': 'usesCount',
+                  'increment': {'integerValue': '1'},
+                },
+                {
+                  'fieldPath': 'lastUsedAt',
+                  'setToServerValue': 'REQUEST_TIME',
+                },
+              ],
+            },
+          },
+        ],
+      });
+      commitReq.add(utf8.encode(commitPayload));
+      final commitResp = await commitReq.close().timeout(
+        const Duration(seconds: 6),
+      );
+      await commitResp.drain<void>();
     } catch (_) {
-      // If device has no internet connection during redemption, allow valid cryptographic signature
+      // Offline or Firestore unreachable: refuse (user can retry when online).
+      return false;
     } finally {
       client.close();
     }

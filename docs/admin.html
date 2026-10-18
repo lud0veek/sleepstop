@@ -550,14 +550,13 @@
 </head>
 <body>
   <div class="container">
-    <!-- PIN Gate -->
+    <!-- Google Sign-In Gate -->
     <div id="loginGate" class="card">
       <img src="/icon-512.png?v=2" alt="SleepStop" style="width:64px;height:64px;border-radius:16px;margin-bottom:14px;border:1px solid rgba(255,179,0,0.4);" />
       <h2 class="card-title" style="text-align:center;margin-bottom:8px;">Console Admin SleepStop</h2>
-      <p class="sub">Entre ton code PIN administrateur pour accéder aux statistiques temps réel (Firestore Belgique) et au gestionnaire de codes VIP.</p>
-      <input type="password" id="pinInput" placeholder="Code PIN (ex: 2026)" style="margin-bottom:12px;" onkeydown="if(event.key==='Enter') unlockAdmin()" />
-      <button class="btn" style="width:100%;" onclick="unlockAdmin()">Déverrouiller le Dashboard</button>
-      <p id="pinError" style="color:var(--orange);font-size:0.84rem;margin-top:10px;display:none;">Code PIN incorrect.</p>
+      <p class="sub">Connecte-toi avec ton compte Google administrateur pour accéder aux statistiques temps réel (Firestore Belgique) et au gestionnaire de codes VIP.</p>
+      <button class="btn" style="width:100%;" id="googleSignInBtn" onclick="signInWithGoogle()">Se connecter avec Google</button>
+      <p id="authError" style="color:var(--orange);font-size:0.84rem;margin-top:10px;display:none;word-break:break-all;"></p>
     </div>
 
     <!-- Main Dashboard -->
@@ -574,7 +573,9 @@
         </div>
         <div class="header-actions">
           <span class="badge" id="syncStatusBadge">● En direct</span>
+          <span class="badge" id="adminWho" title="Compte administrateur connecté"></span>
           <button class="btn-sm" onclick="refreshAll()">↻ Actualiser</button>
+          <button class="btn-sm" onclick="signOutAdmin()">⎋ Déconnexion</button>
           <a href="/" class="btn-sm">🌐 Site Vitrine</a>
           <a href="/privacy" class="btn-sm" style="color:var(--teal);border-color:rgba(38,166,154,0.4);">🇧🇪 Page RGPD</a>
         </div>
@@ -779,12 +780,35 @@
   <!-- Toast Notification -->
   <div class="toast" id="toastBox">✓ Action effectuée</div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script>
-    const ADMIN_PIN = "2026";
+    // Public web config (safe to expose): access is enforced by Firestore
+    // security rules, which require a signed-in user listed in /admins/{uid}.
+    firebase.initializeApp({
+      apiKey: "AIzaSyDoBORYTTXyqDXTJlRmhge_UCHbVrm3SO4",
+      authDomain: "sleepstop-eu.firebaseapp.com",
+      projectId: "sleepstop-eu",
+      appId: "1:1056900775146:web:f86c25866732765afdab93"
+    });
+    const auth = firebase.auth();
+
+    // VIP_SALT is only a client-side format check (it also ships inside the
+    // APK). The real gate is the Firestore document: a code must exist and be
+    // active, and only admins can create one.
     const VIP_SALT = "SLEEPSTOP_LUDO_2026_VIP";
     const FIRESTORE_BASE = "https://firestore.googleapis.com/v1/projects/sleepstop-eu/databases/(default)/documents";
     let refreshInterval = null;
     let editingVipCode = null;
+
+    // Every Firestore call carries the Firebase ID token of the signed-in admin.
+    async function authedFetch(url, options = {}) {
+      const user = auth.currentUser;
+      if (!user) throw new Error("not-signed-in");
+      const token = await user.getIdToken();
+      const headers = Object.assign({}, options.headers || {}, { Authorization: "Bearer " + token });
+      return fetch(url, Object.assign({}, options, { headers }));
+    }
 
     function showToast(msg) {
       const box = document.getElementById("toastBox");
@@ -801,17 +825,67 @@
       showToast(toastMessage || ("Copié : " + text));
     }
 
-    function unlockAdmin() {
-      const val = document.getElementById("pinInput").value.trim();
-      if (val === ADMIN_PIN) {
-        document.getElementById("loginGate").style.display = "none";
-        document.getElementById("adminPanel").style.display = "block";
-        refreshAll();
-        refreshInterval = setInterval(refreshAll, 15000);
-      } else {
-        document.getElementById("pinError").style.display = "block";
+    function showAuthError(msg) {
+      const el = document.getElementById("authError");
+      el.innerHTML = msg;
+      el.style.display = "block";
+    }
+
+    async function signInWithGoogle() {
+      document.getElementById("authError").style.display = "none";
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithPopup(provider);
+        // onAuthStateChanged takes over from here.
+      } catch (e) {
+        showAuthError("Connexion impossible : " + (e && e.code ? e.code : e));
       }
     }
+
+    async function signOutAdmin() {
+      clearInterval(refreshInterval);
+      refreshInterval = null;
+      await auth.signOut();
+    }
+
+    // Verifies the signed-in user is listed in /admins/{uid} (rules enforce it).
+    async function checkAdminAccess(user) {
+      const res = await authedFetch(`${FIRESTORE_BASE}/admins/${user.uid}`);
+      return res.ok;
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      const gate = document.getElementById("loginGate");
+      const panel = document.getElementById("adminPanel");
+      if (!user) {
+        gate.style.display = "block";
+        panel.style.display = "none";
+        return;
+      }
+      let allowed = false;
+      try {
+        allowed = await checkAdminAccess(user);
+      } catch (_) {
+        allowed = false;
+      }
+      if (!allowed) {
+        showAuthError(
+          `Compte <strong>${user.email}</strong> non autorisé.<br/>` +
+          `Pour l'autoriser : Firebase Console → Firestore → collection <code>admins</code> → ` +
+          `créer un document dont l'ID est exactement :<br/><code>${user.uid}</code>` +
+          `<br/><button class="btn-sm" style="margin-top:8px;" onclick="copyText('${user.uid}', 'UID copié')">📋 Copier l'UID</button>` +
+          ` <button class="btn-sm" style="margin-top:8px;" onclick="signOutAdmin()">Changer de compte</button>`
+        );
+        return;
+      }
+      gate.style.display = "none";
+      panel.style.display = "block";
+      const who = document.getElementById("adminWho");
+      if (who) who.textContent = user.email;
+      refreshAll();
+      clearInterval(refreshInterval);
+      refreshInterval = setInterval(refreshAll, 15000);
+    });
 
     function refreshAll() {
       fetchTelemetry();
@@ -859,7 +933,7 @@
       const code = makeRandomVipCode();
       const nowIso = new Date().toISOString();
 
-      await fetch(`${FIRESTORE_BASE}/vip_codes/${code}`, {
+      await authedFetch(`${FIRESTORE_BASE}/vip_codes/${code}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -882,7 +956,7 @@
     async function fetchVipCodes() {
       const tbody = document.getElementById("vipTableBody");
       try {
-        const res = await fetch(`${FIRESTORE_BASE}/vip_codes?pageSize=100`);
+        const res = await authedFetch(`${FIRESTORE_BASE}/vip_codes?pageSize=100`);
         if (!res.ok) {
           tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-secondary);text-align:center;">Erreur de lecture Firestore.</td></tr>`;
           return;
@@ -952,7 +1026,7 @@
       const trimmed = document.getElementById("editModalInput").value.trim() || "Sans nom";
       closeEditModal();
 
-      await fetch(`${FIRESTORE_BASE}/vip_codes/${code}?updateMask.fieldPaths=label`, {
+      await authedFetch(`${FIRESTORE_BASE}/vip_codes/${code}?updateMask.fieldPaths=label`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -966,7 +1040,7 @@
     }
 
     async function toggleVipActive(code, nextActive) {
-      await fetch(`${FIRESTORE_BASE}/vip_codes/${code}?updateMask.fieldPaths=active`, {
+      await authedFetch(`${FIRESTORE_BASE}/vip_codes/${code}?updateMask.fieldPaths=active`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -983,7 +1057,7 @@
       if (!confirm(`Supprimer définitivement le code ${code} ?\n(Si un téléphone utilisait ce code, son accès VIP Pro sera automatiquement révoqué.)`)) {
         return;
       }
-      await fetch(`${FIRESTORE_BASE}/vip_codes/${code}`, {
+      await authedFetch(`${FIRESTORE_BASE}/vip_codes/${code}`, {
         method: "DELETE"
       });
       showToast(`Code ${code} supprimé`);
@@ -996,9 +1070,9 @@
       try {
         const today = new Date().toISOString().slice(0, 10);
         const [globalRes, todayRes, eventsRes] = await Promise.all([
-          fetch(FIRESTORE_BASE + "/stats/global"),
-          fetch(FIRESTORE_BASE + "/daily/" + today),
-          fetch(FIRESTORE_BASE + "/events?pageSize=20")
+          authedFetch(FIRESTORE_BASE + "/stats/global"),
+          authedFetch(FIRESTORE_BASE + "/daily/" + today),
+          authedFetch(FIRESTORE_BASE + "/events?pageSize=20")
         ]);
 
         const globalData = globalRes.ok ? await globalRes.json() : {};
@@ -1118,7 +1192,7 @@
       const baseDoc = "projects/sleepstop-eu/databases/(default)/documents";
       const today = new Date().toISOString().slice(0, 10);
       const evtId = "evt_" + Date.now();
-      await fetch("https://firestore.googleapis.com/v1/" + baseDoc + ":commit", {
+      await authedFetch("https://firestore.googleapis.com/v1/" + baseDoc + ":commit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

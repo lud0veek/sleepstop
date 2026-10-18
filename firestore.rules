@@ -1,30 +1,95 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // GDPR-compliant anonymous aggregate counters (Saint-Ghislain, Belgium - europe-west1)
+
+    // ------------------------------------------------------------------
+    // Admin = a Google-signed-in user whose UID has a document in /admins.
+    // Create that document manually in the Firebase console (no client
+    // can write it). The admin console shows the UID after sign-in.
+    // ------------------------------------------------------------------
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function createdKeysOnly(keys) {
+      return request.resource.data.keys().hasOnly(keys);
+    }
+
+    function updatedKeysOnly(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    function globalCounterKeys() {
+      return [
+        'totalInstalls', 'lang_fr', 'lang_nl', 'lang_de', 'lang_es',
+        'totalSessionsStarted', 'watchModeSessions', 'phoneModeSessions',
+        'totalSleepDetected', 'totalListeningMinutes',
+        'app_Audible', 'app_YouTube', 'app_Spotify', 'app_Netflix',
+        'app_Twitch', 'app_Other',
+        'proUnlocks', 'vipRedeemed', 'lastUpdatedAt'
+      ];
+    }
+
+    match /admins/{adminId} {
+      allow read: if request.auth != null && request.auth.uid == adminId;
+      allow write: if false;
+    }
+
+    // GDPR-compliant anonymous aggregate counters (europe-west1, Belgium).
+    // The app writes only via field transforms on a fixed set of counters.
     match /stats/global {
-      allow read: if true;
-      allow create, update: if true;
+      allow read: if isAdmin();
+      allow create: if createdKeysOnly(globalCounterKeys());
+      allow update: if updatedKeysOnly(globalCounterKeys());
       allow delete: if false;
     }
 
+
     // Anonymous daily aggregate counters (YYYY-MM-DD)
     match /daily/{dayId} {
-      allow read: if true;
-      allow create, update: if dayId.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+      allow read: if isAdmin();
+      allow create: if dayId.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && createdKeysOnly(['activeInstalls', 'sessionsStarted', 'sleepDetected']);
+      allow update: if dayId.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && updatedKeysOnly(['activeInstalls', 'sessionsStarted', 'sleepDetected']);
       allow delete: if false;
     }
 
     // Anonymous non-PII event stream (no IP, no heart rate values, no user IDs)
     match /events/{eventId} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasOnly(['type', 'mode', 'lang', 'mediaApp', 'durationMin', 'createdAt']);
+      allow read: if isAdmin();
+      allow create: if eventId.matches('^evt_[0-9]{10,16}$')
+        && createdKeysOnly(['type', 'mode', 'lang', 'mediaApp', 'durationMin', 'createdAt'])
+        && request.resource.data.type in ['session_start', 'sleep_detected', 'vip_redeemed', 'pro_unlock']
+        && request.resource.data.mode in ['watch_ble', 'phone_shake', 'none']
+        && request.resource.data.lang in ['fr', 'nl', 'de', 'es']
+        && request.resource.data.createdAt is string
+        && request.resource.data.createdAt.size() <= 40
+        && (!('mediaApp' in request.resource.data)
+            || request.resource.data.mediaApp in ['Audible', 'YouTube', 'Spotify', 'Netflix', 'Twitch', 'Other'])
+        && (!('durationMin' in request.resource.data)
+            || (request.resource.data.durationMin is int
+                && request.resource.data.durationMin >= 1
+                && request.resource.data.durationMin <= 720));
       allow update, delete: if false;
     }
 
-    // Managed VIP Promo Codes (CRUD from Admin Console + validation/redemption from App)
+    // Managed VIP promo codes.
+    // - Admin console (signed in): full CRUD.
+    // - App (anonymous): may GET a single code to validate it, and may only
+    //   bump usesCount by exactly 1 (+ lastUsedAt) on an active code.
     match /vip_codes/{codeId} {
-      allow read, create, update, delete: if codeId.matches('^SS-VIP-[A-Z0-9]{4}-[A-Z0-9]{4}$');
+      allow get: if codeId.matches('^SS-VIP-[A-Z0-9]{4}-[A-Z0-9]{4}$');
+      allow list: if isAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (
+          codeId.matches('^SS-VIP-[A-Z0-9]{4}-[A-Z0-9]{4}$')
+          && resource.data.active == true
+          && updatedKeysOnly(['usesCount', 'lastUsedAt'])
+          && request.resource.data.usesCount == resource.data.get('usesCount', 0) + 1
+        );
     }
   }
 }

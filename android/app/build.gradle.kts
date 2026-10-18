@@ -32,7 +32,8 @@ android {
     defaultConfig {
         applicationId = "com.sleepstop.sleep_stop"
         minSdk = 26
-        targetSdk = 35
+        // Google Play requires API 36 (Android 16) for new apps since 31 Aug 2026.
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -55,12 +56,11 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
-        }
-    }
-
-    packaging {
-        jniLibs {
-            keepDebugSymbols += "**/*.so"
+            // Ship native symbol tables to Play Console (crash symbolication) as a
+            // separate bundle entry instead of keeping unstripped .so files in the APKs.
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
         }
     }
 }
