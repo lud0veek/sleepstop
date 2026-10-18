@@ -76,7 +76,17 @@ class SleepSettings {
   final String? redeemedVipCode;
   final bool anonymousTelemetryEnabled;
 
+  /// Nights where sleep onset was detected while not Pro. Persisted here (not
+  /// derived from the history) so clearing the history cannot reset the trial.
+  final int trialNightsUsed;
+
+  /// True once the first-start permission explainer has been shown.
+  final bool onboardingPermissionsShown;
+
   static const int totalFreeTrialNights = 5;
+
+  int get remainingTrialNights =>
+      (totalFreeTrialNights - trialNightsUsed).clamp(0, totalFreeTrialNights);
 
   const SleepSettings({
     this.preferredMode = DetectionMode.watchBle,
@@ -99,6 +109,8 @@ class SleepSettings {
     this.isProUnlocked = false,
     this.redeemedVipCode,
     this.anonymousTelemetryEnabled = true,
+    this.trialNightsUsed = 0,
+    this.onboardingPermissionsShown = false,
   });
 
   SleepSettings copyWith({
@@ -124,6 +136,8 @@ class SleepSettings {
     String? redeemedVipCode,
     bool clearRedeemedVipCode = false,
     bool? anonymousTelemetryEnabled,
+    int? trialNightsUsed,
+    bool? onboardingPermissionsShown,
   }) {
     return SleepSettings(
       preferredMode: preferredMode ?? this.preferredMode,
@@ -155,6 +169,9 @@ class SleepSettings {
           : (redeemedVipCode ?? this.redeemedVipCode),
       anonymousTelemetryEnabled:
           anonymousTelemetryEnabled ?? this.anonymousTelemetryEnabled,
+      trialNightsUsed: trialNightsUsed ?? this.trialNightsUsed,
+      onboardingPermissionsShown:
+          onboardingPermissionsShown ?? this.onboardingPermissionsShown,
     );
   }
 
@@ -180,6 +197,8 @@ class SleepSettings {
       'isProUnlocked': isProUnlocked,
       'redeemedVipCode': redeemedVipCode,
       'anonymousTelemetryEnabled': anonymousTelemetryEnabled,
+      'trialNightsUsed': trialNightsUsed,
+      'onboardingPermissionsShown': onboardingPermissionsShown,
     };
   }
 
@@ -235,6 +254,9 @@ class SleepSettings {
       redeemedVipCode: json['redeemedVipCode'] as String?,
       anonymousTelemetryEnabled:
           json['anonymousTelemetryEnabled'] as bool? ?? true,
+      trialNightsUsed: (json['trialNightsUsed'] as num?)?.toInt() ?? 0,
+      onboardingPermissionsShown:
+          json['onboardingPermissionsShown'] as bool? ?? false,
     );
   }
 

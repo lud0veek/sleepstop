@@ -140,8 +140,26 @@ class SettingsNotifier extends Notifier<SleepSettings> {
   Future<void> setAnonymousTelemetryEnabled(bool enabled) =>
       _update(state.copyWith(anonymousTelemetryEnabled: enabled));
 
+  /// Called once per detected sleep onset while the user is not Pro.
+  Future<void> consumeTrialNight() {
+    if (state.isProUnlocked) return Future.value();
+    return _update(state.copyWith(trialNightsUsed: state.trialNightsUsed + 1));
+  }
+
+  Future<void> markOnboardingPermissionsShown() =>
+      _update(state.copyWith(onboardingPermissionsShown: true));
+
+  /// Resets tuning and learned data, but keeps entitlement, trial usage,
+  /// language and onboarding state (those must survive a "reset").
   Future<void> resetAllSettingsAndLearnedData() async {
-    const fresh = SleepSettings();
+    final fresh = SleepSettings(
+      languageCode: state.languageCode,
+      isProUnlocked: state.isProUnlocked,
+      redeemedVipCode: state.redeemedVipCode,
+      anonymousTelemetryEnabled: state.anonymousTelemetryEnabled,
+      trialNightsUsed: state.trialNightsUsed,
+      onboardingPermissionsShown: state.onboardingPermissionsShown,
+    );
     state = fresh;
     await _storage.saveSettings(fresh);
   }

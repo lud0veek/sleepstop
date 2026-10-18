@@ -3,10 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_strings.dart';
 import '../models/active_session_state.dart';
 import '../models/sleep_settings.dart';
-import '../providers/session_logs_provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/permission_service.dart';
 import '../providers/sleep_session_provider.dart';
 import 'privacy_sheet.dart';
+import 'permission_primer_sheet.dart';
 import 'pro_unlock_sheet.dart';
 import 'settings_bottom_sheet.dart';
 import 'target_apps_sheet.dart';
@@ -34,15 +35,10 @@ class DashboardTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(sleepSessionProvider);
     final settings = ref.watch(settingsProvider);
-    final logs = ref.watch(sessionLogsProvider);
     final s = ref.watch(appStringsProvider);
     final notifier = ref.read(sleepSessionProvider.notifier);
 
-    final remainingTrialNights =
-        (SleepSettings.totalFreeTrialNights - logs.length).clamp(
-          0,
-          SleepSettings.totalFreeTrialNights,
-        );
+    final remainingTrialNights = settings.remainingTrialNights;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
@@ -65,6 +61,7 @@ class DashboardTab extends ConsumerWidget {
 
         _buildPrimarySessionButton(
           context: context,
+          ref: ref,
           session: session,
           settings: settings,
           remainingTrialNights: remainingTrialNights,
@@ -474,6 +471,7 @@ class DashboardTab extends ConsumerWidget {
 
   Widget _buildPrimarySessionButton({
     required BuildContext context,
+    required WidgetRef ref,
     required ActiveSessionState session,
     required SleepSettings settings,
     required int remainingTrialNights,
@@ -495,13 +493,22 @@ class DashboardTab extends ConsumerWidget {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(26),
-              onTap: () {
+              onTap: () async {
                 if (isRunning) {
                   notifier.stopSession();
                 } else if (!settings.isProUnlocked &&
                     remainingTrialNights <= 0) {
                   ProUnlockSheet.show(context);
                 } else {
+                  if (!settings.onboardingPermissionsShown) {
+                    final proceed = await PermissionPrimerSheet.show(context);
+                    if (!proceed) return;
+                    await ref
+                        .read(settingsProvider.notifier)
+                        .markOnboardingPermissionsShown();
+                    await PermissionService.instance
+                        .requestAllRequiredPermissions();
+                  }
                   notifier.startSession();
                 }
               },

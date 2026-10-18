@@ -39,14 +39,17 @@ class ForegroundTaskService {
 
   bool _initialized = false;
 
-  void init() {
+  /// Localized label of the "stop" action button, set by the session provider.
+  String stopButtonLabel = 'Stop';
+
+  void init({String? channelName, String? channelDescription}) {
     if (_initialized) return;
     FlutterForegroundTask.initCommunicationPort();
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'sleepstop_active_monitoring',
-        channelName: 'SleepStop Active Monitoring',
-        channelDescription:
+        channelName: channelName ?? 'SleepStop',
+        channelDescription: channelDescription ??
             'Keeps heart rate and motion sleep detection active while screen is off.',
         channelImportance: NotificationChannelImportance.LOW,
         priority: NotificationPriority.LOW,
@@ -82,7 +85,7 @@ class ForegroundTaskService {
           notificationTitle: title,
           notificationText: text,
           notificationButtons: [
-            const NotificationButton(id: 'stop_session', text: 'Stop Session'),
+            NotificationButton(id: 'stop_session', text: stopButtonLabel),
           ],
         );
       } else {
@@ -95,7 +98,7 @@ class ForegroundTaskService {
           notificationTitle: title,
           notificationText: text,
           notificationButtons: [
-            const NotificationButton(id: 'stop_session', text: 'Stop Session'),
+            NotificationButton(id: 'stop_session', text: stopButtonLabel),
           ],
           callback: startSleepStopForegroundCallback,
         );
@@ -113,7 +116,7 @@ class ForegroundTaskService {
           notificationTitle: title,
           notificationText: text,
           notificationButtons: [
-            const NotificationButton(id: 'stop_session', text: 'Stop Session'),
+            NotificationButton(id: 'stop_session', text: stopButtonLabel),
           ],
         );
       }

@@ -46,7 +46,9 @@ class SleepStopTileService : TileService() {
         fun getTileSubtitle(context: Context): String {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             return prefs.getString(KEY_SUBTITLE, null)
-                ?: if (isTileMarkedActive(context)) "Veille active" else "Prêt à veiller"
+                ?: context.getString(
+                    if (isTileMarkedActive(context)) R.string.tile_active else R.string.tile_ready
+                )
         }
     }
 
@@ -69,12 +71,13 @@ class SleepStopTileService : TileService() {
 
         if (handledInBackground) {
             val nextActive = !currentlyActive
-            val nextSubtitle = if (nextActive) "Démarrage..." else "Arrêté"
+            // Dart will push the localized subtitle right after the toggle.
+            val nextSubtitle = getString(if (nextActive) R.string.tile_active else R.string.tile_ready)
             updateTileState(applicationContext, nextActive, nextSubtitle)
             refreshTileUi()
         } else {
             // Cold start: launch MainActivity and instruct it to start the sleep session automatically
-            updateTileState(applicationContext, true, "Démarrage...")
+            updateTileState(applicationContext, true, getString(R.string.tile_active))
             refreshTileUi()
             launchMainActivityAndCollapse()
         }

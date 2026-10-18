@@ -726,4 +726,359 @@ class AppStrings {
     de: 'Auslöser: ',
     es: 'Activador: ',
   );
+
+  // ===========================================================================
+  // Foreground-service notification, Quick Settings tile & morning summary
+  // (these leave the Flutter UI, so they must be localized explicitly)
+  // ===========================================================================
+  String get stopSessionButton => tr(
+    fr: 'Arrêter la veille',
+    nl: 'Bewaking stoppen',
+    de: 'Überwachung beenden',
+    es: 'Detener la vigilancia',
+  );
+
+  String get fgTitleWatch => tr(
+    fr: 'SleepStop • Mode montre biométrique',
+    nl: 'SleepStop • Biometrische horlogemodus',
+    de: 'SleepStop • Biometrischer Uhrmodus',
+    es: 'SleepStop • Modo reloj biométrico',
+  );
+
+  String get fgTitlePhone => tr(
+    fr: 'SleepStop • Mode téléphone (fondu & secousse)',
+    nl: 'SleepStop • Telefoonmodus (fade & schud)',
+    de: 'SleepStop • Telefonmodus (Fade & Schütteln)',
+    es: 'SleepStop • Modo teléfono (fundido y sacudida)',
+  );
+
+  String get fgConnectingWatch => tr(
+    fr: 'Connexion à la montre cardio (BLE)…',
+    nl: 'Verbinden met hartslaghorloge (BLE)…',
+    de: 'Verbindung zur Pulsuhr (BLE)…',
+    es: 'Conectando al reloj cardíaco (BLE)…',
+  );
+
+  String get fgSimulatedWatch => tr(
+    fr: 'Surveillance d\'un pouls simulé…',
+    nl: 'Gesimuleerde hartslag wordt bewaakt…',
+    de: 'Simulierter Puls wird überwacht…',
+    es: 'Vigilando un pulso simulado…',
+  );
+
+  String fgBpmTitle(String bpmLabel, int threshold) => tr(
+    fr: 'SleepStop • $bpmLabel (cible ≤ $threshold BPM)',
+    nl: 'SleepStop • $bpmLabel (doel ≤ $threshold BPM)',
+    de: 'SleepStop • $bpmLabel (Ziel ≤ $threshold BPM)',
+    es: 'SleepStop • $bpmLabel (objetivo ≤ $threshold BPM)',
+  );
+
+  String fgCalibrating(int secondsLeft) => tr(
+    fr: 'Calibration du pouls éveillé (${secondsLeft}s)…',
+    nl: 'Kalibratie wakkere hartslag (${secondsLeft}s)…',
+    de: 'Kalibrierung des Wachpulses (${secondsLeft}s)…',
+    es: 'Calibrando el pulso despierto (${secondsLeft}s)…',
+  );
+
+  String get fgMonitoring => tr(
+    fr: 'Surveillance en cours…',
+    nl: 'Bewaking actief…',
+    de: 'Überwachung läuft…',
+    es: 'Vigilancia en curso…',
+  );
+
+  String get fgStabilizing => tr(
+    fr: 'Stabilisation du pouls…',
+    nl: 'Hartslag stabiliseert…',
+    de: 'Puls stabilisiert sich…',
+    es: 'Estabilizando el pulso…',
+  );
+
+  String fgSleepOnset(int currentMin, int totalMin) => tr(
+    fr: 'Endormissement en cours ($currentMin/$totalMin min)…',
+    nl: 'Inslapen gedetecteerd ($currentMin/$totalMin min)…',
+    de: 'Einschlafen erkannt ($currentMin/$totalMin min)…',
+    es: 'Conciliando el sueño ($currentMin/$totalMin min)…',
+  );
+
+  String fgSleepConfirmedTitle(int bpm) => tr(
+    fr: 'SleepStop • Sommeil confirmé ($bpm BPM)',
+    nl: 'SleepStop • Slaap bevestigd ($bpm BPM)',
+    de: 'SleepStop • Schlaf bestätigt ($bpm BPM)',
+    es: 'SleepStop • Sueño confirmado ($bpm BPM)',
+  );
+
+  String fgFadingBody(int seconds) => tr(
+    fr: 'Fondu sonore sur $seconds secondes…',
+    nl: 'Geluid vervaagt over $seconds seconden…',
+    de: 'Ton wird über $seconds Sekunden ausgeblendet…',
+    es: 'Atenuando el sonido durante $seconds segundos…',
+  );
+
+  String get fgFadingTitle60 => tr(
+    fr: 'SleepStop • Fondu sonore (60 s)',
+    nl: 'SleepStop • Geluid vervaagt (60 s)',
+    de: 'SleepStop • Ton wird ausgeblendet (60 s)',
+    es: 'SleepStop • Fundido de sonido (60 s)',
+  );
+
+  String get fgFadingNudge => tr(
+    fr: 'Bouge ou tapote ton téléphone pour continuer à écouter !',
+    nl: 'Beweeg of tik op je telefoon om verder te luisteren!',
+    de: 'Bewege oder tippe dein Telefon an, um weiterzuhören!',
+    es: '¡Mueve o toca tu teléfono para seguir escuchando!',
+  );
+
+  String fgNextCheck(int minutes) => tr(
+    fr: 'Prochain contrôle sonore dans $minutes min',
+    nl: 'Volgende geluidscontrole over $minutes min',
+    de: 'Nächste Tonprüfung in $minutes Min.',
+    es: 'Próxima comprobación de sonido en $minutes min',
+  );
+
+  String get fgMovementTitle => tr(
+    fr: 'SleepStop • Mouvement détecté !',
+    nl: 'SleepStop • Beweging gedetecteerd!',
+    de: 'SleepStop • Bewegung erkannt!',
+    es: 'SleepStop • ¡Movimiento detectado!',
+  );
+
+  String fgMovementBody(int minutes) => tr(
+    fr: 'Volume restauré. Compte à rebours relancé à $minutes min.',
+    nl: 'Volume hersteld. Aftellen opnieuw gestart op $minutes min.',
+    de: 'Lautstärke wiederhergestellt. Countdown auf $minutes Min. zurückgesetzt.',
+    es: 'Volumen restaurado. Cuenta atrás reiniciada a $minutes min.',
+  );
+
+  // Quick Settings tile subtitles
+  String get tileReady => tr(
+    fr: 'Prêt à veiller',
+    nl: 'Klaar om te waken',
+    de: 'Bereit zu wachen',
+    es: 'Listo para vigilar',
+  );
+
+  String get tileActive => tr(
+    fr: 'Veille active',
+    nl: 'Bewaking actief',
+    de: 'Überwachung aktiv',
+    es: 'Vigilancia activa',
+  );
+
+  String get tileConnectingWatch => tr(
+    fr: 'Connexion montre…',
+    nl: 'Horloge verbinden…',
+    de: 'Uhr verbinden…',
+    es: 'Conectando reloj…',
+  );
+
+  String get tileSimulatedActive => tr(
+    fr: 'Veille simulée active',
+    nl: 'Gesimuleerde bewaking actief',
+    de: 'Simulierte Überwachung aktiv',
+    es: 'Vigilancia simulada activa',
+  );
+
+  String get tileWatchNotFound => tr(
+    fr: 'Montre non trouvée',
+    nl: 'Horloge niet gevonden',
+    de: 'Uhr nicht gefunden',
+    es: 'Reloj no encontrado',
+  );
+
+  String tileActiveWatch(String watchName) => tr(
+    fr: 'Actif • $watchName',
+    nl: 'Actief • $watchName',
+    de: 'Aktiv • $watchName',
+    es: 'Activo • $watchName',
+  );
+
+  String tileActiveBpm(String bpmLabel, int threshold) => tr(
+    fr: 'Actif • $bpmLabel (≤$threshold)',
+    nl: 'Actief • $bpmLabel (≤$threshold)',
+    de: 'Aktiv • $bpmLabel (≤$threshold)',
+    es: 'Activo • $bpmLabel (≤$threshold)',
+  );
+
+  String tileActiveCheck(int minutes) => tr(
+    fr: 'Actif • Contrôle dans ${minutes}m',
+    nl: 'Actief • Controle over ${minutes}m',
+    de: 'Aktiv • Prüfung in ${minutes}m',
+    es: 'Activo • Control en ${minutes}m',
+  );
+
+  String tileSleepDetectedBpm(int bpm) => tr(
+    fr: 'Sommeil détecté ($bpm BPM)',
+    nl: 'Slaap gedetecteerd ($bpm BPM)',
+    de: 'Schlaf erkannt ($bpm BPM)',
+    es: 'Sueño detectado ($bpm BPM)',
+  );
+
+  String get tileSleepDetectedPaused => tr(
+    fr: 'Sommeil détecté • Pause',
+    nl: 'Slaap gedetecteerd • Pauze',
+    de: 'Schlaf erkannt • Pause',
+    es: 'Sueño detectado • Pausa',
+  );
+
+  // History trigger reasons (stored in the log at detection time)
+  String triggerReasonHr(int bpm, {double? baselineBpm, double? stdDevBpm}) {
+    final from = baselineBpm != null
+        ? tr(
+            fr: ' depuis ${baselineBpm.toStringAsFixed(0)} BPM',
+            nl: ' vanaf ${baselineBpm.toStringAsFixed(0)} BPM',
+            de: ' von ${baselineBpm.toStringAsFixed(0)} BPM',
+            es: ' desde ${baselineBpm.toStringAsFixed(0)} BPM',
+          )
+        : '';
+    final plateau = stdDevBpm != null
+        ? tr(
+            fr: ' (plateau ±${stdDevBpm.toStringAsFixed(1)} BPM)',
+            nl: ' (plateau ±${stdDevBpm.toStringAsFixed(1)} BPM)',
+            de: ' (Plateau ±${stdDevBpm.toStringAsFixed(1)} BPM)',
+            es: ' (meseta ±${stdDevBpm.toStringAsFixed(1)} BPM)',
+          )
+        : '';
+    return tr(
+      fr: 'Pouls stabilisé à $bpm BPM$from$plateau',
+      nl: 'Hartslag gestabiliseerd op $bpm BPM$from$plateau',
+      de: 'Puls stabil bei $bpm BPM$from$plateau',
+      es: 'Pulso estabilizado en $bpm BPM$from$plateau',
+    );
+  }
+
+  String get triggerReasonFade => tr(
+    fr: 'Aucune réaction au fondu sonore',
+    nl: 'Geen reactie op het vervagende geluid',
+    de: 'Keine Reaktion auf das Ausblenden',
+    es: 'Sin reacción al fundido de sonido',
+  );
+
+  // Morning summary notification
+  String summaryTitle(String asleepTime, String duration) => tr(
+    fr: 'Média mis en pause à $asleepTime • Reviens de $duration',
+    nl: 'Media gepauzeerd om $asleepTime • Spoel $duration terug',
+    de: 'Medien pausiert um $asleepTime • Spule $duration zurück',
+    es: 'Medios en pausa a las $asleepTime • Retrocede $duration',
+  );
+
+  String summaryBody(
+    String startTime,
+    String asleepTime,
+    String duration,
+    String reason,
+  ) => tr(
+    fr: 'Session : $startTime → $asleepTime ($duration écoutées). Raison : $reason.',
+    nl: 'Sessie: $startTime → $asleepTime ($duration geluisterd). Reden: $reason.',
+    de: 'Sitzung: $startTime → $asleepTime ($duration gehört). Grund: $reason.',
+    es: 'Sesión: $startTime → $asleepTime ($duration escuchados). Motivo: $reason.',
+  );
+
+  String get summaryChannelName => tr(
+    fr: 'Résumé du matin',
+    nl: 'Ochtendoverzicht',
+    de: 'Morgenzusammenfassung',
+    es: 'Resumen de la mañana',
+  );
+
+  String get summaryChannelDesc => tr(
+    fr: 'Indique quand le média a été mis en pause et de combien revenir en arrière.',
+    nl: 'Toont wanneer de media gepauzeerd werd en hoever je moet terugspoelen.',
+    de: 'Zeigt, wann die Wiedergabe pausiert wurde und wie weit zurückzuspulen ist.',
+    es: 'Indica cuándo se pausó el medio y cuánto retroceder.',
+  );
+
+  String get summaryFooter => tr(
+    fr: 'SleepStop • Aide au retour en arrière',
+    nl: 'SleepStop • Terugspoelhulp',
+    de: 'SleepStop • Zurückspul-Hilfe',
+    es: 'SleepStop • Ayuda para retroceder',
+  );
+
+  String get fgChannelName => tr(
+    fr: 'Veille SleepStop active',
+    nl: 'SleepStop-bewaking actief',
+    de: 'SleepStop-Überwachung aktiv',
+    es: 'Vigilancia SleepStop activa',
+  );
+
+  String get fgChannelDesc => tr(
+    fr: 'Maintient la détection du sommeil (pouls et mouvement) écran éteint.',
+    nl: 'Houdt slaapdetectie (hartslag en beweging) actief met het scherm uit.',
+    de: 'Hält die Schlaferkennung (Puls und Bewegung) bei ausgeschaltetem Bildschirm aktiv.',
+    es: 'Mantiene la detección del sueño (pulso y movimiento) con la pantalla apagada.',
+  );
+
+  // ===========================================================================
+  // First-start permission explainer
+  // ===========================================================================
+  String get permTitle => tr(
+    fr: 'Avant la première veille',
+    nl: 'Vóór de eerste bewaking',
+    de: 'Vor der ersten Überwachung',
+    es: 'Antes de la primera vigilancia',
+  );
+
+  String get permIntro => tr(
+    fr: 'SleepStop va te demander trois autorisations Android. Voici pourquoi chacune est nécessaire.',
+    nl: 'SleepStop vraagt je drie Android-toestemmingen. Dit is waarom elke nodig is.',
+    de: 'SleepStop fragt dich nach drei Android-Berechtigungen. Darum wird jede gebraucht.',
+    es: 'SleepStop te pedirá tres permisos de Android. Esto es por qué cada uno es necesario.',
+  );
+
+  String get permBluetoothTitle => tr(
+    fr: 'Appareils à proximité (Bluetooth)',
+    nl: 'Apparaten in de buurt (Bluetooth)',
+    de: 'Geräte in der Nähe (Bluetooth)',
+    es: 'Dispositivos cercanos (Bluetooth)',
+  );
+
+  String get permBluetoothBody => tr(
+    fr: 'Pour lire le pouls diffusé par ta montre. Utilisé uniquement en mode montre.',
+    nl: 'Om de hartslag van je horloge te lezen. Alleen gebruikt in horlogemodus.',
+    de: 'Um den von deiner Uhr gesendeten Puls zu lesen. Nur im Uhrmodus verwendet.',
+    es: 'Para leer el pulso que emite tu reloj. Solo se usa en modo reloj.',
+  );
+
+  String get permNotifTitle => tr(
+    fr: 'Notifications',
+    nl: 'Meldingen',
+    de: 'Benachrichtigungen',
+    es: 'Notificaciones',
+  );
+
+  String get permNotifBody => tr(
+    fr: 'Pour afficher la veille en cours et le résumé du matin (heure d\'endormissement, retour en arrière).',
+    nl: 'Om de lopende bewaking en het ochtendoverzicht te tonen (inslaaptijd, terugspoelen).',
+    de: 'Um die laufende Überwachung und die Morgenzusammenfassung anzuzeigen (Einschlafzeit, Zurückspulen).',
+    es: 'Para mostrar la vigilancia en curso y el resumen de la mañana (hora de dormirse, retroceso).',
+  );
+
+  String get permBatteryTitle => tr(
+    fr: 'Pas d\'optimisation de batterie',
+    nl: 'Geen batterijoptimalisatie',
+    de: 'Keine Akku-Optimierung',
+    es: 'Sin optimización de batería',
+  );
+
+  String get permBatteryBody => tr(
+    fr: 'Pour qu\'Android ne coupe pas la surveillance écran éteint. La consommation reste très faible (BLE + accéléromètre).',
+    nl: 'Zodat Android de bewaking niet stopt met het scherm uit. Het verbruik blijft heel laag (BLE + bewegingssensor).',
+    de: 'Damit Android die Überwachung bei ausgeschaltetem Bildschirm nicht beendet. Der Verbrauch bleibt sehr gering (BLE + Beschleunigungssensor).',
+    es: 'Para que Android no corte la vigilancia con la pantalla apagada. El consumo sigue siendo muy bajo (BLE + acelerómetro).',
+  );
+
+  String get permContinue => tr(
+    fr: 'Continuer',
+    nl: 'Doorgaan',
+    de: 'Weiter',
+    es: 'Continuar',
+  );
+
+  String get permNotNow => tr(
+    fr: 'Pas maintenant',
+    nl: 'Niet nu',
+    de: 'Nicht jetzt',
+    es: 'Ahora no',
+  );
 }

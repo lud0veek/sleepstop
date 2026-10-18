@@ -240,7 +240,7 @@ class BleHeartRateService {
     try {
       await FlutterBluePlus.startScan(
         timeout: timeout,
-        androidUsesFineLocation: true,
+        androidUsesFineLocation: false,
         androidCheckLocationServices: false,
       );
     } catch (e) {

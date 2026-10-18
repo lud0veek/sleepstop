@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/sleep_settings.dart';
-import '../providers/session_logs_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/billing_service.dart';
 import 'theme/oled_theme.dart';
@@ -24,17 +22,11 @@ class ProUnlockSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    final logs = ref.watch(sessionLogsProvider);
     final billing = ref.watch(billingProvider);
     final s = ref.watch(appStringsProvider);
     final lang = settings.languageCode;
 
-    final usedNights = logs.length;
-    final remainingNights =
-        (SleepSettings.totalFreeTrialNights - usedNights).clamp(
-          0,
-          SleepSettings.totalFreeTrialNights,
-        );
+    final remainingNights = settings.remainingTrialNights;
 
     String tr({
       required String fr,

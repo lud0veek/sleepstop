@@ -6,7 +6,6 @@ import '../providers/session_logs_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/foreground_task_service.dart';
 import '../services/notification_service.dart';
-import '../services/permission_service.dart';
 import 'dashboard_tab.dart';
 import 'history_tab.dart';
 import 'pro_unlock_sheet.dart';
@@ -27,15 +26,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    ForegroundTaskService.instance.init();
+    final s = ref.read(appStringsProvider);
+    ForegroundTaskService.instance.init(
+      channelName: s.fgChannelName,
+      channelDescription: s.fgChannelDesc,
+    );
+    // Runtime permissions are requested contextually, right before the first
+    // sleep session (see DashboardTab), never at launch.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializePermissionsAndNotifications();
+      NotificationService.instance.init();
     });
-  }
-
-  Future<void> _initializePermissionsAndNotifications() async {
-    await NotificationService.instance.init();
-    await PermissionService.instance.requestAllRequiredPermissions();
   }
 
   @override

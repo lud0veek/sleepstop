@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
+import '../l10n/app_strings.dart';
 import '../models/sleep_session_log.dart';
 
 class NotificationService {
@@ -11,9 +12,6 @@ class NotificationService {
   bool _initialized = false;
 
   static const String _summaryChannelId = 'sleepstop_morning_summary';
-  static const String _summaryChannelName = 'Morning Sleep Summary';
-  static const String _summaryChannelDesc =
-      'Notifications showing when media was paused and how far to rewind.';
 
   Future<void> init() async {
     if (_initialized) return;
@@ -31,7 +29,10 @@ class NotificationService {
     }
   }
 
-  Future<void> showSleepSummaryNotification(SleepSessionLog log) async {
+  Future<void> showSleepSummaryNotification(
+    SleepSessionLog log,
+    AppStrings s,
+  ) async {
     await init();
 
     final timeFormat = DateFormat('HH:mm');
@@ -39,16 +40,18 @@ class NotificationService {
     final asleepStr = timeFormat.format(log.asleepTime);
     final durationStr = log.formattedListeningDuration;
 
-    final title =
-        'Media Paused at $asleepStr • Rewind / Seek +$durationStr';
-    final body =
-        'Session: $startStr → $asleepStr ($durationStr listened). '
-        'Reason: ${log.triggerReason}.';
+    final title = s.summaryTitle(asleepStr, durationStr);
+    final body = s.summaryBody(
+      startStr,
+      asleepStr,
+      durationStr,
+      log.triggerReason,
+    );
 
     final androidDetails = AndroidNotificationDetails(
       _summaryChannelId,
-      _summaryChannelName,
-      channelDescription: _summaryChannelDesc,
+      s.summaryChannelName,
+      channelDescription: s.summaryChannelDesc,
       importance: Importance.high,
       priority: Priority.high,
       playSound: false,
@@ -56,7 +59,7 @@ class NotificationService {
       styleInformation: BigTextStyleInformation(
         body,
         contentTitle: title,
-        summaryText: 'SleepStop Morning Rewind Helper',
+        summaryText: s.summaryFooter,
       ),
     );
 

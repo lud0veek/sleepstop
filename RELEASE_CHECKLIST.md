@@ -12,7 +12,7 @@ Revue réalisée le 18 octobre 2026 sur le commit `0890cf6` (branche `main`).
 | 1.1 targetSdk 36 | ✅ Corrigé dans `build.gradle.kts` |
 | 1.2 AAB 127 Mo | ✅ `keepDebugSymbols` retiré, `debugSymbolLevel = SYMBOL_TABLE` |
 | 1.3 Firestore / admin | ✅ Règles verrouillées et déployées ; console admin en Google Sign-In ; fallback hors-ligne VIP supprimé. **3 actions manuelles restantes, voir 1.3.** |
-| 1.4 Compte Play | ⏳ À vérifier par toi (type de compte) |
+| 1.4 Compte Play | ⏳ Nouveau compte personnel « vdc.dev » créé le 18/10/2026 (ancien compte fermé pour inactivité). Vérification d'identité en cours. Test fermé 12 testeurs / 14 jours obligatoire avant la production. |
 
 ## 1. Bloquants à corriger AVANT le premier upload
 
@@ -63,6 +63,8 @@ Si ton compte Play a été créé après novembre 2023 en tant que **personne ph
 
 ## 2. À corriger avant la production (pas bloquant pour le test interne)
 
+État au 18/10/2026 (build 1.0.0+2) : **2.1, 2.3, 2.4 et 2.5 corrigés** (compteur d'essai persistant, localisation limitée à Android ≤ 11 avec `neverForLocation`, feuille explicative des permissions au premier démarrage, notifications/tuile/raisons d'historique traduites FR/NL/DE/ES). Restent 2.2, 2.6 à 2.10.
+
 | # | Sujet | Fichier | Détail |
 |---|-------|---------|--------|
 | 2.1 | Contournement de l'essai gratuit | [dashboard_tab.dart:41](lib/ui/dashboard_tab.dart:41) | Les 5 nuits d'essai = `logs.length`. Supprimer l'historique remet l'essai à zéro. Persister un compteur `trialNightsUsed` dans `SleepSettings`, incrémenté à chaque session détectée. |
@@ -81,7 +83,7 @@ Si ton compte Play a été créé après novembre 2023 en tant que **personne ph
 ## 3. Versioning (règles pro)
 
 - **Source unique** : `version: X.Y.Z+N` dans [pubspec.yaml](pubspec.yaml:4). `X.Y.Z` = `versionName` (visible utilisateur), `N` = `versionCode` (entier, strictement croissant, jamais réutilisé, même pour un upload refusé).
-- Convention : 1.0.0+1 (test interne), 1.0.0+2 (correctifs test fermé), 1.0.0+3 (production). Patch = 1.0.1, nouvelles fonctionnalités = 1.1.0.
+- Convention : 1.0.0+1 (jamais uploadé), **1.0.0+2 = premier upload test interne**, 1.0.0+3 (correctifs test fermé), 1.0.0+4 (production). Patch = 1.0.1, nouvelles fonctionnalités = 1.1.0.
 - À chaque build de release : commit, puis tag git `v1.0.0+3`, puis build. Ne jamais builder depuis un arbre non commité.
 - Tenir un `CHANGELOG.md` ; les notes de version Play (500 caractères, par langue FR/NL/DE/ES/EN) en sont extraites.
 - Commande de build reproductible :

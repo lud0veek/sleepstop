@@ -11,6 +11,7 @@ import '../services/media_control_service.dart';
 import '../services/motion_detector_service.dart';
 import '../services/notification_service.dart';
 import '../services/telemetry_service.dart';
+import '../l10n/app_strings.dart';
 import 'session_logs_provider.dart';
 import 'settings_provider.dart';
 
@@ -58,6 +59,9 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   DateTime? _fadeStartedAt;
   bool _isStoppingOrCompleting = false;
 
+  /// Current UI language strings (notifications, tile, history reasons).
+  AppStrings get _s => ref.read(appStringsProvider);
+
   @override
   ActiveSessionState build() {
     _mediaControl = ref.read(mediaControlServiceProvider);
@@ -75,7 +79,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       } else {
         await _mediaControl.updateQuickTileState(
           isActive: state.isRunning,
-          subtitle: state.isRunning ? 'Veille active' : 'Prêt à veiller',
+          subtitle: state.isRunning ? _s.tileActive : _s.tileReady,
         );
       }
     });
@@ -141,6 +145,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     final settings = ref.read(settingsProvider);
     final mode = state.activeMode;
     final startTime = DateTime.now();
+    ForegroundTaskService.instance.stopButtonLabel = _s.stopSessionButton;
     final initialVol = await _mediaControl.getCurrentVolume();
     final maxVol = await _mediaControl.getMaxVolume();
     _lastKnownMediaInfo = await _mediaControl.getActiveMediaInfo();
@@ -215,16 +220,14 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
 
     await ForegroundTaskService.instance.startMonitoringService(
-      title: 'SleepStop • Watch Biometric Mode',
-      text: simulateBleWatch
-          ? 'Monitoring simulated BLE Heart Rate...'
-          : 'Connecting to BLE Heart Rate watch...',
+      title: _s.fgTitleWatch,
+      text: simulateBleWatch ? _s.fgSimulatedWatch : _s.fgConnectingWatch,
     );
     await _mediaControl.updateQuickTileState(
       isActive: true,
       subtitle: simulateBleWatch
-          ? 'Veille simulée active'
-          : 'Connexion montre...',
+          ? _s.tileSimulatedActive
+          : _s.tileConnectingWatch,
     );
 
     if (simulateBleWatch) {
@@ -255,7 +258,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       await ForegroundTaskService.instance.stopMonitoringService();
       await _mediaControl.updateQuickTileState(
         isActive: false,
-        subtitle: 'Montre non trouvée',
+        subtitle: _s.tileWatchNotFound,
       );
       state = state.copyWith(
         isRunning: false,
@@ -293,7 +296,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
     await _mediaControl.updateQuickTileState(
       isActive: true,
-      subtitle: 'Actif • $watchName',
+      subtitle: _s.tileActiveWatch(watchName),
     );
 
     _startWatchSessionTicker();
@@ -475,6 +478,13 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
           statusText: 'Calibrating baseline (${secsLeft}s)...',
           requiredLowHrSeconds: requiredSeconds,
         );
+        if (elapsed % 10 == 0) {
+          final bpmLabel = bpm != null ? '$bpm BPM' : '-- BPM';
+          await ForegroundTaskService.instance.updateNotification(
+            title: _s.fgBpmTitle(bpmLabel, threshold),
+            text: _s.fgCalibrating(secsLeft),
+          );
+        }
         return;
       }
 
@@ -540,13 +550,28 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
 
       if (elapsed % 5 == 0) {
         final bpmLabel = bpm != null ? '$bpm BPM' : '-- BPM';
+        final String notifText;
+        if (phase == SessionPhase.hrDropping && matchesSleepPattern) {
+          final currentMin = ((lowSeconds ~/ 60) + 1).clamp(
+            1,
+            settings.confirmationDurationMinutes,
+          );
+          notifText = _s.fgSleepOnset(
+            currentMin,
+            settings.confirmationDurationMinutes,
+          );
+        } else if (phase == SessionPhase.hrDropping) {
+          notifText = _s.fgStabilizing;
+        } else {
+          notifText = _s.fgMonitoring;
+        }
         await ForegroundTaskService.instance.updateNotification(
-          title: 'SleepStop • $bpmLabel (Target ≤ $threshold BPM)',
-          text: statusText,
+          title: _s.fgBpmTitle(bpmLabel, threshold),
+          text: notifText,
         );
         await _mediaControl.updateQuickTileState(
           isActive: true,
-          subtitle: 'Actif • $bpmLabel (≤$threshold)',
+          subtitle: _s.tileActiveBpm(bpmLabel, threshold),
         );
       }
 
@@ -590,8 +615,8 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
 
     await ForegroundTaskService.instance.updateNotification(
-      title: 'SleepStop • Sleep Confirmed ($finalBpm BPM)',
-      text: 'Fading audio over 10 seconds...',
+      title: _s.fgSleepConfirmedTitle(finalBpm),
+      text: _s.fgFadingBody(10),
     );
 
     final completedFade = await _mediaControl.startVolumeFadeOut(
@@ -633,7 +658,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     await ForegroundTaskService.instance.stopMonitoringService();
     await _mediaControl.updateQuickTileState(
       isActive: false,
-      subtitle: 'Sommeil détecté ($finalBpm BPM)',
+      subtitle: _s.tileSleepDetectedBpm(finalBpm),
     );
 
     await ref
@@ -647,15 +672,13 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
         .inSeconds
         .clamp(1, 86400);
 
-    final baselineStr = state.baselineBpm != null
-        ? 'from ${state.baselineBpm!.toStringAsFixed(0)} BPM '
-        : '';
-    final stdStr = stdDevBpm != null
-        ? ' (±${stdDevBpm.toStringAsFixed(1)} BPM plateau)'
-        : '';
     final triggerReason = isSmartAdaptive
-        ? 'HR stabilized at $finalBpm BPM $baselineStr$stdStr'
-        : 'HR stabilized at $finalBpm BPM';
+        ? _s.triggerReasonHr(
+            finalBpm,
+            baselineBpm: state.baselineBpm,
+            stdDevBpm: stdDevBpm,
+          )
+        : _s.triggerReasonHr(finalBpm);
 
     if (!_sessionBpmTimeline.contains(finalBpm)) {
       _sessionBpmTimeline.add(finalBpm);
@@ -681,7 +704,8 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
 
     await ref.read(sessionLogsProvider.notifier).addSessionLog(log);
-    await NotificationService.instance.showSleepSummaryNotification(log);
+    await ref.read(settingsProvider.notifier).consumeTrialNight();
+    await NotificationService.instance.showSleepSummaryNotification(log, _s);
 
     unawaited(
       TelemetryService.instance.recordSleepDetected(
@@ -733,12 +757,12 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
 
     await ForegroundTaskService.instance.startMonitoringService(
-      title: 'SleepStop • Phone Fade & Shake Mode',
-      text: 'Next sleep check in ${settings.checkIntervalMinutes} min',
+      title: _s.fgTitlePhone,
+      text: _s.fgNextCheck(settings.checkIntervalMinutes),
     );
     await _mediaControl.updateQuickTileState(
       isActive: true,
-      subtitle: 'Actif • Check ${settings.checkIntervalMinutes}m',
+      subtitle: _s.tileActiveCheck(settings.checkIntervalMinutes),
     );
 
     _motionService.startMonitoring(
@@ -783,12 +807,12 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       if (elapsed % 10 == 0) {
         final minsLeft = (remaining / 60).ceil();
         await ForegroundTaskService.instance.updateNotification(
-          title: 'SleepStop • Phone Fade & Shake Mode',
-          text: 'Audio fade check in $minsLeft min',
+          title: _s.fgTitlePhone,
+          text: _s.fgNextCheck(minsLeft),
         );
         await _mediaControl.updateQuickTileState(
           isActive: true,
-          subtitle: 'Actif • Check ${minsLeft}m',
+          subtitle: _s.tileActiveCheck(minsLeft),
         );
       }
 
@@ -817,8 +841,8 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
 
     await ForegroundTaskService.instance.updateNotification(
-      title: 'SleepStop • Fading Audio (60s)',
-      text: 'Nudge or shake your phone to keep listening!',
+      title: _s.fgFadingTitle60,
+      text: _s.fgFadingNudge,
     );
 
     final completedUninterrupted = await _mediaControl.startVolumeFadeOut(
@@ -861,7 +885,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     await ForegroundTaskService.instance.stopMonitoringService();
     await _mediaControl.updateQuickTileState(
       isActive: false,
-      subtitle: 'Sommeil détecté • Pause',
+      subtitle: _s.tileSleepDetectedPaused,
     );
 
     final startTime = state.sessionStartTime ?? DateTime.now();
@@ -879,7 +903,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       asleepTime: asleepTime,
       pausedAtTime: pausedAtTime,
       listeningDurationSeconds: listeningSeconds,
-      triggerReason: 'No response to volume fade',
+      triggerReason: _s.triggerReasonFade,
       mediaAppName:
           _lastKnownMediaInfo?.appName ??
           (closedAppsList.isNotEmpty ? closedAppsList.join(', ') : null),
@@ -888,7 +912,8 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
 
     await ref.read(sessionLogsProvider.notifier).addSessionLog(log);
-    await NotificationService.instance.showSleepSummaryNotification(log);
+    await ref.read(settingsProvider.notifier).consumeTrialNight();
+    await NotificationService.instance.showSleepSummaryNotification(log, _s);
 
     unawaited(
       TelemetryService.instance.recordSleepDetected(
@@ -940,9 +965,8 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       );
 
       await ForegroundTaskService.instance.updateNotification(
-        title: 'SleepStop • Movement Detected!',
-        text:
-            'Volume restored. Countdown reset to ${settings.checkIntervalMinutes} min.',
+        title: _s.fgMovementTitle,
+        text: _s.fgMovementBody(settings.checkIntervalMinutes),
       );
     } else {
       state = state.copyWith(
@@ -995,7 +1019,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     await ForegroundTaskService.instance.stopMonitoringService();
     await _mediaControl.updateQuickTileState(
       isActive: false,
-      subtitle: 'Prêt à veiller',
+      subtitle: _s.tileReady,
     );
 
     state = ActiveSessionState(

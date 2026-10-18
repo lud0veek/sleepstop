@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tile_ready">Listo para vigilar</string>
+    <string name="tile_active">Vigilancia activa</string>
+</resources>

@@ -166,7 +166,7 @@ class MainActivity : FlutterActivity() {
                         "updateQuickTileState" -> {
                             val isActive = call.argument<Boolean>("isActive") ?: false
                             val subtitle = call.argument<String>("subtitle")
-                                ?: if (isActive) "Veille active" else "Prêt à veiller"
+                                ?: getString(if (isActive) R.string.tile_active else R.string.tile_ready)
                             SleepStopTileService.updateTileState(applicationContext, isActive, subtitle)
                             result.success(true)
                         }
@@ -402,7 +402,10 @@ class MainActivity : FlutterActivity() {
             }
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        // Below Android 12 a BLE scan legally requires location; from API 31 on
+        // BLUETOOTH_SCAN (neverForLocation) replaces it entirely.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
         ) {
             needed.add(Manifest.permission.ACCESS_FINE_LOCATION)
