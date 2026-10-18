@@ -1,7 +1,7 @@
 name: sleep_stop
 description: "SleepStop - Smart Media Sleep Stopper for Android."
 publish_to: 'none'
-version: 1.0.0+2
+version: 1.0.0+3
 
 environment:
   sdk: ^3.11.5

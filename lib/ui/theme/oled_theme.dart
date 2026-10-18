@@ -14,6 +14,10 @@ class OledColors {
   static const Color mutedRose = Color(0xFFD9536F);
   static const Color calmTeal = Color(0xFF4DB6AC);
 
+  // Premium (Pro) accent: muted champagne gold, never neon.
+  static const Color gold = Color(0xFFD9B46A);
+  static const Color goldDeep = Color(0xFF8E6F35);
+
   // Low-glare Typography
   static const Color textPrimary = Color(0xFFDCD8D0);
   static const Color textSecondary = Color(0xFF8C8881);

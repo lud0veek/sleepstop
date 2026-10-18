@@ -6,13 +6,13 @@ import '../models/sleep_settings.dart';
 import '../providers/settings_provider.dart';
 import '../services/permission_service.dart';
 import '../providers/sleep_session_provider.dart';
-import 'privacy_sheet.dart';
 import 'permission_primer_sheet.dart';
 import 'pro_unlock_sheet.dart';
-import 'settings_bottom_sheet.dart';
+import 'settings_screen.dart';
 import 'target_apps_sheet.dart';
 import 'theme/oled_theme.dart';
 import 'watch_guide_sheet.dart';
+import 'widgets/bpm_sparkline.dart';
 import 'widgets/pulsing_heart_badge.dart';
 
 class DashboardTab extends ConsumerWidget {
@@ -108,8 +108,69 @@ class DashboardTab extends ConsumerWidget {
     required AppStrings s,
   }) {
     final isPro = settings.isProUnlocked;
-    final color = isPro ? OledColors.calmTeal : OledColors.warmAmber;
+    if (isPro) {
+      return InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => ProUnlockSheet.show(context),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [
+                OledColors.gold.withValues(alpha: 0.10),
+                OledColors.goldDeep.withValues(alpha: 0.06),
+              ],
+            ),
+            border: Border.all(color: OledColors.gold.withValues(alpha: 0.38)),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.verified_rounded,
+                color: OledColors.gold,
+                size: 18,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  s.proActiveBadge,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                    color: OledColors.gold,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: OledColors.gold,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'PRO',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    color: OledColors.trueBlack,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
+    const color = OledColors.warmAmber;
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () => ProUnlockSheet.show(context),
@@ -122,22 +183,18 @@ class DashboardTab extends ConsumerWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              isPro
-                  ? Icons.verified_rounded
-                  : Icons.workspace_premium_rounded,
+            const Icon(
+              Icons.workspace_premium_rounded,
               color: color,
               size: 18,
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                isPro
-                    ? s.proActiveBadge
-                    : s.trialBadgeText(remainingTrialNights),
+                s.trialBadgeText(remainingTrialNights),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: color,
@@ -323,73 +380,6 @@ class DashboardTab extends ConsumerWidget {
                   style: const TextStyle(
                     color: OledColors.warmAmber,
                     fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: OledColors.cardSurface,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: OledColors.subtleBorder),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.verified_user_outlined,
-                color: OledColors.calmTeal,
-                size: 20,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      s.tr(
-                        fr: 'Confidentialité & RGPD (Belgique 🇧🇪)',
-                        nl: 'Privacy & AVG / GDPR (België 🇧🇪)',
-                        de: 'Datenschutz & DSGVO (Belgien 🇧🇪)',
-                        es: 'Privacidad y RGPD (Bélgica 🇧🇪)',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: OledColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      s.tr(
-                        fr: '100 % local pour le pouls • Loi belge du 30 juillet 2018 & APD',
-                        nl: '100% lokaal voor hartslag • Belgische wet van 30 juli 2018 & GBA',
-                        de: '100 % lokal für Herzfrequenz • Belgisches Gesetz & APD/GBA',
-                        es: '100 % local para el pulso • Ley belga del 30 de julio de 2018 y APD',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: OledColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              TextButton(
-                onPressed: () => PrivacySheet.show(context),
-                child: Text(
-                  s.tr(
-                    fr: 'Infos RGPD',
-                    nl: 'AVG-info',
-                    de: 'DSGVO-Info',
-                    es: 'Info RGPD',
-                  ),
-                  style: const TextStyle(
-                    color: OledColors.calmTeal,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -1012,6 +1002,11 @@ class DashboardTab extends ConsumerWidget {
             ),
           ],
 
+          if (isWatchMode && session.bpmTimeline.length >= 2) ...[
+            const SizedBox(height: 14),
+            _LiveCurveCard(session: session, s: s),
+          ],
+
           if (session.isInGraceWindow) ...[
             const SizedBox(height: 16),
             _GraceWindowCard(
@@ -1174,7 +1169,7 @@ class DashboardTab extends ConsumerWidget {
             ),
           ),
           TextButton(
-            onPressed: () => SettingsBottomSheet.show(context),
+            onPressed: () => SettingsScreen.open(context),
             child: Text(
               s.configureButton,
               style: const TextStyle(
@@ -1378,6 +1373,79 @@ class _GraceWindowCard extends StatelessWidget {
               s.stillAwakeButton,
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Live BPM curve of the night (one point every 30 s) with the current
+/// sleep threshold as a dashed line.
+class _LiveCurveCard extends StatelessWidget {
+  final ActiveSessionState session;
+  final AppStrings s;
+  const _LiveCurveCard({required this.session, required this.s});
+
+  @override
+  Widget build(BuildContext context) {
+    final points = session.bpmTimeline;
+    final threshold = session.effectiveThresholdBpm;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+      decoration: BoxDecoration(
+        color: OledColors.elevatedSurface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: OledColors.subtleBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                s.hrSleepCurveTitle,
+                style: const TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  color: OledColors.textMuted,
+                  letterSpacing: 0.7,
+                ),
+              ),
+              if (threshold != null)
+                Text(
+                  '${s.thresholdLabel} ≤ $threshold BPM',
+                  style: const TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: OledColors.calmTeal,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          BpmSparkline(samples: points, thresholdBpm: threshold, height: 44),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${points.first} BPM',
+                style: const TextStyle(
+                  fontSize: 10.5,
+                  color: OledColors.textSecondary,
+                ),
+              ),
+              Text(
+                '${points.last} BPM',
+                style: const TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: OledColors.warmAmber,
+                ),
+              ),
+            ],
           ),
         ],
       ),

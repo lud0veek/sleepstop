@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +7,7 @@ import '../providers/session_logs_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/sleep_session_provider.dart';
 import 'theme/oled_theme.dart';
+import 'widgets/bpm_sparkline.dart';
 
 class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key});
@@ -361,13 +361,7 @@ class _SessionHistoryCard extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  SizedBox(
-                    height: 36,
-                    width: double.infinity,
-                    child: CustomPaint(
-                      painter: _BpmSparklinePainter(samples: log.bpmTimeline),
-                    ),
-                  ),
+                  BpmSparkline(samples: log.bpmTimeline),
                 ],
               ),
             ),
@@ -407,45 +401,6 @@ class _SessionHistoryCard extends ConsumerWidget {
       ),
     );
   }
-}
-
-class _BpmSparklinePainter extends CustomPainter {
-  final List<int> samples;
-
-  const _BpmSparklinePainter({required this.samples});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (samples.length < 2) return;
-
-    final minBpm = samples.reduce(math.min).toDouble() - 2;
-    final maxBpm = samples.reduce(math.max).toDouble() + 2;
-    final range = (maxBpm - minBpm).clamp(4.0, 100.0);
-
-    final path = Path();
-    for (int i = 0; i < samples.length; i++) {
-      final x = (i / (samples.length - 1)) * size.width;
-      final normalized = (samples[i] - minBpm) / range;
-      final y = size.height - (normalized * size.height);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-
-    final linePaint = Paint()
-      ..color = OledColors.warmAmber
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawPath(path, linePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _BpmSparklinePainter oldDelegate) =>
-      oldDelegate.samples != samples;
 }
 
 class _MetricTile extends StatelessWidget {

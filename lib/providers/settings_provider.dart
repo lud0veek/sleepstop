@@ -73,12 +73,6 @@ class SettingsNotifier extends Notifier<SleepSettings> {
   Future<void> setSleepBpmThreshold(int bpm) =>
       _update(state.copyWith(sleepBpmThreshold: bpm.clamp(40, 100)));
 
-  Future<void> setUseAutoBaseline(bool enabled) =>
-      _update(state.copyWith(useAutoBaseline: enabled));
-
-  Future<void> setAutoBaselineDropPercent(double percent) =>
-      _update(state.copyWith(autoBaselineDropPercent: percent.clamp(5.0, 25.0)));
-
   Future<void> setConfirmationDurationMinutes(int minutes) =>
       _update(state.copyWith(confirmationDurationMinutes: minutes.clamp(1, 20)));
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../l10n/app_strings.dart';
 import '../providers/session_logs_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/foreground_task_service.dart';
@@ -9,9 +8,8 @@ import '../services/notification_service.dart';
 import 'dashboard_tab.dart';
 import 'history_tab.dart';
 import 'pro_unlock_sheet.dart';
-import 'settings_bottom_sheet.dart';
+import 'settings_screen.dart';
 import 'theme/oled_theme.dart';
-import 'watch_guide_sheet.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -105,71 +103,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ],
           ),
           actions: [
-            PopupMenuButton<String>(
-              tooltip: 'FR / NL / DE / ES',
-              color: OledColors.elevatedSurface,
-              onSelected: (code) {
-                ref.read(settingsProvider.notifier).setLanguageCode(code);
-              },
-              itemBuilder: (context) => AppStrings.supportedLanguages.map((code) {
-                final isSelected = settings.languageCode == code;
-                return PopupMenuItem<String>(
-                  value: code,
-                  child: Row(
-                    children: [
-                      Text(
-                        AppStrings.flagFor(code),
-                        style: TextStyle(
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          color: isSelected
-                              ? OledColors.warmAmber
-                              : OledColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        AppStrings.languageName(code),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isSelected
-                              ? OledColors.warmAmber
-                              : OledColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: OledColors.cardSurface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: OledColors.subtleBorder),
-                ),
-                child: Text(
-                  settings.languageCode.toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: OledColors.warmAmber,
-                  ),
-                ),
-              ),
-            ),
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              onPressed: () => WatchGuideSheet.show(context),
-              icon: const Icon(
-                Icons.help_outline_rounded,
-                color: OledColors.calmTeal,
-                size: 21,
-              ),
-              tooltip: s.watchGuideTooltip,
-            ),
             IconButton(
               visualDensity: VisualDensity.compact,
               onPressed: () => ProUnlockSheet.show(context),
@@ -178,7 +111,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ? Icons.verified_rounded
                     : Icons.workspace_premium_rounded,
                 color: settings.isProUnlocked
-                    ? OledColors.calmTeal
+                    ? OledColors.gold
                     : OledColors.warmAmber,
                 size: 21,
               ),
@@ -186,7 +119,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             IconButton(
               visualDensity: VisualDensity.compact,
-              onPressed: () => SettingsBottomSheet.show(context),
+              onPressed: () => SettingsScreen.open(context),
               icon: const Icon(
                 Icons.tune_rounded,
                 color: OledColors.warmAmber,

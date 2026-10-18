@@ -198,45 +198,6 @@ class PrivacySheetContent extends ConsumerWidget {
                   height: 1.4,
                 ),
               ),
-              const SizedBox(height: 8),
-              SwitchListTile.adaptive(
-                contentPadding: EdgeInsets.zero,
-                activeThumbColor: OledColors.calmTeal,
-                title: Text(
-                  s.tr(
-                    fr: 'Partager les compteurs techniques anonymes',
-                    nl: 'Anonieme technische tellers delen',
-                    de: 'Anonyme technische Zähler teilen',
-                    es: 'Compartir contadores técnicos anónimos',
-                  ),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: OledColors.textPrimary,
-                  ),
-                ),
-                subtitle: Text(
-                  settings.anonymousTelemetryEnabled
-                      ? s.tr(
-                          fr: 'Activé (Zéro donnée personnelle • Serveur Belgique)',
-                          nl: 'Ingeschakeld (Geen persoonsgegevens • Server België)',
-                          de: 'Aktiviert (Keine personenbezogenen Daten • Server Belgien)',
-                          es: 'Activado (Cero datos personales • Servidor Bélgica)',
-                        )
-                      : s.tr(
-                          fr: 'Désactivé (Aucune requête réseau statistique)',
-                          nl: 'Uitgeschakeld (Geen statistisch netwerkverkeer)',
-                          de: 'Deaktiviert (Keine statistischen Netzwerkanfragen)',
-                          es: 'Desactivado (Sin peticiones de red estadísticas)',
-                        ),
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    color: OledColors.textSecondary,
-                  ),
-                ),
-                value: settings.anonymousTelemetryEnabled,
-                onChanged: notifier.setAnonymousTelemetryEnabled,
-              ),
             ],
           ),
         ),

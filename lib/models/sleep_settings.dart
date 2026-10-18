@@ -59,8 +59,6 @@ class SleepSettings {
   final BiometricTriggerMode biometricTriggerMode;
   final AdaptiveSensitivity adaptiveSensitivity;
   final int sleepBpmThreshold;
-  final bool useAutoBaseline;
-  final double autoBaselineDropPercent;
   final int confirmationDurationMinutes;
   final int checkIntervalMinutes;
   final double shakeSensitivity;
@@ -101,8 +99,6 @@ class SleepSettings {
     this.biometricTriggerMode = BiometricTriggerMode.smartAdaptive,
     this.adaptiveSensitivity = AdaptiveSensitivity.balanced,
     this.sleepBpmThreshold = 55,
-    this.useAutoBaseline = true,
-    this.autoBaselineDropPercent = 10.0,
     this.confirmationDurationMinutes = 4,
     this.checkIntervalMinutes = 15,
     this.shakeSensitivity = 1.8,
@@ -128,8 +124,6 @@ class SleepSettings {
     BiometricTriggerMode? biometricTriggerMode,
     AdaptiveSensitivity? adaptiveSensitivity,
     int? sleepBpmThreshold,
-    bool? useAutoBaseline,
-    double? autoBaselineDropPercent,
     int? confirmationDurationMinutes,
     int? checkIntervalMinutes,
     double? shakeSensitivity,
@@ -156,9 +150,6 @@ class SleepSettings {
       biometricTriggerMode: biometricTriggerMode ?? this.biometricTriggerMode,
       adaptiveSensitivity: adaptiveSensitivity ?? this.adaptiveSensitivity,
       sleepBpmThreshold: sleepBpmThreshold ?? this.sleepBpmThreshold,
-      useAutoBaseline: useAutoBaseline ?? this.useAutoBaseline,
-      autoBaselineDropPercent:
-          autoBaselineDropPercent ?? this.autoBaselineDropPercent,
       confirmationDurationMinutes:
           confirmationDurationMinutes ?? this.confirmationDurationMinutes,
       checkIntervalMinutes: checkIntervalMinutes ?? this.checkIntervalMinutes,
@@ -195,8 +186,6 @@ class SleepSettings {
       'biometricTriggerMode': biometricTriggerMode.name,
       'adaptiveSensitivity': adaptiveSensitivity.name,
       'sleepBpmThreshold': sleepBpmThreshold,
-      'useAutoBaseline': useAutoBaseline,
-      'autoBaselineDropPercent': autoBaselineDropPercent,
       'confirmationDurationMinutes': confirmationDurationMinutes,
       'checkIntervalMinutes': checkIntervalMinutes,
       'shakeSensitivity': shakeSensitivity,
@@ -249,9 +238,6 @@ class SleepSettings {
       biometricTriggerMode: trigMode,
       adaptiveSensitivity: sens,
       sleepBpmThreshold: (json['sleepBpmThreshold'] as num?)?.toInt() ?? 55,
-      useAutoBaseline: json['useAutoBaseline'] as bool? ?? true,
-      autoBaselineDropPercent:
-          (json['autoBaselineDropPercent'] as num?)?.toDouble() ?? 10.0,
       confirmationDurationMinutes:
           (json['confirmationDurationMinutes'] as num?)?.toInt() ?? 4,
       checkIntervalMinutes:
