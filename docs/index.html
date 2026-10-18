@@ -3,152 +3,1365 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SleepStop — Arrêt Média Intelligent au Sommeil (Android & Garmin / BLE)</title>
-  <meta name="description" content="SleepStop coupe automatiquement Audible, YouTube, Spotify et Netflix à la seconde exacte où votre montre connectée détecte que vous dormez." />
+  <title>SleepStop — Arrêt Média Biométrique au Sommeil (Android • Garmin, Whoop, Polar & Sans Montre)</title>
+  <meta name="description" content="SleepStop coupe automatiquement Audible, YouTube, Spotify et Netflix à la seconde exacte où votre montre connectée (ou votre téléphone) détecte que vous dormez." />
+  <link rel="icon" type="image/png" href="icon-512.png" />
   <style>
     :root {
-      --bg: #000000;
-      --card: #0E1017;
-      --border: #1E2230;
-      --amber: #FFB300;
-      --indigo: #7986CB;
-      --teal: #26A69A;
-      --text: #F5F7FA;
-      --muted: #9BA3B4;
+      --bg: #030407;
+      --bg-soft: #090b12;
+      --card: #0e111b;
+      --card-hover: #131726;
+      --elevated: #171c2d;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 179, 0, 0.32);
+      --amber: #ffb300;
+      --amber-soft: #ffd54f;
+      --indigo: #7986cb;
+      --teal: #26a69a;
+      --rose: #ef5350;
+      --text: #f4f6fb;
+      --text-secondary: #a3acc2;
+      --muted: #6e778f;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(circle at 50% 0%, #141829 0%, #000000 55%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 18% 0%, rgba(255, 179, 0, 0.09) 0%, transparent 42%),
+        radial-gradient(circle at 82% 8%, rgba(121, 134, 203, 0.11) 0%, transparent 46%);
       color: var(--text);
       line-height: 1.6;
       min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
-    .container { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
-    header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 28px 0; border-bottom: 1px solid var(--border);
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
-    .brand { display: flex; align-items: center; gap: 14px; font-weight: 800; font-size: 1.35rem; }
-    .brand-badge {
-      width: 40px; height: 40px; border-radius: 12px;
-      background: linear-gradient(135deg, rgba(255,179,0,0.2), rgba(121,134,203,0.2));
-      border: 1px solid rgba(255,179,0,0.45);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--amber); font-size: 1.2rem;
+
+    /* Sticky Glass Navbar */
+    .navbar-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(3, 4, 7, 0.78);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
     }
-    .lang-pills { display: flex; gap: 8px; }
+
+    header.navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 76px;
+      padding: 12px 0;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 1.28rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 179, 0, 0.4);
+      box-shadow: 0 6px 20px rgba(255, 179, 0, 0.15);
+    }
+
+    .brand-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(38, 166, 154, 0.15);
+      color: var(--teal);
+      border: 1px solid rgba(38, 166, 154, 0.35);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: color 0.18s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--amber);
+    }
+
+    .lang-pills {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      padding: 4px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
     .pill {
-      padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
-      background: var(--card); border: 1px solid var(--border); color: var(--amber);
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.18s ease;
     }
-    .hero { text-align: center; padding: 80px 0 60px; }
-    .tag {
-      display: inline-block; padding: 6px 16px; border-radius: 999px;
-      background: rgba(255,179,0,0.12); border: 1px solid rgba(255,179,0,0.35);
-      color: var(--amber); font-size: 0.82rem; font-weight: 700; margin-bottom: 22px;
+
+    .pill:hover {
+      color: var(--text);
     }
+
+    .pill.active {
+      background: rgba(255, 179, 0, 0.16);
+      color: var(--amber);
+      box-shadow: inset 0 0 0 1px rgba(255, 179, 0, 0.4);
+    }
+
+    /* Hero Split Section */
+    .hero {
+      padding: 72px 0 64px;
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(255, 179, 0, 0.1);
+      border: 1px solid rgba(255, 179, 0, 0.3);
+      color: var(--amber);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 22px;
+    }
+
     h1 {
-      font-size: clamp(2.2rem, 5vw, 3.6rem);
-      line-height: 1.12; letter-spacing: -0.03em; margin-bottom: 22px;
+      font-size: clamp(2.35rem, 4.4vw, 3.65rem);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      font-weight: 850;
+      margin-bottom: 22px;
     }
-    h1 span {
-      background: linear-gradient(90deg, #FFB300, #7986CB);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+
+    h1 .accent {
+      background: linear-gradient(95deg, #ffb300 0%, #ffd54f 45%, #7986cb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .subtitle {
-      max-width: 680px; margin: 0 auto 36px; font-size: 1.15rem; color: var(--muted);
+
+    .hero-sub {
+      font-size: 1.12rem;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      max-width: 60ch;
     }
-    .cta-group { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+    .cta-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
     .btn-primary {
-      background: var(--amber); color: #000; font-weight: 800; padding: 15px 30px;
-      border-radius: 16px; text-decoration: none; font-size: 1rem;
-      box-shadow: 0 10px 30px rgba(255,179,0,0.25);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #ffb300 0%, #ffa000 100%);
+      color: #050608;
+      font-weight: 800;
+      padding: 15px 28px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-size: 0.98rem;
+      box-shadow: 0 12px 32px rgba(255, 179, 0, 0.25);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 38px rgba(255, 179, 0, 0.35);
+    }
+
     .btn-secondary {
-      background: var(--card); color: var(--text); font-weight: 600; padding: 15px 26px;
-      border-radius: 16px; text-decoration: none; border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      color: var(--text);
+      font-weight: 700;
+      padding: 15px 24px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      border: 1px solid var(--border);
+      transition: border-color 0.18s ease, background 0.18s ease;
     }
-    .grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 22px; margin: 40px 0 80px;
+
+    .btn-secondary:hover {
+      border-color: rgba(255, 179, 0, 0.45);
+      background: var(--card-hover);
     }
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 22px; padding: 28px;
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
     }
-    .card h3 { color: var(--amber); margin-bottom: 10px; font-size: 1.18rem; }
-    .card p { color: var(--muted); font-size: 0.95rem; }
+
+    .stat-item strong {
+      display: block;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-item span {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    /* Interactive OLED Phone Mockup */
+    .phone-showcase {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 410px;
+      background: #05070c;
+      border-radius: 36px;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.85),
+        0 0 0 1px rgba(255, 179, 0, 0.15),
+        0 0 60px rgba(255, 179, 0, 0.08);
+      padding: 20px;
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 96px;
+      height: 6px;
+      background: #1b2030;
+      border-radius: 999px;
+      margin: 0 auto 16px;
+    }
+
+    .phone-mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: #0d101a;
+      padding: 5px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .phone-mode-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .phone-mode-tab.active {
+      background: rgba(255, 179, 0, 0.16);
+      color: var(--amber);
+      border: 1px solid rgba(255, 179, 0, 0.35);
+    }
+
+    .phone-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+    }
+
+    .live-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      margin-right: 6px;
+      box-shadow: 0 0 10px var(--teal);
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.25); }
+    }
+
+    .phone-bpm-card {
+      background: linear-gradient(180deg, #0f1320 0%, #090c14 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .bpm-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .bpm-value {
+      font-size: 2.4rem;
+      font-weight: 850;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .bpm-value small {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--amber);
+      margin-left: 4px;
+    }
+
+    .bpm-delta {
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(38, 166, 154, 0.16);
+      color: var(--teal);
+      border: 1px solid rgba(38, 166, 154, 0.35);
+    }
+
+    .chart-box {
+      width: 100%;
+      height: 108px;
+      margin: 8px 0 6px;
+    }
+
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .phone-media-card {
+      background: #0d101a;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .media-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .media-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 179, 0, 0.15);
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      flex-shrink: 0;
+    }
+
+    .media-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .media-sub {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+    }
+
+    .phone-trigger-banner {
+      background: rgba(38, 166, 154, 0.12);
+      border: 1px solid rgba(38, 166, 154, 0.35);
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-size: 0.8rem;
+      color: #b2dfdb;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Section Headers */
+    section {
+      padding: 72px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-head {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 48px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .section-head p {
+      color: var(--text-secondary);
+      font-size: 1.02rem;
+    }
+
+    /* 3-Step Workflow Grid */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .step-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 30px 26px;
+      position: relative;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .step-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 179, 0, 0.35);
+    }
+
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: rgba(255, 179, 0, 0.14);
+      border: 1px solid rgba(255, 179, 0, 0.35);
+      color: var(--amber);
+      font-weight: 800;
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+    }
+
+    .step-card h3 {
+      font-size: 1.18rem;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .step-card p {
+      color: var(--text-secondary);
+      font-size: 0.94rem;
+    }
+
+    /* Bento Features Grid */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .bento-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .bento-card:hover {
+      border-color: rgba(255, 179, 0, 0.32);
+      background: var(--card-hover);
+    }
+
+    .bento-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 179, 0, 0.12);
+      border: 1px solid rgba(255, 179, 0, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .bento-card h3 {
+      font-size: 1.14rem;
+      font-weight: 750;
+      color: var(--text);
+    }
+
+    .bento-card p {
+      color: var(--text-secondary);
+      font-size: 0.93rem;
+      flex: 1;
+    }
+
+    .bento-meta {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--teal);
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Compatibility Dual Showcase */
+    .compat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .compat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+    }
+
+    .compat-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      color: var(--amber);
+    }
+
+    .compat-card p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      margin-bottom: 20px;
+    }
+
+    .chip-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chip span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    /* Pricing & Comparison Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 26px;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .price-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 34px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .price-card.featured {
+      background: linear-gradient(180deg, rgba(255, 179, 0, 0.08) 0%, var(--card) 55%);
+      border: 1px solid rgba(255, 179, 0, 0.45);
+      box-shadow: 0 20px 50px rgba(255, 179, 0, 0.08);
+    }
+
+    .price-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(255, 179, 0, 0.16);
+      color: var(--amber);
+      margin-bottom: 14px;
+    }
+
+    .price-amount {
+      font-size: 2.8rem;
+      font-weight: 850;
+      color: var(--text);
+      margin: 10px 0 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .price-amount small {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .price-list {
+      list-style: none;
+      margin: 22px 0 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .price-list li {
+      font-size: 0.93rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .price-list li strong {
+      color: var(--text);
+    }
+
+    /* FAQ Accordion */
+    .faq-list {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    details.faq-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      transition: border-color 0.18s ease;
+    }
+
+    details.faq-item[open] {
+      border-color: rgba(255, 179, 0, 0.4);
+    }
+
+    details.faq-item summary {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    details.faq-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.faq-item summary::after {
+      content: "+";
+      font-size: 1.3rem;
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    details.faq-item[open] summary::after {
+      content: "−";
+    }
+
+    details.faq-item p {
+      margin-top: 12px;
+      color: var(--text-secondary);
+      font-size: 0.94rem;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Footer */
     footer {
-      border-top: 1px solid var(--border); padding: 36px 0;
-      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;
-      color: var(--muted); font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+      padding: 42px 0 56px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
     }
-    footer a { color: var(--amber); text-decoration: none; }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.15s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--amber);
+    }
+
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 48px 0;
+      }
+      .steps-grid,
+      .bento-grid,
+      .compat-grid,
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="navbar-wrap">
+    <div class="container">
+      <header class="navbar">
+        <a href="/" class="brand">
+          <img src="icon-512.png" alt="SleepStop Logo" />
+          <span>SleepStop</span>
+          <span class="brand-tag">Android • BLE</span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="#how" data-i18n="nav_how">Fonctionnement</a>
+          <a href="#features" data-i18n="nav_features">Technologie</a>
+          <a href="#compat" data-i18n="nav_compat">Compatibilité</a>
+          <a href="#pricing" data-i18n="nav_pricing">Tarif</a>
+          <a href="#faq">FAQ</a>
+          <a href="/privacy" data-i18n="nav_privacy">Confidentialité RGPD</a>
+        </nav>
+
+        <div class="lang-pills" role="group" aria-label="Language selector">
+          <button class="pill active" onclick="setSiteLang('fr')" id="btn-fr">🇫🇷 FR</button>
+          <button class="pill" onclick="setSiteLang('nl')" id="btn-nl">🇳🇱 NL</button>
+          <button class="pill" onclick="setSiteLang('de')" id="btn-de">🇩🇪 DE</button>
+          <button class="pill" onclick="setSiteLang('es')" id="btn-es">🇪🇸 ES</button>
+        </div>
+      </header>
+    </div>
+  </div>
+
   <div class="container">
-    <header>
-      <div class="brand">
-        <div class="brand-badge">☾</div>
-        <span>SleepStop</span>
-      </div>
-      <div class="lang-pills">
-        <span class="pill">🇫🇷 FR</span>
-        <span class="pill">🇳🇱 NL</span>
-        <span class="pill">🇩🇪 DE</span>
-        <span class="pill">🇪🇸 ES</span>
-      </div>
-    </header>
-
-    <section class="hero">
-      <div class="tag">Compatible Garmin • Whoop • Polar • Coros • Amazfit • Mode Sans Montre</div>
-      <h1>Vos médias s'arrêtent <span>à la seconde précise</span> où vous dormez.</h1>
-      <p class="subtitle">
-        Fini les livres audio Audible qui tournent toute la nuit ou les vidéos YouTube qui vident votre batterie.
-        SleepStop analyse la baisse de votre rythme cardiaque en temps réel et coupe vos applications dès que vous vous endormez.
-      </p>
-      <div class="cta-group">
-        <a href="#features" class="btn-primary">Découvrir SleepStop (5 nuits d'essai gratuit)</a>
-        <a href="privacy.html" class="btn-secondary">Confidentialité 100 % Locale</a>
-      </div>
-    </section>
-
-    <section id="features" class="grid">
-      <div class="card">
-        <h3>♥ Biométrie Adaptative (Firstbeat)</h3>
-        <p>Calibre automatiquement votre pouls au coucher pendant 90 secondes et détecte le plateau parasympathique d'entrée en sommeil léger (BPM + variabilité R-R HRV).</p>
-      </div>
-      <div class="card">
-        <h3>⏹ Fermeture Forcée des Apps</h3>
-        <p>Met en pause votre média, quitte le plein écran vidéo (YouTube, Netflix, Twitch) pour laisser l'écran s'éteindre, et ferme les applications que vous avez sélectionnées.</p>
-      </div>
-      <div class="card">
-        <h3>📖 Journal & Signet Intelligent</h3>
-        <p>Retrouvez au réveil l'heure exacte à laquelle vous vous êtes endormi, le titre du chapitre en cours et la courbe complète de votre rythme cardiaque.</p>
-      </div>
-      <div class="card">
-        <h3>⚡ Tuile Rapide Android</h3>
-        <p>Lancez ou arrêtez la surveillance en 1 clic directement depuis le volet de raccourcis rapides d'Android sans même quitter votre vidéo ou livre audio.</p>
-      </div>
-      <div class="card">
-        <h3>📳 Mode Téléphone « Fade & Shake »</h3>
-        <p>Pas de montre ce soir ? Toutes les X minutes, le son baisse doucement sur 60 secondes. Bougez légèrement le téléphone pour continuer à écouter.</p>
-      </div>
-      <div class="card">
-        <h3>🔒 Sans Abonnement & 100 % Privé</h3>
-        <p>5 nuits complètes offertes, puis un seul paiement unique à vie (9,99 €). Aucune donnée cardiaque ne quitte jamais votre téléphone.</p>
-      </div>
-    </section>
-
-    <footer>
-      <div>© 2026 SleepStop (sleepstop.eu) — Tous droits réservés.</div>
+    <!-- HERO -->
+    <div class="hero">
       <div>
-        <a href="privacy.html">Politique de Confidentialité (Privacy Policy)</a> •
-        <a href="mailto:support@sleepstop.eu">support@sleepstop.eu</a>
+        <div class="eyebrow" data-i18n="hero_eyebrow">
+          🇧🇪 Conçu en Belgique • 100 % Local & Privé • Compatible Garmin, Whoop, Polar & Sans Montre
+        </div>
+        <h1 data-i18n="hero_title">
+          Vos médias s'arrêtent <span class="accent">à la seconde précise</span> où vous dormez.
+        </h1>
+        <p class="hero-sub" data-i18n="hero_sub">
+          Fini les livres audio Audible qui tournent toute la nuit ou les vidéos YouTube qui vident votre batterie. SleepStop analyse la baisse de votre rythme cardiaque en temps réel (ou vos micro-mouvements) et coupe vos applications dès que vous vous endormez.
+        </p>
+
+        <div class="cta-group">
+          <a href="#pricing" class="btn-primary" data-i18n="cta_primary">
+            ✨ Essayer gratuitement (5 nuits offertes)
+          </a>
+          <a href="/privacy" class="btn-secondary" data-i18n="cta_secondary">
+            🛡️ Confidentialité & RGPD Belge
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <strong>5 nuits</strong>
+            <span data-i18n="stat_trial">Essai 100 % gratuit sans compte</span>
+          </div>
+          <div class="stat-item">
+            <strong>9,99 €</strong>
+            <span data-i18n="stat_price">Accès Pro à vie • Zéro abonnement</span>
+          </div>
+          <div class="stat-item">
+            <strong>100 % Local</strong>
+            <span data-i18n="stat_privacy">Aucun BPM envoyé dans le Cloud</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE OLED PHONE PREVIEW -->
+      <div class="phone-showcase">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+
+          <div class="phone-mode-tabs">
+            <button class="phone-mode-tab active" id="tabWatch" onclick="switchMockupMode('watch')">
+              ⌚ Mode Montre BLE
+            </button>
+            <button class="phone-mode-tab" id="tabPhone" onclick="switchMockupMode('phone')">
+              📳 Mode Sans Montre
+            </button>
+          </div>
+
+          <div class="phone-status-row">
+            <span id="mockSensorLabel"><span class="live-dot"></span>Garmin Fenix 7 • BLE 0x180D</span>
+            <span style="color:var(--amber);font-weight:700;" id="mockStatusBadge">Calibration OK</span>
+          </div>
+
+          <div class="phone-bpm-card">
+            <div class="bpm-header">
+              <div>
+                <div style="font-size:0.74rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;" id="mockMetricTitle">
+                  Fréquence Cardiaque & HRV
+                </div>
+                <div class="bpm-value" id="mockMetricValue">54<small>BPM</small></div>
+              </div>
+              <span class="bpm-delta" id="mockDeltaBadge">−18 % • Seuil sommeil atteint</span>
+            </div>
+
+            <svg class="chart-box" viewBox="0 0 320 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="curveGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FFB300" stop-opacity="0.36" />
+                  <stop offset="100%" stop-color="#FFB300" stop-opacity="0.0" />
+                </linearGradient>
+              </defs>
+              <!-- Threshold dashed line -->
+              <line x1="0" y1="64" x2="320" y2="64" stroke="#26A69A" stroke-width="1.2" stroke-dasharray="4 4" />
+              <!-- Area under curve -->
+              <path id="mockCurveArea" d="M0 24 C40 22, 70 28, 110 34 C150 40, 185 52, 225 66 C260 76, 290 78, 320 80 L320 100 L0 100 Z" fill="url(#curveGrad)" />
+              <!-- Main telemetry line -->
+              <path id="mockCurveLine" d="M0 24 C40 22, 70 28, 110 34 C150 40, 185 52, 225 66 C260 76, 290 78, 320 80" stroke="#FFB300" stroke-width="3" stroke-linecap="round" />
+              <!-- Sleep trigger point -->
+              <circle cx="225" cy="66" r="5" fill="#26A69A" stroke="#05070C" stroke-width="2" />
+            </svg>
+
+            <div class="chart-labels">
+              <span>23:18 (Repos : 66 BPM)</span>
+              <span style="color:var(--teal);font-weight:700;">Seuil : 56 BPM</span>
+              <span>23:42 (Sommeil)</span>
+            </div>
+          </div>
+
+          <div class="phone-media-card">
+            <div class="media-info">
+              <div class="media-icon">🎧</div>
+              <div>
+                <div class="media-title">Audible • Dune (Chapitre 14)</div>
+                <div class="media-sub">Signet sauvegardé automatiquement à 23:42</div>
+              </div>
+            </div>
+            <span style="font-size:0.75rem;font-weight:800;color:var(--amber);">PAUSÉ</span>
+          </div>
+
+          <div class="phone-trigger-banner" id="mockBannerText">
+            <span>😴</span>
+            <div><strong>Sommeil détecté :</strong> Fondu sonore terminé, plein écran fermé et écran verrouillé.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS IN 3 STEPS -->
+    <section id="how">
+      <div class="section-head">
+        <span class="section-tag" data-i18n="how_tag">Fonctionnement en 3 étapes</span>
+        <h2 data-i18n="how_title">Ne cherchez plus jamais à quel chapitre vous vous êtes endormi.</h2>
+        <p data-i18n="how_sub">
+          Contrairement à un minuteur classique qui coupe au milieu d'une phrase ou continue 45 minutes après votre endormissement, SleepStop écoute votre physiologie.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3 data-i18n="step1_title">Lancez votre média favori</h3>
+          <p data-i18n="step1_desc">
+            Démarrez Audible, YouTube, Spotify, Netflix ou votre application de podcast, puis activez SleepStop (ou cliquez sur la Tuile Rapide Android).
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3 data-i18n="step2_title">Calibration biométrique (90 s)</h3>
+          <p data-i18n="step2_desc">
+            SleepStop mesure votre pouls de repos au coucher et calcule votre seuil personnel d'endormissement ainsi que votre variabilité cardiaque (HRV R-R).
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3 data-i18n="step3_title">Coupure douce & signet précis</h3>
+          <p data-i18n="step3_desc">
+            Dès que votre pouls se stabilise sous le seuil, le volume baisse en douceur, le plein écran vidéo est fermé pour éteindre l'écran, et l'heure exacte est notée dans votre journal.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 BENTO FEATURES -->
+    <section id="features">
+      <div class="section-head">
+        <span class="section-tag" data-i18n="feat_tag">Ingénierie & Détails</span>
+        <h2 data-i18n="feat_title">Conçu pour les nuits OLED et la précision physiologique.</h2>
+        <p data-i18n="feat_sub">
+          Chaque détail a été pensé pour préserver votre sommeil, la batterie de votre téléphone et votre vie privée.
+        </p>
+      </div>
+
+      <div class="bento-grid">
+        <div class="bento-card">
+          <div class="bento-icon">❤️</div>
+          <h3 data-i18n="f1_title">Algorithme Adaptatif Firstbeat</h3>
+          <p data-i18n="f1_desc">
+            Combine la baisse du rythme cardiaque (BPM) et l'analyse parasympathique des intervalles R-R (RMSSD HRV) via le profil Bluetooth standard 0x180D / 0x2A37.
+          </p>
+          <div class="bento-meta">Standard Bluetooth SIG 0x180D</div>
+        </div>
+
+        <div class="bento-card">
+          <div class="bento-icon">⏹️</div>
+          <h3 data-i18n="f2_title">Sortie du Plein Écran & Fermeture</h3>
+          <p data-i18n="f2_desc">
+            Coupe le flux audio, ramène automatiquement YouTube, Netflix ou Twitch à l'écran d'accueil pour permettre la mise en veille de l'écran, et ferme les apps choisies.
+          </p>
+          <div class="bento-meta">Économie maximale de batterie OLED</div>
+        </div>
+
+        <div class="bento-card">
+          <div class="bento-icon">📳</div>
+          <h3 data-i18n="f3_title">Mode Sans Montre « Fade & Shake »</h3>
+          <p data-i18n="f3_desc">
+            Vous ne portez pas votre montre ce soir ? Toutes les X minutes, le volume baisse progressivement sur 60 secondes. Bougez légèrement le téléphone pour relancer l'écoute.
+          </p>
+          <div class="bento-meta">Accéléromètre 3D haute sensibilité</div>
+        </div>
+
+        <div class="bento-card">
+          <div class="bento-icon">📖</div>
+          <h3 data-i18n="f4_title">Journal & Signet Intelligent</h3>
+          <p data-i18n="f4_desc">
+            Consultez au réveil l'heure exacte de votre endormissement, le titre du chapitre ou de la vidéo en cours, et la courbe complète de votre rythme cardiaque.
+          </p>
+          <div class="bento-meta">Stocké 100 % en mémoire locale</div>
+        </div>
+
+        <div class="bento-card">
+          <div class="bento-icon">⚡</div>
+          <h3 data-i18n="f5_title">Tuile Rapide Android & Réveil Doux</h3>
+          <p data-i18n="f5_desc">
+            Activez la veille en 1 clic depuis le volet de raccourcis rapides d'Android sans quitter votre livre audio, et programmez une alarme matinale progressive.
+          </p>
+          <div class="bento-meta">Intégration native Android</div>
+        </div>
+
+        <div class="bento-card">
+          <div class="bento-icon">🇧🇪</div>
+          <h3 data-i18n="f6_title">RGPD Belge & Zéro Cloud Santé</h3>
+          <p data-i18n="f6_desc">
+            Aucun compte utilisateur requis. Vos données biométriques (Art. 9 RGPD) ne quittent jamais votre téléphone. Conformité totale avec l'APD Bruxelles.
+          </p>
+          <div class="bento-meta">Privacy by Design (Art. 25 RGPD)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPATIBILITY -->
+    <section id="compat">
+      <div class="section-head">
+        <span class="section-tag" data-i18n="compat_tag">Écosystème Ouvert</span>
+        <h2 data-i18n="compat_title">Compatible avec votre montre et toutes vos applications.</h2>
+        <p data-i18n="compat_sub">
+          Aucune application propriétaire tierce n'est requise : SleepStop communique directement en Bluetooth Low Energy avec votre capteur.
+        </p>
+      </div>
+
+      <div class="compat-grid">
+        <div class="compat-card">
+          <h3 data-i18n="compat_watch_title">⌚ Montres & Capteurs Cardiaques BLE</h3>
+          <p data-i18n="compat_watch_sub">Activez simplement la « Diffusion de fréquence cardiaque » (Broadcast HR) sur votre montre :</p>
+          <div class="chip-cloud">
+            <span class="chip"><span class="dot"></span>Garmin Fenix / Epix / Forerunner</span>
+            <span class="chip"><span class="dot"></span>Garmin Venu / Vivoactive / Instinct</span>
+            <span class="chip"><span class="dot"></span>Whoop 4.0 (Broadcast HR)</span>
+            <span class="chip"><span class="dot"></span>Polar H10 / Verity Sense / Vantage</span>
+            <span class="chip"><span class="dot"></span>Coros Pace / Apex / Vertix</span>
+            <span class="chip"><span class="dot"></span>Suunto Race / Vertical</span>
+            <span class="chip"><span class="dot"></span>Amazfit / Zepp OS</span>
+            <span class="chip"><span class="dot"></span>Samsung Galaxy Watch / Wear OS</span>
+            <span class="chip"><span class="dot"></span>Mode Téléphone Seul (Sans montre)</span>
+          </div>
+        </div>
+
+        <div class="compat-card">
+          <h3 data-i18n="compat_app_title">🎧 Lecteurs Audio & Vidéo Supportés</h3>
+          <p data-i18n="compat_app_sub">Fonctionne automatiquement avec toutes les applications multimédias Android :</p>
+          <div class="chip-cloud">
+            <span class="chip"><span class="dot"></span>Audible</span>
+            <span class="chip"><span class="dot"></span>YouTube & YouTube Music</span>
+            <span class="chip"><span class="dot"></span>Spotify</span>
+            <span class="chip"><span class="dot"></span>Netflix</span>
+            <span class="chip"><span class="dot"></span>Twitch</span>
+            <span class="chip"><span class="dot"></span>Pocket Casts & AntennaPod</span>
+            <span class="chip"><span class="dot"></span>Smart AudioBook Player</span>
+            <span class="chip"><span class="dot"></span>Deezer & Apple Music</span>
+            <span class="chip"><span class="dot"></span>Disney+ & Prime Video</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing">
+      <div class="section-head">
+        <span class="section-tag" data-i18n="price_tag">Tarif Transparent</span>
+        <h2 data-i18n="price_title">5 nuits offertes, puis un seul paiement à vie.</h2>
+        <p data-i18n="price_sub">
+          Nous détestons les abonnements autant que vous. Testez SleepStop en conditions réelles pendant 5 nuits complètes avant de décider.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div>
+            <span class="price-badge" style="background:rgba(38,166,154,0.15);color:var(--teal);">Essai Gratuit</span>
+            <h3>Découverte — 5 Nuits</h3>
+            <div class="price-amount">0 € <small>sans carte bancaire</small></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem;">
+              Idéal pour tester la détection biométrique avec votre montre Garmin, Whoop ou Polar.
+            </p>
+            <ul class="price-list">
+              <li>✅ <span><strong>5 nuits complètes</strong> d'endormissement détecté</span></li>
+              <li>✅ <span>Accès intégral au <strong>Mode Montre BLE</strong> et <strong>Mode Sans Montre</strong></span></li>
+              <li>✅ <span>Journal de sommeil, courbe BPM et signet média</span></li>
+              <li>✅ <span>Aucune création de compte ni inscription</span></li>
+            </ul>
+          </div>
+          <a href="#how" class="btn-secondary" style="justify-content:center;">Inclus dès le téléchargement</a>
+        </div>
+
+        <div class="price-card featured">
+          <div>
+            <span class="price-badge">💎 Licence À Vie • Zéro Abonnement</span>
+            <h3>SleepStop Pro (Lifetime)</h3>
+            <div class="price-amount">9,99 € <small>paiement unique TTC</small></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem;">
+              Payez une seule fois via Google Play et profitez de SleepStop à vie sur tous vos appareils Android.
+            </p>
+            <ul class="price-list">
+              <li>✨ <span><strong>Nuits et sessions illimitées</strong> à vie</span></li>
+              <li>✨ <span>Calibration adaptative Firstbeat (BPM + variabilité R-R HRV)</span></li>
+              <li>✨ <span>Fermeture forcée des applications & sortie du plein écran</span></li>
+              <li>✨ <span>Restauration automatique des achats via Google Play</span></li>
+            </ul>
+          </div>
+          <a href="#how" class="btn-primary" style="justify-content:center;">Disponible dans l'application Android</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="section-head">
+        <span class="section-tag">Questions Fréquentes</span>
+        <h2>Tout savoir sur SleepStop</h2>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary>Comment connecter ma montre Garmin, Whoop ou Polar ?</summary>
+          <p>
+            Il suffit d'activer l'option <strong>« Diffuser la fréquence cardiaque » (Broadcast Heart Rate)</strong> dans les réglages de votre montre. SleepStop détecte automatiquement le flux Bluetooth Low Energy standard (<code>0x180D</code>) sans avoir besoin de créer de compte ni d'installer d'application supplémentaire. Un guide illustré marque par marque est intégré dans l'application.
+          </p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Pourquoi SleepStop propose-t-il un service d'Accessibilité Android ?</summary>
+          <p>
+            Lorsque vous regardez YouTube, Netflix ou Twitch en plein écran, Android empêche l'écran de s'éteindre tant que le lecteur vidéo est ouvert. Le service d'accessibilité local permet à SleepStop de revenir automatiquement à l'écran d'accueil et de fermer les applications sélectionnées dès que vous dormez, économisant ainsi votre batterie toute la nuit.
+          </p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Mes données cardiaques sont-elles envoyées sur un serveur ?</summary>
+          <p>
+            <strong>Jamais.</strong> Vos mesures de pouls (BPM), votre variabilité cardiaque (HRV) et les titres de vos livres audio ou vidéos sont traités et stockés <strong>100 % localement sur votre téléphone</strong>, conformément au RGPD européen et à la loi belge du 30 juillet 2018.
+          </p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Que se passe-t-il si je change de téléphone ?</summary>
+          <p>
+            Votre achat <strong>SleepStop Pro à vie (9,99 €)</strong> est rattaché à votre compte Google Play. Il est restauré automatiquement et gratuitement sur tout nouveau smartphone ou tablette Android.
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-inner">
+        <div>
+          <strong>© 2026 SleepStop (sleepstop.eu)</strong> — Conçu en Belgique 🇧🇪 • Tous droits réservés.
+        </div>
+        <div class="footer-links">
+          <a href="/privacy">Politique de Confidentialité (RGPD Belgique)</a>
+          <a href="https://github.com/lud0veek/sleepstop" target="_blank" rel="noopener">GitHub</a>
+          <a href="mailto:support@sleepstop.eu">support@sleepstop.eu</a>
+        </div>
       </div>
     </footer>
   </div>
+
+  <script>
+    const I18N = {
+      fr: {
+        nav_how: "Fonctionnement",
+        nav_features: "Technologie",
+        nav_compat: "Compatibilité",
+        nav_pricing: "Tarif",
+        nav_privacy: "Confidentialité RGPD",
+        hero_eyebrow: "🇧🇪 Conçu en Belgique • 100 % Local & Privé • Compatible Garmin, Whoop, Polar & Sans Montre",
+        hero_title: "Vos médias s'arrêtent <span class=\"accent\">à la seconde précise</span> où vous dormez.",
+        hero_sub: "Fini les livres audio Audible qui tournent toute la nuit ou les vidéos YouTube qui vident votre batterie. SleepStop analyse la baisse de votre rythme cardiaque en temps réel (ou vos micro-mouvements) et coupe vos applications dès que vous vous endormez.",
+        cta_primary: "✨ Essayer gratuitement (5 nuits offertes)",
+        cta_secondary: "🛡️ Confidentialité & RGPD Belge",
+        stat_trial: "Essai 100 % gratuit sans compte",
+        stat_price: "Accès Pro à vie • Zéro abonnement",
+        stat_privacy: "Aucun BPM envoyé dans le Cloud",
+        how_tag: "Fonctionnement en 3 étapes",
+        how_title: "Ne cherchez plus jamais à quel chapitre vous vous êtes endormi.",
+        how_sub: "Contrairement à un minuteur classique qui coupe au milieu d'une phrase ou continue 45 minutes après votre endormissement, SleepStop écoute votre physiologie.",
+        step1_title: "Lancez votre média favori",
+        step1_desc: "Démarrez Audible, YouTube, Spotify, Netflix ou votre application de podcast, puis activez SleepStop (ou cliquez sur la Tuile Rapide Android).",
+        step2_title: "Calibration biométrique (90 s)",
+        step2_desc: "SleepStop mesure votre pouls de repos au coucher et calcule votre seuil personnel d'endormissement ainsi que votre variabilité cardiaque (HRV R-R).",
+        step3_title: "Coupure douce & signet précis",
+        step3_desc: "Dès que votre pouls se stabilise sous le seuil, le volume baisse en douceur, le plein écran vidéo est fermé pour éteindre l'écran, et l'heure exacte est notée dans votre journal."
+      },
+      nl: {
+        nav_how: "Hoe het werkt",
+        nav_features: "Technologie",
+        nav_compat: "Compatibiliteit",
+        nav_pricing: "Prijs",
+        nav_privacy: "AVG / GDPR Privacy",
+        hero_eyebrow: "🇧🇪 Ontworpen in België • 100% Lokaal & Privé • Garmin, Whoop, Polar & Zonder Horloge",
+        hero_title: "Je media stopt <span class=\"accent\">op de exacte seconde</span> dat je in slaap valt.",
+        hero_sub: "Geen Audible-luisterboeken meer die de hele nacht doorlopen of YouTube-video's die je batterij leegtrekken. SleepStop analyseert je hartslagdaling in realtime en pauzeert je apps zodra je slaapt.",
+        cta_primary: "✨ Gratis proberen (5 nachten cadeau)",
+        cta_secondary: "🛡️ Belgisch AVG / GDPR-beleid",
+        stat_trial: "100% gratis proef zonder account",
+        stat_price: "Levenslang Pro • Geen abonnement",
+        stat_privacy: "Geen hartslagdata in de cloud",
+        how_tag: "Werking in 3 stappen",
+        how_title: "Zoek nooit meer bij welk hoofdstuk je in slaap bent gevallen.",
+        how_sub: "In tegenstelling tot een gewone sleeptimer luistert SleepStop naar je fysiologie en hartslagvariabiliteit.",
+        step1_title: "Start je favoriete media",
+        step1_desc: "Open Audible, YouTube, Spotify of Netflix en activeer SleepStop (of gebruik de snelle Android-tegel).",
+        step2_title: "Biometrische kalibratie (90 s)",
+        step2_desc: "SleepStop meet je rusthartslag in bed en berekent automatisch je persoonlijke slaapdrempel (BPM + R-R HRV).",
+        step3_title: "Zachte fade-out & bladwijzer",
+        step3_desc: "Zodra je hartslag onder de drempel zakt, dempt het geluid zachtjes, sluit het volledige scherm en wordt het exacte tijdstip opgeslagen."
+      },
+      de: {
+        nav_how: "Funktionsweise",
+        nav_features: "Technologie",
+        nav_compat: "Kompatibilität",
+        nav_pricing: "Preis",
+        nav_privacy: "DSGVO Datenschutz",
+        hero_eyebrow: "🇧🇪 Entwickelt in Belgien • 100 % Lokal & Privat • Garmin, Whoop, Polar & Ohne Uhr",
+        hero_title: "Deine Medien stoppen <span class=\"accent\">in der exakten Sekunde</span>, in der du einschläfst.",
+        hero_sub: "Keine Audible-Hörbücher mehr, die die ganze Nacht weiterlaufen, oder YouTube-Videos, die deinen Akku leeren. SleepStop erkennt deinen Pulsabfall in Echtzeit und pausiert deine Apps beim Einschlafen.",
+        cta_primary: "✨ Kostenlos testen (5 Nächte gratis)",
+        cta_secondary: "🛡️ DSGVO & Datenschutz",
+        stat_trial: "100 % kostenlos testen ohne Konto",
+        stat_price: "Lebenslang Pro • Kein Abo",
+        stat_privacy: "Keine Pulsdaten in der Cloud",
+        how_tag: "In 3 Schritten",
+        how_title: "Suche nie wieder das Kapitel, bei dem du eingeschlafen bist.",
+        how_sub: "Im Gegensatz zu einem starren Timer erkennt SleepStop deinen tatsächlichen Übergang in den Leichtschlaf.",
+        step1_title: "Lieblingsmedien starten",
+        step1_desc: "Starte Audible, YouTube, Spotify oder Netflix und aktiviere SleepStop direkt oder über die Android-Schnellkachel.",
+        step2_title: "Biometrische Kalibrierung (90 s)",
+        step2_desc: "SleepStop misst deinen Ruhepuls beim Hinlegen und berechnet deine individuelle Einschlafschwelle (BPM + HRV).",
+        step3_title: "Sanftes Ausblenden & Lesezeichen",
+        step3_desc: "Sobald dein Puls unter die Schwelle sinkt, wird die Lautstärke sanft reduziert, das Vollbild geschlossen und die exakte Uhrzeit gespeichert."
+      },
+      es: {
+        nav_how: "Cómo funciona",
+        nav_features: "Tecnología",
+        nav_compat: "Compatibilidad",
+        nav_pricing: "Precio",
+        nav_privacy: "Privacidad RGPD",
+        hero_eyebrow: "🇧🇪 Diseñado en Bélgica • 100 % Local y Privado • Garmin, Whoop, Polar y Sin Reloj",
+        hero_title: "Tus medios se detienen <span class=\"accent\">en el segundo exacto</span> en que te duermes.",
+        hero_sub: "Olvídate de los audiolibros de Audible reproduciéndose toda la noche o vídeos de YouTube agotando tu batería. SleepStop analiza el descenso de tu pulso en tiempo real y pausa tus apps al dormirte.",
+        cta_primary: "✨ Probar gratis (5 noches incluidas)",
+        cta_secondary: "🛡️ Privacidad RGPD Bélgica",
+        stat_trial: "Prueba 100 % gratis sin cuenta",
+        stat_price: "Pro de por vida • Sin suscripción",
+        stat_privacy: "Ningún BPM enviado a la nube",
+        how_tag: "Cómo funciona en 3 pasos",
+        how_title: "No vuelvas a buscar en qué capítulo te quedaste dormido.",
+        how_sub: "A diferencia de un temporizador fijo, SleepStop detecta el momento fisiológico exacto en que concilias el sueño.",
+        step1_title: "Inicia tu contenido favorito",
+        step1_desc: "Abre Audible, YouTube, Spotify o Netflix y activa SleepStop (o pulsa el ajuste rápido de Android).",
+        step2_title: "Calibración biométrica (90 s)",
+        step2_desc: "SleepStop mide tu pulso en reposo y calcula tu umbral personal de sueño junto con la variabilidad cardíaca (HRV).",
+        step3_title: "Atenuación suave y marcador",
+        step3_desc: "Cuando tu pulso baja del umbral, el volumen disminuye suavemente, se cierra la pantalla completa y se guarda la hora exacta."
+      }
+    };
+
+    function setSiteLang(lang) {
+      const dict = I18N[lang] || I18N.fr;
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) {
+          el.innerHTML = dict[key];
+        }
+      });
+      ["fr", "nl", "de", "es"].forEach(code => {
+        const btn = document.getElementById("btn-" + code);
+        if (btn) btn.classList.toggle("active", code === lang);
+      });
+    }
+
+    function switchMockupMode(mode) {
+      const isWatch = mode === "watch";
+      document.getElementById("tabWatch").classList.toggle("active", isWatch);
+      document.getElementById("tabPhone").classList.toggle("active", !isWatch);
+
+      if (isWatch) {
+        document.getElementById("mockSensorLabel").innerHTML = '<span class="live-dot"></span>Garmin Fenix 7 • BLE 0x180D';
+        document.getElementById("mockStatusBadge").textContent = "Calibration OK";
+        document.getElementById("mockMetricTitle").textContent = "Fréquence Cardiaque & HRV";
+        document.getElementById("mockMetricValue").innerHTML = "54<small>BPM</small>";
+        document.getElementById("mockDeltaBadge").textContent = "−18 % • Seuil sommeil atteint";
+        document.getElementById("mockBannerText").innerHTML = "<span>😴</span><div><strong>Sommeil détecté :</strong> Fondu sonore terminé, plein écran fermé et écran verrouillé.</div>";
+      } else {
+        document.getElementById("mockSensorLabel").innerHTML = '<span class="live-dot"></span>Accéléromètre 3D • Fade & Shake';
+        document.getElementById("mockStatusBadge").textContent = "Cycle 20 min";
+        document.getElementById("mockMetricTitle").textContent = "Atténuation progressive du volume";
+        document.getElementById("mockMetricValue").innerHTML = "60<small>sec</small>";
+        document.getElementById("mockDeltaBadge").textContent = "Aucune secousse • Mise en pause";
+        document.getElementById("mockBannerText").innerHTML = "<span>📳</span><div><strong>Mode Sans Montre :</strong> Aucun mouvement détecté pendant le fondu de 60 s — média arrêté.</div>";
+      }
+    }
+  </script>
 </body>
 </html>

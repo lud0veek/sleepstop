@@ -7,141 +7,550 @@
   <link rel="icon" type="image/png" href="icon-512.png" />
   <style>
     :root {
-      --bg: #000000;
-      --card: #0c0c12;
-      --elevated: #14141f;
-      --border: #1e1e2c;
-      --amber: #ffb74d;
+      --bg: #030407;
+      --card: #0e111b;
+      --elevated: #151a28;
+      --border: rgba(255, 255, 255, 0.08);
+      --amber: #ffb300;
       --orange: #ff7043;
       --indigo: #7986cb;
-      --teal: #4db6ac;
-      --rose: #e57373;
-      --text: #e8e6e3;
-      --muted: #9e9d99;
+      --teal: #26a69a;
+      --rose: #ef5350;
+      --text: #f4f6fb;
+      --text-secondary: #a3acc2;
+      --muted: #6e778f;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 15% 0%, rgba(255, 179, 0, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 5%, rgba(121, 134, 203, 0.09) 0%, transparent 45%);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      padding: 28px 18px 80px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+      padding: 28px 20px 88px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    /* Top Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 179, 0, 0.4);
+      box-shadow: 0 8px 24px rgba(255, 179, 0, 0.15);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: rgba(38, 166, 154, 0.14);
+      color: var(--teal);
+      border: 1px solid rgba(38, 166, 154, 0.35);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .kpi-val {
+      font-size: 2.05rem;
+      font-weight: 850;
+      color: var(--text);
+      margin: 8px 0 4px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    .kpi-sub {
+      font-size: 0.8rem;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    /* Layout Grids & Cards */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 26px;
+      margin-bottom: 24px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    /* Block-level h2 so inline <code> or <span> never break into vertical columns */
+    h2.card-title {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--amber);
+      line-height: 1.4;
+      margin: 0 0 4px 0;
+      display: block;
+    }
+
+    p.sub {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84em;
+      background: var(--elevated);
+      color: var(--amber);
+      padding: 3px 8px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 12px;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.93rem;
+      outline: none;
+      transition: border-color 0.18s ease;
+    }
+
+    input:focus {
+      border-color: var(--amber);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 0.9rem;
+      background: linear-gradient(135deg, #ffb300 0%, #ffa000 100%);
+      color: #050608;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      opacity: 0.94;
+      transform: translateY(-1px);
+    }
+
+    .btn-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      font-size: 0.8rem;
+      border-radius: 10px;
+      background: var(--elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .btn-sm:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .btn-danger:hover {
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+
+    /* Bars */
+    .bar-row {
+      margin-bottom: 13px;
+    }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 8px;
+      background: var(--elevated);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--amber);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* Live Event Stream */
+    .event-list {
+      max-height: 310px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .event-item {
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      font-size: 0.84rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .event-time {
+      color: var(--text-secondary);
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.76rem;
+      flex-shrink: 0;
+    }
+
+    /* VIP Code CRUD Table */
+    .vip-form {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .vip-form input {
+      flex: 1;
+      min-width: 240px;
+    }
+
+    .vip-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    table.vip-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.87rem;
+    }
+
+    table.vip-table th,
+    table.vip-table td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    table.vip-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.vip-table th {
+      color: var(--text-secondary);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .code-pill {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: var(--teal);
+      background: rgba(38, 166, 154, 0.12);
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(38, 166, 154, 0.35);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-active {
+      background: rgba(38, 166, 154, 0.16);
+      color: var(--teal);
+    }
+
+    .status-paused {
+      background: rgba(255, 112, 67, 0.16);
+      color: var(--orange);
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* Step List for OVH & Play Console Guide */
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+    }
+
+    .step-num-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      background: rgba(255, 179, 0, 0.15);
+      border: 1px solid rgba(255, 179, 0, 0.35);
+      color: var(--amber);
+      font-weight: 800;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-body {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
       line-height: 1.55;
     }
-    .container { max-width: 1140px; margin: 0 auto; }
-    .header {
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 14px;
-      margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border);
+
+    .step-body strong {
+      color: var(--text);
     }
-    .brand { display: flex; align-items: center; gap: 14px; }
-    .brand img { width: 46px; height: 46px; border-radius: 12px; border: 1px solid rgba(255,183,77,0.4); }
-    .badge {
-      padding: 6px 12px; border-radius: 99px; font-size: 0.76rem; font-weight: 700;
-      background: rgba(77, 182, 172, 0.14); color: var(--teal);
-      border: 1px solid rgba(77, 182, 172, 0.35);
+
+    .step-body a {
+      color: var(--amber);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 600;
     }
-    .kpi-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;
-      margin-bottom: 20px;
+
+    .copy-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: #090c14;
+      border: 1px solid var(--border);
+      overflow-x: auto;
     }
-    .kpi-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 18px; padding: 18px 20px;
+
+    .copy-box span {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82rem;
+      color: var(--amber);
+      white-space: nowrap;
     }
-    .kpi-label {
-      font-size: 0.75rem; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.8px;
+
+    /* Checklist Grid */
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
     }
-    .kpi-val {
-      font-size: 2rem; font-weight: 800; color: var(--text);
-      margin: 6px 0 4px; font-variant-numeric: tabular-nums;
+
+    .check-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      font-size: 0.86rem;
+      color: var(--text-secondary);
     }
-    .kpi-sub { font-size: 0.8rem; color: var(--teal); font-weight: 600; }
-    .grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px;
-      margin-bottom: 20px;
+
+    .check-item strong {
+      color: var(--text);
     }
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 22px; padding: 22px;
-      margin-bottom: 20px;
+
+    /* Login Gate & Modal */
+    #loginGate {
+      max-width: 430px;
+      margin: 80px auto;
+      text-align: center;
     }
-    h2 { font-size: 1.05rem; color: var(--amber); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-    p.sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 14px; }
-    input {
-      width: 100%; padding: 11px 14px; border-radius: 12px;
-      background: var(--elevated); border: 1px solid var(--border);
-      color: var(--text); font-size: 0.92rem;
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 20px;
     }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 11px 16px; border-radius: 12px; border: none; cursor: pointer;
-      font-weight: 700; font-size: 0.88rem; background: var(--amber); color: #000;
-      transition: opacity 0.15s; white-space: nowrap;
+
+    .modal-card {
+      background: var(--card);
+      border: 1px solid rgba(255, 179, 0, 0.4);
+      border-radius: 22px;
+      padding: 26px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
     }
-    .btn:hover { opacity: 0.9; }
-    .btn-sm {
-      padding: 6px 11px; font-size: 0.78rem; border-radius: 9px;
-      background: var(--elevated); color: var(--text);
-      border: 1px solid var(--border); font-weight: 600; cursor: pointer;
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #121826;
+      border: 1px solid var(--teal);
+      color: var(--text);
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
+      display: none;
+      z-index: 400;
     }
-    .btn-sm:hover { border-color: var(--amber); color: var(--amber); }
-    .btn-danger:hover { border-color: var(--rose); color: var(--rose); }
-    .bar-row { margin-bottom: 12px; }
-    .bar-head { display: flex; justify-content: space-between; font-size: 0.84rem; margin-bottom: 4px; }
-    .bar-track {
-      width: 100%; height: 8px; background: var(--elevated);
-      border-radius: 99px; overflow: hidden;
+
+    @media (max-width: 640px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+      .card {
+        padding: 20px 16px;
+      }
     }
-    .bar-fill { height: 100%; background: var(--amber); border-radius: 99px; transition: width 0.4s ease; }
-    .event-list {
-      max-height: 290px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
-    }
-    .event-item {
-      padding: 10px 12px; border-radius: 12px; background: var(--elevated);
-      border: 1px solid var(--border); font-size: 0.83rem;
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    }
-    .event-time { color: var(--muted); font-family: monospace; font-size: 0.76rem; }
-    .vip-form {
-      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;
-    }
-    .vip-form input { flex: 1; min-width: 220px; }
-    .vip-table-wrap { overflow-x: auto; }
-    table.vip-table {
-      width: 100%; border-collapse: collapse; font-size: 0.86rem;
-    }
-    table.vip-table th, table.vip-table td {
-      padding: 12px 10px; border-bottom: 1px solid var(--border); text-align: left;
-    }
-    table.vip-table th {
-      color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.7px;
-    }
-    .code-pill {
-      font-family: monospace; font-weight: 800; font-size: 0.94rem;
-      color: var(--teal); background: rgba(77,182,172,0.12);
-      padding: 4px 9px; border-radius: 8px; border: 1px solid rgba(77,182,172,0.35);
-      letter-spacing: 0.8px;
-    }
-    .status-pill {
-      display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 0.74rem; font-weight: 700;
-    }
-    .status-active { background: rgba(77,182,172,0.16); color: var(--teal); }
-    .status-paused { background: rgba(255,112,67,0.16); color: var(--orange); }
-    .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
-    #loginGate { max-width: 420px; margin: 80px auto; text-align: center; }
   </style>
 </head>
 <body>
   <div class="container">
     <!-- PIN Gate -->
     <div id="loginGate" class="card">
-      <img src="icon-512.png" alt="SleepStop" style="width:64px;height:64px;border-radius:16px;margin-bottom:12px;" />
-      <h2 style="justify-content:center;">Console Admin SleepStop</h2>
+      <img src="icon-512.png" alt="SleepStop" style="width:64px;height:64px;border-radius:16px;margin-bottom:14px;border:1px solid rgba(255,179,0,0.4);" />
+      <h2 class="card-title" style="text-align:center;margin-bottom:8px;">Console Admin SleepStop</h2>
       <p class="sub">Entre ton code PIN administrateur pour accéder aux statistiques temps réel (Firestore Belgique) et au gestionnaire de codes VIP.</p>
       <input type="password" id="pinInput" placeholder="Code PIN (ex: 2026)" style="margin-bottom:12px;" onkeydown="if(event.key==='Enter') unlockAdmin()" />
       <button class="btn" style="width:100%;" onclick="unlockAdmin()">Déverrouiller le Dashboard</button>
-      <p id="pinError" style="color:var(--orange);font-size:0.82rem;margin-top:10px;display:none;">Code PIN incorrect.</p>
+      <p id="pinError" style="color:var(--orange);font-size:0.84rem;margin-top:10px;display:none;">Code PIN incorrect.</p>
     </div>
 
     <!-- Main Dashboard -->
@@ -150,14 +559,17 @@
         <div class="brand">
           <img src="icon-512.png" alt="SleepStop" />
           <div>
-            <h1 style="font-size:1.35rem;">SleepStop • Analytics & Console Admin</h1>
-            <p style="color:var(--muted);font-size:0.82rem;">🇧🇪 Serveur Firestore : <strong>Saint-Ghislain, Belgique (europe-west1)</strong> • 100% Conforme RGPD / APD</p>
+            <h1 style="font-size:1.38rem;font-weight:850;">SleepStop • Analytics & Console Admin</h1>
+            <p style="color:var(--text-secondary);font-size:0.84rem;">
+              🇧🇪 Serveur Cloud Firestore : <strong>Saint-Ghislain, Belgique (europe-west1)</strong> • 100 % Conforme RGPD / APD
+            </p>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
+        <div class="header-actions">
           <span class="badge" id="syncStatusBadge">● En direct</span>
           <button class="btn-sm" onclick="refreshAll()">↻ Actualiser</button>
-          <a href="/privacy" class="btn-sm" style="text-decoration:none;color:var(--teal);border-color:rgba(77,182,172,0.4);">🇧🇪 Page RGPD</a>
+          <a href="/" class="btn-sm">🌐 Site Vitrine</a>
+          <a href="/privacy" class="btn-sm" style="color:var(--teal);border-color:rgba(38,166,154,0.4);">🇧🇪 Page RGPD</a>
         </div>
       </div>
 
@@ -197,11 +609,15 @@
 
       <!-- Full CRUD VIP Code Manager -->
       <div class="card">
-        <h2>
-          <span>🎁 Gestionnaire de Codes Promo / VIP (Accès à vie — 9,99 € offert)</span>
-          <span style="font-size:0.78rem;color:var(--muted);font-weight:500;">Synchronisé avec l'app Android (Révocation à distance incluse)</span>
-        </h2>
-        <p class="sub">Crée un code personnalisé pour un proche ou un testeur. Tu peux modifier son nom, le suspendre temporairement ou le supprimer (ce qui désactive immédiatement l'accès Pro sur son téléphone).</p>
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🎁 Gestionnaire de Codes Promo / VIP (Accès à vie — 9,99 € offert)</h2>
+            <p class="sub" style="margin-bottom:0;">
+              Crée un code personnalisé pour un proche ou un testeur. Tu peux modifier son nom, le suspendre temporairement ou le supprimer (ce qui révoque automatiquement l'accès Pro sur son téléphone).
+            </p>
+          </div>
+          <span class="badge">Synchronisé avec l'app Android</span>
+        </div>
 
         <div class="vip-form">
           <input type="text" id="vipLabelInput" placeholder="Nom du bénéficiaire / Note (ex: Thomas - Garmin Fenix 7, Maman, Testeur Reddit...)" onkeydown="if(event.key==='Enter') createNewVipCode()" />
@@ -221,58 +637,154 @@
               </tr>
             </thead>
             <tbody id="vipTableBody">
-              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:20px;">Chargement des codes VIP...</td></tr>
+              <tr>
+                <td colspan="6" style="color:var(--text-secondary);text-align:center;padding:22px;">Chargement des codes VIP...</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="grid">
-        <!-- Language & App Distribution -->
+      <!-- Analytics Breakdown & Live Stream -->
+      <div class="grid-2col">
         <div class="card" style="margin-bottom:0;">
-          <h2>🌍 Répartition par Langue (FR / NL / DE / ES)</h2>
+          <h2 class="card-title">🌍 Répartition par Langue (FR / NL / DE / ES)</h2>
           <p class="sub">Langues actives choisies par les utilisateurs dans l'application.</p>
           <div id="langBars"></div>
 
-          <h2 style="margin-top:22px;">📱 Top Applications Fermées / Pausées</h2>
+          <h2 class="card-title" style="margin-top:24px;">📱 Top Applications Fermées / Pausées</h2>
           <p class="sub">Lecteurs multimédias coupés automatiquement à l'endormissement (sans aucun titre collecté).</p>
           <div id="appBars"></div>
         </div>
 
-        <!-- Live Anonymous Event Stream -->
         <div class="card" style="margin-bottom:0;">
-          <h2>
-            <span>⚡ Flux d'activité anonyme en direct</span>
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">⚡ Flux d'activité anonyme en direct</h2>
+              <p class="sub" style="margin-bottom:0;">Derniers événements reçus sur <code>europe-west1</code> (Belgique) — Zéro donnée personnelle ni BPM.</p>
+            </div>
             <button class="btn-sm" onclick="sendTestEvent()">+ Tester un événement</button>
-          </h2>
-          <p class="sub">Derniers événements reçus sur <code>sleepstop-eu (europe-west1 Belgique)</code> — Zéro donnée personnelle ni BPM.</p>
+          </div>
           <div class="event-list" id="eventList">
             <div class="event-item">Chargement des événements en direct...</div>
           </div>
         </div>
       </div>
 
-      <!-- Belgian GDPR & Play Store Info -->
-      <div class="card">
-        <h2>🇧🇪 Conformité RGPD Belgique & Google Play</h2>
-        <p class="sub">Tout est configuré sans compte utilisateur obligatoire et hébergé en Belgique.</p>
-        <div style="font-size:0.86rem;color:var(--muted);display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;">
-          <div>✅ <strong>Région Cloud Firestore :</strong> <code>europe-west1</code> (Saint-Ghislain, Belgique)</div>
-          <div>✅ <strong>Données de santé (Art. 9 RGPD) :</strong> 100 % locales sur le téléphone (aucun BPM sur le serveur)</div>
-          <div>✅ <strong>Opt-out intégré :</strong> Interrupteur dans l'écran <em>Confidentialité & RGPD (Belgique)</em> de l'app</div>
-          <div>✅ <strong>Autorité belge mentionnée :</strong> APD / GBA (Rue de la Presse 35, 1000 Bruxelles)</div>
-          <div>✅ <strong>SKU Google Play Billing :</strong> <code>sleepstop_lifetime_pro</code> (9,99 € TTC paiement unique)</div>
-          <div>✅ <strong>Bundle AAB signé :</strong> <code>build/app/outputs/bundle/release/app-release.aab</code></div>
+      <!-- Domain OVH & Google Play Console Guide (Clean Aligned Layout) -->
+      <div class="grid-2col">
+        <div class="card" style="margin-bottom:0;">
+          <h2 class="card-title">🌐 Relier ton domaine OVH <code>sleepstop.eu</code> à Firebase</h2>
+          <p class="sub">
+            Avec Firebase Hosting, tu profites du CDN mondial Google + certificat HTTPS automatique gratuit :
+          </p>
+
+          <div class="step-list">
+            <div class="step-row">
+              <div class="step-num-badge">1</div>
+              <div class="step-body">
+                Ouvre la <a href="https://console.firebase.google.com/project/sleepstop-eu/hosting/sites" target="_blank" rel="noopener">Console Firebase Hosting (sleepstop-eu)</a>.
+              </div>
+            </div>
+
+            <div class="step-row">
+              <div class="step-num-badge">2</div>
+              <div class="step-body">
+                Clique sur <strong>Ajouter un domaine personnalisé</strong> et saisis <code>sleepstop.eu</code>.
+              </div>
+            </div>
+
+            <div class="step-row">
+              <div class="step-num-badge">3</div>
+              <div class="step-body">
+                Copie les 2 enregistrements <code>A</code> (adresses IP) fournis par Firebase dans ta <strong>Zone DNS OVH</strong> (et supprime l'ancien enregistrement <code>A</code> par défaut d'OVH).
+              </div>
+            </div>
+
+            <div class="step-row">
+              <div class="step-num-badge">4</div>
+              <div class="step-body">
+                <strong>URL de Politique de Confidentialité</strong> à coller dans Google Play Console :
+                <div class="copy-box">
+                  <span>https://sleepstop-eu.web.app/privacy</span>
+                  <button class="btn-sm" onclick="copyText('https://sleepstop-eu.web.app/privacy', 'URL Privacy copiée !')">📋 Copier</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:0;">
+          <h2 class="card-title">🇧🇪 Conformité RGPD Belgique & Google Play</h2>
+          <p class="sub">Récapitulatif technique prêt pour la mise en production sur Google Play Console :</p>
+
+          <div class="check-grid">
+            <div class="check-item">
+              ✅ <strong>Région Cloud Firestore :</strong><br />
+              <code>europe-west1</code> (Saint-Ghislain, Belgique)
+            </div>
+            <div class="check-item">
+              ✅ <strong>Données de santé (Art. 9 RGPD) :</strong><br />
+              100 % locales sur le téléphone (zéro BPM envoyé)
+            </div>
+            <div class="check-item">
+              ✅ <strong>Produit intégré Google Play :</strong><br />
+              ID : <code>sleepstop_lifetime_pro</code> • Prix : <strong>9,99 € TTC</strong>
+            </div>
+            <div class="check-item">
+              ✅ <strong>Autorité de contrôle belge :</strong><br />
+              APD / GBA (Rue de la Presse 35, 1000 Bruxelles)
+            </div>
+            <div class="check-item" style="grid-column: 1 / -1;">
+              ✅ <strong>Fichier App Bundle signé (prêt à téléverser dans Play Console) :</strong>
+              <div class="copy-box">
+                <span>c:\Users\vande\Desktop\realTime\build\app\outputs\bundle\release\app-release.aab</span>
+                <button class="btn-sm" onclick="copyText('c:\\Users\\vande\\Desktop\\realTime\\build\\app\\outputs\\bundle\\release\\app-release.aab', 'Chemin du fichier .aab copié !')">📋 Copier</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Custom Edit Modal for VIP Code Label -->
+  <div class="modal-backdrop" id="editModal">
+    <div class="modal-card">
+      <h2 class="card-title" style="margin-bottom:6px;">✏️ Modifier le nom du bénéficiaire</h2>
+      <p class="sub" id="editModalSub">Code VIP : SS-VIP-XXXX-XXXX</p>
+      <input type="text" id="editModalInput" placeholder="Nom du bénéficiaire ou note..." style="margin-bottom:16px;" onkeydown="if(event.key==='Enter') saveVipLabelModal()" />
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn-sm" onclick="closeEditModal()">Annuler</button>
+        <button class="btn" style="padding:9px 18px;font-size:0.85rem;" onclick="saveVipLabelModal()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastBox">✓ Action effectuée</div>
 
   <script>
     const ADMIN_PIN = "2026";
     const VIP_SALT = "SLEEPSTOP_LUDO_2026_VIP";
     const FIRESTORE_BASE = "https://firestore.googleapis.com/v1/projects/sleepstop-eu/databases/(default)/documents";
     let refreshInterval = null;
+    let editingVipCode = null;
+
+    function showToast(msg) {
+      const box = document.getElementById("toastBox");
+      box.textContent = "✓ " + msg;
+      box.style.display = "block";
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        box.style.display = "none";
+      }, 2800);
+    }
+
+    function copyText(text, toastMessage) {
+      navigator.clipboard.writeText(text);
+      showToast(toastMessage || ("Copié : " + text));
+    }
 
     function unlockAdmin() {
       const val = document.getElementById("pinInput").value.trim();
@@ -347,6 +859,8 @@
       });
 
       labelInput.value = "";
+      navigator.clipboard.writeText(code);
+      showToast(`Code ${code} (${label}) créé et copié !`);
       await fetchVipCodes();
     }
 
@@ -355,7 +869,7 @@
       try {
         const res = await fetch(`${FIRESTORE_BASE}/vip_codes?pageSize=100`);
         if (!res.ok) {
-          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);text-align:center;">Erreur de lecture Firestore.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-secondary);text-align:center;">Erreur de lecture Firestore.</td></tr>`;
           return;
         }
         const data = await res.json();
@@ -364,7 +878,7 @@
         });
 
         if (docs.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:22px;">Aucun code VIP enregistré. Entre un nom ci-dessus et clique sur « + Créer & Enregistrer un Code VIP ».</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-secondary);text-align:center;padding:24px;">Aucun code VIP enregistré. Entre un nom ci-dessus et clique sur « + Créer & Enregistrer un Code VIP ».</td></tr>`;
           return;
         }
 
@@ -387,11 +901,11 @@
               </span>
             </td>
             <td><strong>${uses}</strong> activation(s)</td>
-            <td style="color:var(--muted);font-size:0.8rem;">${createdStr}</td>
+            <td style="color:var(--text-secondary);font-size:0.8rem;white-space:nowrap;">${createdStr}</td>
             <td>
               <div class="actions-cell">
-                <button class="btn-sm" onclick="copyCode('${code}')">📋 Copier</button>
-                <button class="btn-sm" onclick="editVipLabel('${code}', '${safeLabel}')">✏️ Éditer nom</button>
+                <button class="btn-sm" onclick="copyText('${code}', 'Code VIP copié : ${code}')">📋 Copier</button>
+                <button class="btn-sm" onclick="openEditModal('${code}', '${safeLabel}')">✏️ Éditer nom</button>
                 <button class="btn-sm" onclick="toggleVipActive('${code}', ${!active})">${active ? '⏸ Suspendre' : '▶ Réactiver'}</button>
                 <button class="btn-sm btn-danger" onclick="deleteVipCode('${code}')">🗑️ Supprimer</button>
               </div>
@@ -399,19 +913,29 @@
           </tr>`;
         }).join("");
       } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);text-align:center;">Hors ligne.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-secondary);text-align:center;">Hors ligne.</td></tr>`;
       }
     }
 
-    function copyCode(code) {
-      navigator.clipboard.writeText(code);
-      alert("Code VIP copié : " + code);
+    function openEditModal(code, currentLabel) {
+      editingVipCode = code;
+      document.getElementById("editModalSub").textContent = "Code VIP : " + code;
+      const input = document.getElementById("editModalInput");
+      input.value = currentLabel;
+      document.getElementById("editModal").style.display = "flex";
+      setTimeout(() => input.focus(), 50);
     }
 
-    async function editVipLabel(code, currentLabel) {
-      const nextLabel = prompt(`Modifier le nom / bénéficiaire pour le code ${code} :`, currentLabel);
-      if (nextLabel === null) return;
-      const trimmed = nextLabel.trim() || "Sans nom";
+    function closeEditModal() {
+      editingVipCode = null;
+      document.getElementById("editModal").style.display = "none";
+    }
+
+    async function saveVipLabelModal() {
+      if (!editingVipCode) return;
+      const code = editingVipCode;
+      const trimmed = document.getElementById("editModalInput").value.trim() || "Sans nom";
+      closeEditModal();
 
       await fetch(`${FIRESTORE_BASE}/vip_codes/${code}?updateMask.fieldPaths=label`, {
         method: "PATCH",
@@ -422,6 +946,7 @@
           }
         })
       });
+      showToast(`Nom mis à jour pour ${code}`);
       await fetchVipCodes();
     }
 
@@ -435,6 +960,7 @@
           }
         })
       });
+      showToast(nextActive ? `Code ${code} réactivé` : `Code ${code} suspendu`);
       await fetchVipCodes();
     }
 
@@ -445,6 +971,7 @@
       await fetch(`${FIRESTORE_BASE}/vip_codes/${code}`, {
         method: "DELETE"
       });
+      showToast(`Code ${code} supprimé`);
       await fetchVipCodes();
     }
 
@@ -499,8 +1026,8 @@
         document.getElementById("kpiProBreakdown").textContent = "Play Store : " + proUnlocks + " • Codes VIP : " + vipRedeemed;
 
         const langs = [
-          { label: "🇫🇷 Français (FR)", val: Math.max(0, intField(gf, "lang_fr")), color: "#ffb74d" },
-          { label: "🇳🇱 Nederlands (NL)", val: Math.max(0, intField(gf, "lang_nl")), color: "#4db6ac" },
+          { label: "🇫🇷 Français (FR)", val: Math.max(0, intField(gf, "lang_fr")), color: "#ffb300" },
+          { label: "🇳🇱 Nederlands (NL)", val: Math.max(0, intField(gf, "lang_nl")), color: "#26a69a" },
           { label: "🇩🇪 Deutsch (DE)", val: Math.max(0, intField(gf, "lang_de")), color: "#7986cb" },
           { label: "🇪🇸 Español (ES)", val: Math.max(0, intField(gf, "lang_es")), color: "#ff7043" }
         ];
@@ -619,6 +1146,7 @@
           ]
         })
       });
+      showToast("Événement test envoyé sur Firestore Belgique");
       await fetchTelemetry();
     }
   </script>
