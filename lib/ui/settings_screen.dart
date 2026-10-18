@@ -309,26 +309,46 @@ class SettingsScreen extends ConsumerWidget {
                 runSpacing: 8,
                 children: AppStrings.supportedLanguages.map((code) {
                   final selected = settings.languageCode == code;
-                  return ChoiceChip(
-                    selected: selected,
-                    showCheckmark: false,
-                    avatar: FlagIcon(code: code, width: 18, radius: 2),
-                    label: Text(AppStrings.languageName(code)),
-                    labelStyle: TextStyle(
-                      fontSize: 13,
-                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                      color: selected
-                          ? OledColors.trueBlack
-                          : OledColors.textPrimary,
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => notifier.setLanguageCode(code),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 9,
+                      ),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? OledColors.warmAmber.withValues(alpha: 0.14)
+                            : OledColors.elevatedSurface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: selected
+                              ? OledColors.warmAmber
+                              : OledColors.subtleBorder,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FlagIcon(code: code, width: 20, radius: 2),
+                          const SizedBox(width: 8),
+                          Text(
+                            AppStrings.languageName(code),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: selected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: selected
+                                  ? OledColors.warmAmber
+                                  : OledColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    selectedColor: OledColors.warmAmber,
-                    backgroundColor: OledColors.elevatedSurface,
-                    side: BorderSide(
-                      color: selected
-                          ? OledColors.warmAmber
-                          : OledColors.subtleBorder,
-                    ),
-                    onSelected: (_) => notifier.setLanguageCode(code),
                   );
                 }).toList(),
               ),

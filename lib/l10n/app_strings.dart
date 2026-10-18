@@ -81,10 +81,10 @@ class AppStrings {
   );
 
   String get modePhoneShake => tr(
-    fr: 'Téléphone (Secousse)',
-    nl: 'Telefoon (Schudden)',
-    de: 'Telefon (Schütteln)',
-    es: 'Teléfono (Agitar)',
+    fr: 'Téléphone',
+    nl: 'Telefoon',
+    de: 'Telefon',
+    es: 'Teléfono',
   );
 
   String get startSleepSession => tr(
@@ -414,10 +414,10 @@ class AppStrings {
   );
 
   String smartAdaptiveSummary(AdaptiveSensitivity sens) => tr(
-    fr: 'Adaptatif intelligent (${sensitivityTitle(sens)}) • Calibration 90s + Plateau FC',
-    nl: 'Slim adaptief (${sensitivityTitle(sens)}) • 90s kalibratie + HS-plateau',
-    de: 'Smart Adaptiv (${sensitivityTitle(sens)}) • 90s Kalibrierung + HF-Plateau',
-    es: 'Adaptativo inteligente (${sensitivityTitle(sens)}) • Calibración 90s + Meseta FC',
+    fr: 'Adaptatif intelligent (${sensitivityTitle(sens)}) • Calibration 2-5 min + plateau',
+    nl: 'Slim adaptief (${sensitivityTitle(sens)}) • Kalibratie 2-5 min + plateau',
+    de: 'Smart Adaptiv (${sensitivityTitle(sens)}) • Kalibrierung 2-5 Min. + Plateau',
+    es: 'Adaptativo inteligente (${sensitivityTitle(sens)}) • Calibración 2-5 min + meseta',
   );
 
   String manualBpmSummary(int bpm, int mins) => tr(
@@ -478,10 +478,10 @@ class AppStrings {
 
   // Settings Bottom Sheet
   String get settingsSheetTitle => tr(
-    fr: 'Réglages de Détection du Sommeil',
-    nl: 'Slaapdetectie-instellingen',
-    de: 'Schlaferkennungs-Einstellungen',
-    es: 'Ajustes de Detección de Sueño',
+    fr: 'Réglages',
+    nl: 'Instellingen',
+    de: 'Einstellungen',
+    es: 'Ajustes',
   );
 
   String get settingsWatchSection => tr(
@@ -513,18 +513,22 @@ class AppStrings {
   );
 
   String get howSmartWorksBody => tr(
-    fr: '1. Mesure ton pouls éveillé personnel pendant les 90 premières secondes.\n'
-        '2. S\'adapte automatiquement que ton pouls au coucher soit haut (72 BPM) ou déjà bas (52 BPM).\n'
-        '3. Confirme le sommeil quand le pouls baisse ET se stabilise sur un plateau calme (±1.8 BPM).',
-    nl: '1. Meet je persoonlijke wakkere hartslag gedurende de eerste 90s.\n'
-        '2. Past zich automatisch aan of je start-HS nu hoog (72 BPM) of al laag in bed is (52 BPM).\n'
-        '3. Bevestigt slaap wanneer je HS daalt EN stabiliseert op een rustig plateau (±1.8 BPM).',
-    de: '1. Misst deinen persönlichen Wachpuls in den ersten 90 Sekunden.\n'
-        '2. Passt sich automatisch an, egal ob dein Startpuls hoch (72 BPM) oder niedrig (52 BPM) ist.\n'
-        '3. Bestätigt den Schlaf, sobald der Puls sinkt UND ein ruhiges Plateau (±1.8 BPM) erreicht.',
-    es: '1. Mide tu pulso personal despierto durante los primeros 90s.\n'
-        '2. Se adapta automáticamente tanto si tu pulso inicial es alto (72 BPM) como bajo (52 BPM).\n'
-        '3. Confirma el sueño cuando el pulso baja Y entra en una meseta estable (±1.8 BPM).',
+    fr: '1. Pendant 2 à 5 minutes, apprend ton pouls éveillé au lit en gardant le plateau le plus calme (les mouvements du coucher sont ignorés).\n'
+        '2. Fixe une cible personnelle : 6 à 11 % sous ce pouls, affinée nuit après nuit.\n'
+        '3. Confirme le sommeil quand le pouls passe sous la cible ET reste stable plusieurs minutes. Une hausse de la variabilité cardiaque (HRV) accélère la confirmation.\n'
+        '4. Fausse alerte ? « Encore réveillé » relance la lecture et durcit la cible pour la nuit.',
+    nl: '1. Leert 2 tot 5 minuten lang je wakkere hartslag in bed door het rustigste plateau te bewaren (bewegen bij het instappen wordt genegeerd).\n'
+        '2. Stelt een persoonlijk doel: 6 tot 11% onder die hartslag, nacht na nacht verfijnd.\n'
+        '3. Bevestigt slaap wanneer de hartslag onder het doel komt EN enkele minuten stabiel blijft. Een stijgende hartslagvariabiliteit (HRV) versnelt de bevestiging.\n'
+        '4. Vals alarm? "Nog wakker" hervat het afspelen en verscherpt het doel voor vannacht.',
+    de: '1. Lernt 2 bis 5 Minuten lang deinen Wachpuls im Bett und behält das ruhigste Plateau (Bewegungen beim Hinlegen werden ignoriert).\n'
+        '2. Setzt ein persönliches Ziel: 6 bis 11 % unter diesem Puls, Nacht für Nacht verfeinert.\n'
+        '3. Bestätigt Schlaf, wenn der Puls unter das Ziel fällt UND mehrere Minuten stabil bleibt. Steigende Herzratenvariabilität (HRV) beschleunigt die Bestätigung.\n'
+        '4. Fehlalarm? „Noch wach“ setzt die Wiedergabe fort und verschärft das Ziel für die Nacht.',
+    es: '1. Durante 2 a 5 minutos aprende tu pulso despierto en la cama conservando la meseta más tranquila (los movimientos al acostarte se ignoran).\n'
+        '2. Fija un objetivo personal: 6 a 11 % por debajo de ese pulso, afinado noche tras noche.\n'
+        '3. Confirma el sueño cuando el pulso baja del objetivo Y se mantiene estable varios minutos. Un aumento de la variabilidad cardíaca (HRV) acelera la confirmación.\n'
+        '4. ¿Falsa alarma? «Aún despierto» reanuda la reproducción y endurece el objetivo esta noche.',
   );
 
   String learnedSleepHrText(String bpm) => tr(

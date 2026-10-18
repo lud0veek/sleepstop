@@ -72,6 +72,32 @@ class OledTheme {
         overlayColor: OledColors.warmAmber.withValues(alpha: 0.14),
         trackHeight: 4,
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? OledColors.warmAmber.withValues(alpha: 0.16)
+                : OledColors.elevatedSurface,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? OledColors.warmAmber
+                : OledColors.textPrimary,
+          ),
+          iconColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? OledColors.warmAmber
+                : OledColors.textSecondary,
+          ),
+          side: const WidgetStatePropertyAll(
+            BorderSide(color: OledColors.subtleBorder),
+          ),
+          textStyle: const WidgetStatePropertyAll(
+            TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
+          ),
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+        ),
+      ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: OledColors.cardSurface,
         modalBackgroundColor: OledColors.cardSurface,
