@@ -611,6 +611,8 @@ class DashboardTab extends ConsumerWidget {
     final stateBadgeColor = switch (session.phase) {
       SessionPhase.fadingAudio => OledColors.deepOrange,
       SessionPhase.hrDropping => OledColors.warmAmber,
+      SessionPhase.graceWindow => OledColors.warmAmber,
+      SessionPhase.signalLost => OledColors.mutedRose,
       SessionPhase.monitoring ||
       SessionPhase.calibratingBaseline => OledColors.calmTeal,
       SessionPhase.pausedCompleted => OledColors.softIndigo,
@@ -1010,6 +1012,15 @@ class DashboardTab extends ConsumerWidget {
             ),
           ],
 
+          if (session.isInGraceWindow) ...[
+            const SizedBox(height: 16),
+            _GraceWindowCard(
+              session: session,
+              s: s,
+              onStillAwake: notifier.stillAwake,
+            ),
+          ],
+
           if (session.isFading) ...[
             const SizedBox(height: 16),
             Container(
@@ -1080,7 +1091,9 @@ class DashboardTab extends ConsumerWidget {
             ),
           ],
 
-          if (session.isRunning && !session.isFading) ...[
+          if (session.isRunning &&
+              !session.isFading &&
+              !session.isInGraceWindow) ...[
             const SizedBox(height: 14),
             Wrap(
               spacing: 10,
@@ -1269,6 +1282,102 @@ class DashboardTab extends ConsumerWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shown for ~90 s after the media was paused: one big "still awake" action.
+class _GraceWindowCard extends StatelessWidget {
+  final ActiveSessionState session;
+  final AppStrings s;
+  final Future<void> Function() onStillAwake;
+
+  const _GraceWindowCard({
+    required this.session,
+    required this.s,
+    required this.onStillAwake,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final remaining = session.graceRemainingSeconds;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: OledColors.warmAmber.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: OledColors.warmAmber.withValues(alpha: 0.45)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.pause_circle_filled_rounded,
+                color: OledColors.warmAmber,
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  s.graceCardTitle,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: OledColors.textPrimary,
+                  ),
+                ),
+              ),
+              Text(
+                '${remaining}s',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: OledColors.warmAmber,
+                  fontFeatures: [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            s.graceCardBody(remaining),
+            style: const TextStyle(
+              fontSize: 12.5,
+              height: 1.4,
+              color: OledColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: remaining / SleepSessionNotifier.graceWindowSeconds,
+              minHeight: 4,
+              backgroundColor: OledColors.subtleBorder,
+              color: OledColors.warmAmber,
+            ),
+          ),
+          const SizedBox(height: 14),
+          FilledButton.icon(
+            onPressed: onStillAwake,
+            style: FilledButton.styleFrom(
+              backgroundColor: OledColors.warmAmber,
+              foregroundColor: OledColors.trueBlack,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: const Icon(Icons.play_arrow_rounded, size: 22),
+            label: Text(
+              s.stillAwakeButton,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),

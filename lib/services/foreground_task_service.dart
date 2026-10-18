@@ -24,6 +24,8 @@ class SleepStopTaskHandler extends TaskHandler {
   void onNotificationButtonPressed(String id) {
     if (id == 'stop_session') {
       FlutterForegroundTask.sendDataToMain({'event': 'stop_session'});
+    } else if (id == 'still_awake') {
+      FlutterForegroundTask.sendDataToMain({'event': 'still_awake'});
     }
   }
 
@@ -41,6 +43,15 @@ class ForegroundTaskService {
 
   /// Localized label of the "stop" action button, set by the session provider.
   String stopButtonLabel = 'Stop';
+
+  /// Localized label of the "still awake" button shown during the grace window.
+  String stillAwakeButtonLabel = 'Still awake';
+
+  List<NotificationButton> _buttons({bool withStillAwake = false}) => [
+    if (withStillAwake)
+      NotificationButton(id: 'still_awake', text: stillAwakeButtonLabel),
+    NotificationButton(id: 'stop_session', text: stopButtonLabel),
+  ];
 
   void init({String? channelName, String? channelDescription}) {
     if (_initialized) return;
@@ -84,9 +95,7 @@ class ForegroundTaskService {
         await FlutterForegroundTask.updateService(
           notificationTitle: title,
           notificationText: text,
-          notificationButtons: [
-            NotificationButton(id: 'stop_session', text: stopButtonLabel),
-          ],
+          notificationButtons: _buttons(),
         );
       } else {
         await FlutterForegroundTask.startService(
@@ -97,9 +106,7 @@ class ForegroundTaskService {
           ],
           notificationTitle: title,
           notificationText: text,
-          notificationButtons: [
-            NotificationButton(id: 'stop_session', text: stopButtonLabel),
-          ],
+          notificationButtons: _buttons(),
           callback: startSleepStopForegroundCallback,
         );
       }
@@ -109,15 +116,14 @@ class ForegroundTaskService {
   Future<void> updateNotification({
     required String title,
     required String text,
+    bool withStillAwakeButton = false,
   }) async {
     try {
       if (await FlutterForegroundTask.isRunningService) {
         await FlutterForegroundTask.updateService(
           notificationTitle: title,
           notificationText: text,
-          notificationButtons: [
-            NotificationButton(id: 'stop_session', text: stopButtonLabel),
-          ],
+          notificationButtons: _buttons(withStillAwake: withStillAwakeButton),
         );
       }
     } catch (_) {}

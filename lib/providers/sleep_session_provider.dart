@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/app_strings.dart';
 import '../models/active_session_state.dart';
 import '../models/sleep_session_log.dart';
 import '../models/sleep_settings.dart';
@@ -10,8 +11,8 @@ import '../services/foreground_task_service.dart';
 import '../services/media_control_service.dart';
 import '../services/motion_detector_service.dart';
 import '../services/notification_service.dart';
+import '../services/sleep_onset_analyzer.dart';
 import '../services/telemetry_service.dart';
-import '../l10n/app_strings.dart';
 import 'session_logs_provider.dart';
 import 'settings_provider.dart';
 
@@ -38,8 +39,24 @@ final sleepSessionProvider =
       SleepSessionNotifier.new,
     );
 
+/// Orchestrates a night: BLE / motion inputs, the sleep-onset decision, the
+/// audio fade, the "still awake?" grace window and the final log.
 class SleepSessionNotifier extends Notifier<ActiveSessionState> {
-  static const int _smartCalibrationSeconds = 90;
+  /// No heart-rate packet for this long = the watch signal is stale.
+  static const int _staleAfterSeconds = 15;
+
+  /// Give up (without touching the media) after this long without signal.
+  static const int _signalLostAbortSeconds = 600;
+
+  /// Try to reconnect the watch every N seconds while the signal is lost.
+  static const int _reconnectEverySeconds = 10;
+
+  /// How long the user has to say "still awake" after the media is paused.
+  static const int graceWindowSeconds = 90;
+
+  /// Threshold is lowered by this much for the rest of the night after each
+  /// false positive ("still awake").
+  static const int _stillAwakePenaltyBpm = 2;
 
   late final MediaControlService _mediaControl;
   late final BleHeartRateService _bleService;
@@ -47,17 +64,27 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
 
   Timer? _sessionTicker;
   Timer? _simulatedHrTimer;
+  Timer? _graceTimer;
   StreamSubscription<HeartRatePacket>? _packetSubscription;
   StreamSubscription<List<DiscoveredBleWatch>>? _watchesSubscription;
   StreamSubscription<String>? _bleStatusSubscription;
 
-  final List<int> _baselineSamples = [];
   final List<int> _rolling60sBpms = [];
   final List<int> _rollingRrIntervalsMs = [];
-  final List<int> _sessionBpmTimeline = [];
+  final BpmTimeline _timeline = BpmTimeline();
+  BaselineCalibrator? _calibrator;
+
+  double _lowSecondsAccum = 0.0;
+  int _nightThresholdPenaltyBpm = 0;
+  int _stillAwakeCount = 0;
+  bool _isSimulated = false;
   ActiveMediaInfo? _lastKnownMediaInfo;
   DateTime? _fadeStartedAt;
   bool _isStoppingOrCompleting = false;
+
+  // Pending night, built when the media is paused and committed when the
+  // grace window expires without a "still awake".
+  _PendingNight? _pendingNight;
 
   /// Current UI language strings (notifications, tile, history reasons).
   AppStrings get _s => ref.read(appStringsProvider);
@@ -100,6 +127,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       FlutterForegroundTask.removeTaskDataCallback(_onForegroundTaskData);
       _sessionTicker?.cancel();
       _simulatedHrTimer?.cancel();
+      _graceTimer?.cancel();
       _packetSubscription?.cancel();
       _watchesSubscription?.cancel();
       _bleStatusSubscription?.cancel();
@@ -122,8 +150,12 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   }
 
   void _onForegroundTaskData(Object data) {
-    if (data is Map && data['event'] == 'stop_session') {
-      stopSession(reason: 'Stopped from notification');
+    if (data is! Map) return;
+    switch (data['event']) {
+      case 'stop_session':
+        stopSession(reason: 'Stopped from notification');
+      case 'still_awake':
+        stillAwake();
     }
   }
 
@@ -138,14 +170,19 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
   }
 
+  // ===========================================================================
+  // Session start
+  // ===========================================================================
   Future<void> startSession({bool simulateBleWatch = false}) async {
     if (state.isRunning) return;
     _isStoppingOrCompleting = false;
+    _resetNightState();
 
     final settings = ref.read(settingsProvider);
     final mode = state.activeMode;
     final startTime = DateTime.now();
     ForegroundTaskService.instance.stopButtonLabel = _s.stopSessionButton;
+    ForegroundTaskService.instance.stillAwakeButtonLabel = _s.stillAwakeButton;
     final initialVol = await _mediaControl.getCurrentVolume();
     final maxVol = await _mediaControl.getMaxVolume();
     _lastKnownMediaInfo = await _mediaControl.getActiveMediaInfo();
@@ -176,6 +213,24 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     }
   }
 
+  void _resetNightState() {
+    _rolling60sBpms.clear();
+    _rollingRrIntervalsMs.clear();
+    _timeline.clear();
+    _calibrator = null;
+    _lowSecondsAccum = 0.0;
+    _nightThresholdPenaltyBpm = 0;
+    _stillAwakeCount = 0;
+    _isSimulated = false;
+    _pendingNight = null;
+    _fadeStartedAt = null;
+    _graceTimer?.cancel();
+    _graceTimer = null;
+  }
+
+  // ===========================================================================
+  // Detection Mode A: Watch (BLE heart rate)
+  // ===========================================================================
   Future<void> _startWatchBleSession({
     required SleepSettings settings,
     required DateTime startTime,
@@ -183,17 +238,14 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     required int maxVolume,
     required bool simulateBleWatch,
   }) async {
-    _baselineSamples.clear();
-    _rolling60sBpms.clear();
-    _rollingRrIntervalsMs.clear();
-    _sessionBpmTimeline.clear();
-
     final isSmart =
         settings.biometricTriggerMode == BiometricTriggerMode.smartAdaptive;
     final requiredLowSeconds = settings.confirmationDurationMinutes * 60;
     final initialTarget = isSmart
         ? (settings.learnedSleepingBpm?.round() ?? settings.sleepBpmThreshold)
         : settings.sleepBpmThreshold;
+    _isSimulated = simulateBleWatch;
+    _calibrator = isSmart ? BaselineCalibrator() : null;
 
     state = ActiveSessionState(
       isRunning: true,
@@ -203,12 +255,10 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
                 : SessionPhase.monitoring)
           : SessionPhase.scanningBle,
       activeMode: DetectionMode.watchBle,
-      statusText: simulateBleWatch
-          ? (isSmart ? 'Calibrating baseline (90s)...' : 'Monitoring...')
-          : 'Connecting to Garmin / BLE Watch (0x180D)...',
+      statusText: simulateBleWatch ? 'Calibrating...' : 'Connecting...',
       detailText: simulateBleWatch
-          ? 'Simulated Firstbeat HR + R-R stream active'
-          : 'Looking for your paired Garmin or BLE watch...',
+          ? 'Simulated HR + R-R stream active'
+          : 'Looking for your paired watch...',
       sessionStartTime: startTime,
       elapsedSeconds: 0,
       effectiveThresholdBpm: initialTarget,
@@ -232,8 +282,8 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
 
     if (simulateBleWatch) {
       state = state.copyWith(
-        connectedWatchName: 'Garmin Watch (Simulated Firstbeat)',
-        connectedWatchId: 'SIM-GARMIN-180D',
+        connectedWatchName: 'Simulated watch',
+        connectedWatchId: 'SIM-180D',
       );
       _startSimulatedHeartRateFeed(settings);
       _startWatchSessionTicker();
@@ -263,10 +313,10 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       state = state.copyWith(
         isRunning: false,
         phase: SessionPhase.error,
-        statusText: 'No BLE Heart Rate watch found (0x180D)',
+        statusText: 'No heart-rate watch found',
         detailText:
             state.detailText ??
-            'Turn on "Broadcast HR" on your Garmin watch, or tap "Simulate Watch HR" below to test.',
+            'Turn on "Broadcast HR" on your watch, then try again.',
       );
       return;
     }
@@ -277,7 +327,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
         ? _bleService.resolvedWatchName!
         : (device.platformName.isNotEmpty
               ? device.platformName
-              : 'Garmin Watch (${device.remoteId.str})');
+              : 'Watch (${device.remoteId.str})');
 
     await ref
         .read(settingsProvider.notifier)
@@ -289,10 +339,8 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
           : SessionPhase.monitoring,
       connectedWatchName: watchName,
       connectedWatchId: device.remoteId.str,
-      statusText: isSmart
-          ? 'Calibrating baseline (90s)...'
-          : 'Monitoring...',
-      detailText: 'Connected to $watchName (0x2A37)',
+      statusText: isSmart ? 'Calibrating...' : 'Monitoring...',
+      detailText: 'Connected to $watchName',
     );
     await _mediaControl.updateQuickTileState(
       isActive: true,
@@ -309,15 +357,17 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     _simulatedHrTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       tick++;
       int bpm;
-      if (tick <= 12) {
+      if (tick <= 150) {
+        // Awake, settling: ~64 BPM with a bit of noise.
         bpm = 64 + rng.nextInt(5) - 2;
-      } else if (tick <= 25) {
-        bpm = (64 - ((tick - 12) * 0.7)).round();
+      } else if (tick <= 210) {
+        bpm = (64 - ((tick - 150) * 0.2)).round();
       } else {
-        final target = settings.sleepBpmThreshold - 2;
+        final target = math.min(settings.sleepBpmThreshold - 2, 64 - 9);
         bpm = target + (tick % 2 == 0 ? 0 : -1);
       }
-      final rrMs = (60000 / bpm).round() + (tick <= 12 ? rng.nextInt(35) : 6);
+      final rrMs = (60000 / bpm).round() + (tick <= 150 ? rng.nextInt(35) : 6);
+      _bleService.markSimulatedPacket();
       _onNewHeartRatePacket(HeartRatePacket(bpm: bpm, rrIntervalsMs: [rrMs]));
     });
   }
@@ -349,7 +399,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       }
     }
 
-    return rawTarget.round().clamp(40, 95);
+    return (rawTarget.round() - _nightThresholdPenaltyBpm).clamp(40, 95);
   }
 
   void _onNewHeartRatePacket(HeartRatePacket packet) {
@@ -363,14 +413,6 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     _rolling60sBpms.add(bpm);
     if (_rolling60sBpms.length > 60) {
       _rolling60sBpms.removeAt(0);
-    }
-
-    // Record timeline sample every ~10 readings (capped at 120 points)
-    if (_sessionBpmTimeline.isEmpty || _rolling60sBpms.length % 10 == 0) {
-      _sessionBpmTimeline.add(bpm);
-      if (_sessionBpmTimeline.length > 120) {
-        _sessionBpmTimeline.removeAt(0);
-      }
     }
 
     double? stdDevBpm;
@@ -408,32 +450,24 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     }
 
     double? baseline = state.baselineBpm;
-    int threshold = settings.sleepBpmThreshold;
+    int threshold = (settings.sleepBpmThreshold - _nightThresholdPenaltyBpm)
+        .clamp(40, 95);
 
     if (isSmart) {
-      if (state.elapsedSeconds <= _smartCalibrationSeconds ||
-          _baselineSamples.length < 15) {
-        _baselineSamples.add(bpm);
-        final sorted = List<int>.from(_baselineSamples)..sort();
-        final p75Index = ((sorted.length - 1) * 0.75).round();
-        baseline = sorted[p75Index].toDouble();
+      final calibrator = _calibrator ??= BaselineCalibrator();
+      if (!calibrator.isComplete) {
+        calibrator.addSample(
+          elapsedSeconds: state.elapsedSeconds,
+          bpm: bpm,
+          rmssdMs: rmssd,
+        );
       }
+      baseline = calibrator.baselineBpm ?? calibrator.provisionalBaselineBpm;
       if (baseline != null) {
         threshold = _computeSmartAdaptiveThreshold(
           awakeBaselineBpm: baseline,
           settings: settings,
         );
-      }
-    } else if (settings.useAutoBaseline) {
-      if (state.elapsedSeconds <= 180) {
-        _baselineSamples.add(bpm);
-        final sum = _baselineSamples.fold<int>(0, (a, b) => a + b);
-        baseline = sum / _baselineSamples.length;
-      }
-      if (baseline != null) {
-        threshold = (baseline * (1.0 - settings.autoBaselineDropPercent / 100))
-            .round()
-            .clamp(38, 110);
       }
     }
 
@@ -450,7 +484,12 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   void _startWatchSessionTicker() {
     _sessionTicker?.cancel();
     _sessionTicker = Timer.periodic(const Duration(seconds: 1), (_) async {
-      if (!state.isRunning || state.isFading || _isStoppingOrCompleting) return;
+      if (!state.isRunning ||
+          state.isFading ||
+          state.isInGraceWindow ||
+          _isStoppingOrCompleting) {
+        return;
+      }
 
       final settings = ref.read(settingsProvider);
       final isSmart =
@@ -461,6 +500,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       final threshold =
           state.effectiveThresholdBpm ?? settings.sleepBpmThreshold;
       final stdDev = state.bpmStabilityStdDev;
+      final bpmLabel = bpm != null ? '$bpm BPM' : '-- BPM';
 
       // Refresh active media info every 15 seconds while playing
       if (elapsed % 15 == 0) {
@@ -470,27 +510,95 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
         }
       }
 
-      if (isSmart && elapsed < _smartCalibrationSeconds) {
-        final secsLeft = _smartCalibrationSeconds - elapsed;
+      // Night curve: one point every 30 s of wall clock.
+      if (bpm != null && _timeline.shouldSample(elapsed)) {
+        _timeline.add(bpm);
+      }
+
+      // ---- Signal freshness -------------------------------------------------
+      final sinceLast = _bleService.secondsSinceLastPacket();
+      final stale =
+          !_isSimulated &&
+          (sinceLast ?? elapsed) > _staleAfterSeconds;
+
+      if (stale) {
+        final lostFor = state.signalLostSeconds + 1;
+        if (lostFor >= _signalLostAbortSeconds) {
+          await _abortForSignalLoss();
+          return;
+        }
+        if (lostFor % _reconnectEverySeconds == 1 && !_bleService.isLinkUp) {
+          unawaited(_bleService.reconnectLastDevice());
+        }
         state = state.copyWith(
           elapsedSeconds: elapsed,
-          phase: SessionPhase.calibratingBaseline,
-          statusText: 'Calibrating baseline (${secsLeft}s)...',
-          requiredLowHrSeconds: requiredSeconds,
+          phase: SessionPhase.signalLost,
+          signalLostSeconds: lostFor,
+          statusText: 'Signal lost...',
+          bpmTimeline: _timeline.points,
         );
-        if (elapsed % 10 == 0) {
-          final bpmLabel = bpm != null ? '$bpm BPM' : '-- BPM';
+        if (lostFor % 5 == 1) {
           await ForegroundTaskService.instance.updateNotification(
-            title: _s.fgBpmTitle(bpmLabel, threshold),
-            text: _s.fgCalibrating(secsLeft),
+            title: _s.fgSignalLostTitle,
+            text: _s.fgSignalLostBody(lostFor),
+          );
+          await _mediaControl.updateQuickTileState(
+            isActive: true,
+            subtitle: _s.tileSignalLost,
           );
         }
         return;
       }
 
-      bool matchesSleepPattern = false;
-      String reasonSuffix = '';
+      final justRecovered = state.isSignalStale;
+      if (justRecovered) {
+        await ForegroundTaskService.instance.updateNotification(
+          title: _s.fgBpmTitle(bpmLabel, threshold),
+          text: _s.fgSignalBackBody,
+        );
+      }
 
+      // ---- Calibration ------------------------------------------------------
+      final calibrator = _calibrator;
+      if (isSmart && calibrator != null && !calibrator.isComplete) {
+        calibrator.tick(elapsed);
+        final secsLeft = calibrator.secondsLeft(elapsed);
+        state = state.copyWith(
+          elapsedSeconds: elapsed,
+          phase: SessionPhase.calibratingBaseline,
+          signalLostSeconds: 0,
+          calibrationProgress: calibrator.progress(elapsed),
+          baselineBpm: calibrator.provisionalBaselineBpm,
+          statusText: 'Calibrating...',
+          requiredLowHrSeconds: requiredSeconds,
+          bpmTimeline: _timeline.points,
+        );
+        if (elapsed % 10 == 0 || calibrator.isComplete) {
+          await ForegroundTaskService.instance.updateNotification(
+            title: _s.fgBpmTitle(bpmLabel, threshold),
+            text: calibrator.isComplete
+                ? _s.fgMonitoring
+                : _s.fgCalibrating(secsLeft),
+          );
+        }
+        if (!calibrator.isComplete) return;
+        // Calibration just finished: lock in the baseline-derived threshold.
+        final finalBaseline = calibrator.baselineBpm;
+        if (finalBaseline != null) {
+          state = state.copyWith(
+            baselineBpm: finalBaseline,
+            calibrationProgress: 1.0,
+            effectiveThresholdBpm: _computeSmartAdaptiveThreshold(
+              awakeBaselineBpm: finalBaseline,
+              settings: settings,
+            ),
+          );
+        }
+        return;
+      }
+
+      // ---- Sleep-onset criteria --------------------------------------------
+      SleepMatch match = SleepMatch.none;
       if (bpm != null) {
         if (isSmart) {
           final maxAllowedStdDev = switch (settings.adaptiveSensitivity) {
@@ -498,43 +606,39 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
             AdaptiveSensitivity.balanced => 1.9,
             AdaptiveSensitivity.deep => 1.5,
           };
-          final isStable = stdDev == null || stdDev <= maxAllowedStdDev;
-          final isUltraStablePlateau = stdDev != null && stdDev <= 1.2;
-          final droppedBelowTarget = bpm <= threshold;
-          final droppedFromAwake =
-              state.baselineBpm != null && bpm <= (state.baselineBpm! - 2.0);
-
-          if ((droppedBelowTarget && isStable) ||
-              (droppedFromAwake && isUltraStablePlateau)) {
-            matchesSleepPattern = true;
-            reasonSuffix = stdDev != null
-                ? '±${stdDev.toStringAsFixed(1)} BPM'
-                : '≤ $threshold BPM';
-          }
+          match = SleepCriteria.evaluateSmart(
+            bpm: bpm,
+            threshold: threshold,
+            baselineBpm: state.baselineBpm,
+            stdDevBpm: stdDev,
+            maxAllowedStdDev: maxAllowedStdDev,
+            rmssdMs: state.hrvRmssdMs,
+            baselineRmssdMs: calibrator?.baselineRmssd,
+          );
         } else {
-          matchesSleepPattern = bpm <= threshold;
-          reasonSuffix = '≤ $threshold BPM';
+          match = SleepCriteria.evaluateFixed(bpm: bpm, threshold: threshold);
         }
       }
 
-      int lowSeconds = state.consecutiveLowHrSeconds;
-      SessionPhase phase = SessionPhase.monitoring;
-      String statusText = 'Monitoring...';
-
-      if (matchesSleepPattern) {
-        lowSeconds++;
-        final currentMin = (lowSeconds ~/ 60) + 1;
-        final totalMin = settings.confirmationDurationMinutes;
-        phase = SessionPhase.hrDropping;
-        statusText = isSmart
-            ? 'Sleep onset (${currentMin.clamp(1, totalMin)}/$totalMin min • $reasonSuffix)...'
-            : 'HR dropping (${currentMin.clamp(1, totalMin)}/$totalMin min)...';
+      if (match.matches) {
+        _lowSecondsAccum = math.min(
+          _lowSecondsAccum + match.weight,
+          requiredSeconds.toDouble(),
+        );
       } else {
-        lowSeconds = isSmart ? (lowSeconds - 2).clamp(0, requiredSeconds) : 0;
+        _lowSecondsAccum = isSmart
+            ? math.max(0.0, _lowSecondsAccum - 2.0)
+            : 0.0;
+      }
+      final lowSeconds = _lowSecondsAccum.floor().clamp(0, requiredSeconds);
+
+      final SessionPhase phase;
+      if (match.matches) {
+        phase = SessionPhase.hrDropping;
+      } else {
         phase = lowSeconds > 0
             ? SessionPhase.hrDropping
             : SessionPhase.monitoring;
-        statusText = lowSeconds > 0 ? 'Stabilizing HR...' : 'Monitoring...';
       }
 
       final confidence = (lowSeconds / requiredSeconds).clamp(0.0, 1.0);
@@ -545,13 +649,14 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
         requiredLowHrSeconds: requiredSeconds,
         sleepConfidenceScore: confidence,
         phase: phase,
-        statusText: statusText,
+        signalLostSeconds: 0,
+        statusText: match.matches ? 'Sleep onset...' : 'Monitoring...',
+        bpmTimeline: _timeline.points,
       );
 
-      if (elapsed % 5 == 0) {
-        final bpmLabel = bpm != null ? '$bpm BPM' : '-- BPM';
+      if (elapsed % 5 == 0 && !justRecovered) {
         final String notifText;
-        if (phase == SessionPhase.hrDropping && matchesSleepPattern) {
+        if (match.matches) {
           final currentMin = ((lowSeconds ~/ 60) + 1).clamp(
             1,
             settings.confirmationDurationMinutes,
@@ -560,7 +665,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
             currentMin,
             settings.confirmationDurationMinutes,
           );
-        } else if (phase == SessionPhase.hrDropping) {
+        } else if (lowSeconds > 0) {
           notifText = _s.fgStabilizing;
         } else {
           notifText = _s.fgMonitoring;
@@ -586,6 +691,27 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     });
   }
 
+  Future<void> _abortForSignalLoss() async {
+    _isStoppingOrCompleting = true;
+    _sessionTicker?.cancel();
+    _sessionTicker = null;
+    await _packetSubscription?.cancel();
+    _packetSubscription = null;
+    await _bleService.disconnect();
+    await ForegroundTaskService.instance.stopMonitoringService();
+    await _mediaControl.updateQuickTileState(
+      isActive: false,
+      subtitle: _s.tileWatchNotFound,
+    );
+    state = state.copyWith(
+      isRunning: false,
+      phase: SessionPhase.error,
+      statusText: 'Watch unreachable',
+      detailText: _s.signalLostAbortedDetail,
+    );
+    _isStoppingOrCompleting = false;
+  }
+
   Future<void> _triggerWatchSleepDetected({
     required int finalBpm,
     required int threshold,
@@ -595,7 +721,6 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     if (_isStoppingOrCompleting) return;
     _isStoppingOrCompleting = true;
     _sessionTicker?.cancel();
-    _simulatedHrTimer?.cancel();
 
     final currentMedia = await _mediaControl.getActiveMediaInfo();
     if (currentMedia.hasData) {
@@ -610,8 +735,6 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       fadeRemainingSeconds: 10,
       sleepConfidenceScore: 1.0,
       statusText: 'Fading audio...',
-      detailText:
-          'Sleep onset confirmed at $finalBpm BPM • 10s smooth volume fade-out',
     );
 
     await ForegroundTaskService.instance.updateNotification(
@@ -628,7 +751,6 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
           currentVolume: currentVol,
           originalVolume: originalVol,
           maxVolume: maxVol,
-          statusText: 'Fading audio (${remaining}s)...',
         );
       },
     );
@@ -639,38 +761,11 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     }
 
     final settings = ref.read(settingsProvider);
-
     await _mediaControl.pauseAndRestoreVolumeAfterDelay(
       rewindBeforePause: settings.rewindOnPause,
     );
 
-    List<String> closedAppsList = const [];
-    if (settings.closeAppsOnSleep) {
-      closedAppsList = await _mediaControl.closeTargetApps(
-        packages: settings.targetAppsToClose.keys.toList(),
-        goHome: settings.returnToHomeOnSleep,
-      );
-    }
-
-    await _packetSubscription?.cancel();
-    _packetSubscription = null;
-    await _bleService.disconnect();
-    await ForegroundTaskService.instance.stopMonitoringService();
-    await _mediaControl.updateQuickTileState(
-      isActive: false,
-      subtitle: _s.tileSleepDetectedBpm(finalBpm),
-    );
-
-    await ref
-        .read(settingsProvider.notifier)
-        .recordLearnedSleepingBpm(finalBpm);
-
-    final startTime = state.sessionStartTime ?? asleepTime;
-    final pausedAtTime = DateTime.now();
-    final listeningSeconds = asleepTime
-        .difference(startTime)
-        .inSeconds
-        .clamp(1, 86400);
+    _timeline.finish(finalBpm);
 
     final triggerReason = isSmartAdaptive
         ? _s.triggerReasonHr(
@@ -680,27 +775,217 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
           )
         : _s.triggerReasonHr(finalBpm);
 
-    if (!_sessionBpmTimeline.contains(finalBpm)) {
-      _sessionBpmTimeline.add(finalBpm);
-    }
-
-    final log = SleepSessionLog(
-      id: pausedAtTime.millisecondsSinceEpoch.toString(),
+    _pendingNight = _PendingNight(
       mode: DetectionMode.watchBle,
-      startTime: startTime,
       asleepTime: asleepTime,
-      pausedAtTime: pausedAtTime,
-      listeningDurationSeconds: listeningSeconds,
+      pausedAtTime: DateTime.now(),
       triggerReason: triggerReason,
       finalBpm: finalBpm,
       baselineBpm: state.baselineBpm,
       watchName: state.connectedWatchName,
+      bpmTimeline: _timeline.points,
+    );
+
+    await _enterGraceWindow();
+  }
+
+  // ===========================================================================
+  // Grace window: "still awake?"
+  // ===========================================================================
+  Future<void> _enterGraceWindow() async {
+    _graceTimer?.cancel();
+    state = state.copyWith(
+      phase: SessionPhase.graceWindow,
+      isFading: false,
+      fadeRemainingSeconds: 0,
+      graceRemainingSeconds: graceWindowSeconds,
+      statusText: 'Paused • still awake?',
+    );
+
+    await ForegroundTaskService.instance.updateNotification(
+      title: _s.fgGraceTitle,
+      text: _s.fgGraceBody(graceWindowSeconds),
+      withStillAwakeButton: true,
+    );
+    await _mediaControl.updateQuickTileState(
+      isActive: true,
+      subtitle: _s.tileGrace,
+    );
+
+    // A shake means "I'm awake" in both modes.
+    final settings = ref.read(settingsProvider);
+    _motionService.startMonitoring(
+      threshold: settings.shakeSensitivity,
+      onMagnitudeUpdate: (_) {},
+      onShakeDetected: (_) => stillAwake(),
+    );
+
+    _graceTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
+      if (!state.isRunning || !state.isInGraceWindow) {
+        _graceTimer?.cancel();
+        _graceTimer = null;
+        return;
+      }
+      final remaining = state.graceRemainingSeconds - 1;
+      state = state.copyWith(
+        graceRemainingSeconds: remaining.clamp(0, graceWindowSeconds),
+        elapsedSeconds: state.elapsedSeconds + 1,
+      );
+      if (remaining % 15 == 0 && remaining > 0) {
+        await ForegroundTaskService.instance.updateNotification(
+          title: _s.fgGraceTitle,
+          text: _s.fgGraceBody(remaining),
+          withStillAwakeButton: true,
+        );
+      }
+      if (remaining <= 0) {
+        _graceTimer?.cancel();
+        _graceTimer = null;
+        await _finalizeNight();
+      }
+    });
+  }
+
+  /// The user says they are still awake: resume playback, forget this
+  /// detection, harden the threshold for the night and keep monitoring.
+  Future<void> stillAwake() async {
+    if (!state.isRunning || !state.isInGraceWindow) return;
+    _graceTimer?.cancel();
+    _graceTimer = null;
+    _motionService.stopMonitoring();
+    _pendingNight = null;
+    _stillAwakeCount++;
+    _nightThresholdPenaltyBpm += _stillAwakePenaltyBpm;
+    _lowSecondsAccum = 0.0;
+
+    await _mediaControl.resumeMedia();
+
+    final settings = ref.read(settingsProvider);
+    final isWatch = state.activeMode == DetectionMode.watchBle;
+    final isSmart =
+        settings.biometricTriggerMode == BiometricTriggerMode.smartAdaptive;
+
+    final newThreshold = isWatch && isSmart && state.baselineBpm != null
+        ? _computeSmartAdaptiveThreshold(
+            awakeBaselineBpm: state.baselineBpm!,
+            settings: settings,
+          )
+        : (settings.sleepBpmThreshold - _nightThresholdPenaltyBpm).clamp(
+            40,
+            95,
+          );
+
+    state = state.copyWith(
+      phase: SessionPhase.monitoring,
+      graceRemainingSeconds: 0,
+      consecutiveLowHrSeconds: 0,
+      sleepConfidenceScore: 0.0,
+      stillAwakeCount: _stillAwakeCount,
+      effectiveThresholdBpm: newThreshold,
+      checkIntervalRemainingSeconds: settings.checkIntervalMinutes * 60,
+      checkIntervalTotalSeconds: settings.checkIntervalMinutes * 60,
+      statusText: 'Monitoring...',
+      detailText: _s.stillAwakeToast,
+    );
+
+    await ForegroundTaskService.instance.updateNotification(
+      title: _s.fgResumedTitle,
+      text: _s.fgResumedBody,
+    );
+    await _mediaControl.updateQuickTileState(
+      isActive: true,
+      subtitle: _s.tileActive,
+    );
+
+    _isStoppingOrCompleting = false;
+    if (isWatch) {
+      if (_isSimulated) _startSimulatedHeartRateFeed(settings);
+      _startWatchSessionTicker();
+    } else {
+      _fadeStartedAt = null;
+      _motionService.startMonitoring(
+        threshold: settings.shakeSensitivity,
+        onMagnitudeUpdate: (magnitude) {
+          if (!state.isRunning) return;
+          state = state.copyWith(lastShakeMagnitude: magnitude);
+        },
+        onShakeDetected: (peakMagnitude) {
+          _handlePhoneMovementDetected(peakMagnitude: peakMagnitude);
+        },
+      );
+      _startPhoneCountdownTicker();
+    }
+  }
+
+  /// Grace window expired: the user is asleep. Close apps, log the night,
+  /// learn, notify, and release everything.
+  Future<void> _finalizeNight() async {
+    final pending = _pendingNight;
+    if (pending == null) {
+      await stopSession(reason: 'Session ended');
+      return;
+    }
+    _pendingNight = null;
+    _motionService.stopMonitoring();
+
+    final settings = ref.read(settingsProvider);
+
+    List<String> closedAppsList = const [];
+    if (settings.closeAppsOnSleep) {
+      closedAppsList = await _mediaControl.closeTargetApps(
+        packages: settings.targetAppsToClose.keys.toList(),
+        goHome: settings.returnToHomeOnSleep,
+      );
+    }
+
+    if (pending.mode == DetectionMode.watchBle) {
+      await _packetSubscription?.cancel();
+      _packetSubscription = null;
+      _simulatedHrTimer?.cancel();
+      _simulatedHrTimer = null;
+      await _bleService.disconnect();
+    }
+    await ForegroundTaskService.instance.stopMonitoringService();
+    await _mediaControl.updateQuickTileState(
+      isActive: false,
+      subtitle: pending.mode == DetectionMode.watchBle
+          ? _s.tileSleepDetectedBpm(pending.finalBpm ?? 0)
+          : _s.tileSleepDetectedPaused,
+    );
+
+    // Only learn from nights without a false positive: a corrected detection
+    // must not drag the learned sleeping BPM upwards.
+    if (pending.mode == DetectionMode.watchBle &&
+        pending.finalBpm != null &&
+        _stillAwakeCount == 0) {
+      await ref
+          .read(settingsProvider.notifier)
+          .recordLearnedSleepingBpm(pending.finalBpm!);
+    }
+
+    final startTime = state.sessionStartTime ?? pending.asleepTime;
+    final listeningSeconds = pending.asleepTime
+        .difference(startTime)
+        .inSeconds
+        .clamp(1, 86400);
+
+    final log = SleepSessionLog(
+      id: pending.pausedAtTime.millisecondsSinceEpoch.toString(),
+      mode: pending.mode,
+      startTime: startTime,
+      asleepTime: pending.asleepTime,
+      pausedAtTime: pending.pausedAtTime,
+      listeningDurationSeconds: listeningSeconds,
+      triggerReason: pending.triggerReason,
+      finalBpm: pending.finalBpm,
+      baselineBpm: pending.baselineBpm,
+      watchName: pending.watchName,
       mediaAppName:
           _lastKnownMediaInfo?.appName ??
           (closedAppsList.isNotEmpty ? closedAppsList.join(', ') : null),
       mediaTitle: _lastKnownMediaInfo?.mediaTitle,
       closedApps: closedAppsList,
-      bpmTimeline: List<int>.from(_sessionBpmTimeline),
+      bpmTimeline: pending.bpmTimeline,
     );
 
     await ref.read(sessionLogsProvider.notifier).addSessionLog(log);
@@ -710,7 +995,7 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     unawaited(
       TelemetryService.instance.recordSleepDetected(
         enabled: settings.anonymousTelemetryEnabled,
-        mode: DetectionMode.watchBle,
+        mode: pending.mode,
         languageCode: settings.languageCode,
         listeningMinutes: (listeningSeconds / 60).ceil().clamp(1, 720),
         mediaAppName: log.mediaAppName,
@@ -721,14 +1006,15 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       isRunning: false,
       isFading: false,
       phase: SessionPhase.pausedCompleted,
+      graceRemainingSeconds: 0,
       statusText: 'Sleep detected • Media paused',
-      detailText: '$triggerReason. Volume restored.',
+      detailText: pending.triggerReason,
     );
     _isStoppingOrCompleting = false;
   }
 
   // ===========================================================================
-  // Detection Mode B: Phone-Only Mode ("Smart Fade & Shake" / Dead Man's Switch)
+  // Detection Mode B: Phone-Only Mode ("Smart Fade & Shake")
   // ===========================================================================
   Future<void> _startPhoneFadeShakeSession({
     required SleepSettings settings,
@@ -738,15 +1024,12 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   }) async {
     final totalIntervalSeconds = settings.checkIntervalMinutes * 60;
     _fadeStartedAt = null;
-    _sessionBpmTimeline.clear();
 
     state = ActiveSessionState(
       isRunning: true,
       phase: SessionPhase.monitoring,
       activeMode: DetectionMode.phoneFadeShake,
       statusText: 'Monitoring...',
-      detailText:
-          'Shake or tap phone during fade to reset ${settings.checkIntervalMinutes}m timer',
       sessionStartTime: startTime,
       elapsedSeconds: 0,
       checkIntervalRemainingSeconds: totalIntervalSeconds,
@@ -782,7 +1065,12 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   void _startPhoneCountdownTicker() {
     _sessionTicker?.cancel();
     _sessionTicker = Timer.periodic(const Duration(seconds: 1), (_) async {
-      if (!state.isRunning || state.isFading || _isStoppingOrCompleting) return;
+      if (!state.isRunning ||
+          state.isFading ||
+          state.isInGraceWindow ||
+          _isStoppingOrCompleting) {
+        return;
+      }
 
       final elapsed = state.elapsedSeconds + 1;
       final remaining = (state.checkIntervalRemainingSeconds - 1).clamp(
@@ -823,7 +1111,12 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
   }
 
   Future<void> _startPhone60sFadeSequence() async {
-    if (!state.isRunning || state.isFading || _isStoppingOrCompleting) return;
+    if (!state.isRunning ||
+        state.isFading ||
+        state.isInGraceWindow ||
+        _isStoppingOrCompleting) {
+      return;
+    }
 
     _fadeStartedAt = DateTime.now();
     final currentMedia = await _mediaControl.getActiveMediaInfo();
@@ -837,7 +1130,6 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       fadeTotalSeconds: 60,
       fadeRemainingSeconds: 60,
       statusText: 'Fading audio...',
-      detailText: 'Nudge or shake phone now to restore volume & reset timer',
     );
 
     await ForegroundTaskService.instance.updateNotification(
@@ -855,7 +1147,6 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
           currentVolume: currentVol,
           originalVolume: originalVol,
           maxVolume: maxVol,
-          statusText: 'Fading audio (${remaining}s)...',
         );
       },
     );
@@ -869,77 +1160,28 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     _motionService.stopMonitoring();
 
     final settings = ref.read(settingsProvider);
-
     await _mediaControl.pauseAndRestoreVolumeAfterDelay(
       rewindBeforePause: settings.rewindOnPause,
     );
 
-    List<String> closedAppsList = const [];
-    if (settings.closeAppsOnSleep) {
-      closedAppsList = await _mediaControl.closeTargetApps(
-        packages: settings.targetAppsToClose.keys.toList(),
-        goHome: settings.returnToHomeOnSleep,
-      );
-    }
-
-    await ForegroundTaskService.instance.stopMonitoringService();
-    await _mediaControl.updateQuickTileState(
-      isActive: false,
-      subtitle: _s.tileSleepDetectedPaused,
-    );
-
-    final startTime = state.sessionStartTime ?? DateTime.now();
-    final asleepTime = _fadeStartedAt ?? DateTime.now();
-    final pausedAtTime = DateTime.now();
-    final listeningSeconds = asleepTime
-        .difference(startTime)
-        .inSeconds
-        .clamp(1, 86400);
-
-    final log = SleepSessionLog(
-      id: pausedAtTime.millisecondsSinceEpoch.toString(),
+    _pendingNight = _PendingNight(
       mode: DetectionMode.phoneFadeShake,
-      startTime: startTime,
-      asleepTime: asleepTime,
-      pausedAtTime: pausedAtTime,
-      listeningDurationSeconds: listeningSeconds,
+      asleepTime: _fadeStartedAt ?? DateTime.now(),
+      pausedAtTime: DateTime.now(),
       triggerReason: _s.triggerReasonFade,
-      mediaAppName:
-          _lastKnownMediaInfo?.appName ??
-          (closedAppsList.isNotEmpty ? closedAppsList.join(', ') : null),
-      mediaTitle: _lastKnownMediaInfo?.mediaTitle,
-      closedApps: closedAppsList,
     );
 
-    await ref.read(sessionLogsProvider.notifier).addSessionLog(log);
-    await ref.read(settingsProvider.notifier).consumeTrialNight();
-    await NotificationService.instance.showSleepSummaryNotification(log, _s);
-
-    unawaited(
-      TelemetryService.instance.recordSleepDetected(
-        enabled: settings.anonymousTelemetryEnabled,
-        mode: DetectionMode.phoneFadeShake,
-        languageCode: settings.languageCode,
-        listeningMinutes: (listeningSeconds / 60).ceil().clamp(1, 720),
-        mediaAppName: log.mediaAppName,
-      ),
-    );
-
-    state = state.copyWith(
-      isRunning: false,
-      isFading: false,
-      phase: SessionPhase.pausedCompleted,
-      statusText: 'Sleep detected • Media paused',
-      detailText:
-          'No response to 60s fade. Logged asleep time at fade start & restored volume.',
-    );
-    _isStoppingOrCompleting = false;
+    await _enterGraceWindow();
   }
 
   Future<void> _handlePhoneMovementDetected({
     required double peakMagnitude,
   }) async {
     if (!state.isRunning || state.activeMode != DetectionMode.phoneFadeShake) {
+      return;
+    }
+    if (state.isInGraceWindow) {
+      await stillAwake();
       return;
     }
 
@@ -960,8 +1202,6 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
         currentVolume: restoredVol,
         shakeResetCount: state.shakeResetCount + 1,
         statusText: 'Monitoring...',
-        detailText:
-            'Movement detected (${peakMagnitude.toStringAsFixed(1)} m/s²) • Volume restored & timer reset!',
       );
 
       await ForegroundTaskService.instance.updateNotification(
@@ -972,8 +1212,6 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
       state = state.copyWith(
         checkIntervalRemainingSeconds: resetSeconds,
         checkIntervalTotalSeconds: resetSeconds,
-        detailText:
-            'Motion detected (${peakMagnitude.toStringAsFixed(1)} m/s²) • Timer reset to ${settings.checkIntervalMinutes}m',
       );
     }
   }
@@ -1009,6 +1247,9 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     _sessionTicker = null;
     _simulatedHrTimer?.cancel();
     _simulatedHrTimer = null;
+    _graceTimer?.cancel();
+    _graceTimer = null;
+    _pendingNight = null;
 
     await _packetSubscription?.cancel();
     _packetSubscription = null;
@@ -1031,4 +1272,27 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
     _isStoppingOrCompleting = false;
   }
+}
+
+/// Everything needed to write the night's log once the grace window expires.
+class _PendingNight {
+  final DetectionMode mode;
+  final DateTime asleepTime;
+  final DateTime pausedAtTime;
+  final String triggerReason;
+  final int? finalBpm;
+  final double? baselineBpm;
+  final String? watchName;
+  final List<int> bpmTimeline;
+
+  const _PendingNight({
+    required this.mode,
+    required this.asleepTime,
+    required this.pausedAtTime,
+    required this.triggerReason,
+    this.finalBpm,
+    this.baselineBpm,
+    this.watchName,
+    this.bpmTimeline = const [],
+  });
 }

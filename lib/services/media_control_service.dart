@@ -93,6 +93,16 @@ class MediaControlService {
     }
   }
 
+  /// Resumes playback after a false-positive pause ("still awake").
+  Future<bool> resumeMedia() async {
+    try {
+      final res = await _channel.invokeMethod<bool>('resumeMedia');
+      return res ?? true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<bool> rewindMedia() async {
     try {
       final res = await _channel.invokeMethod<bool>('rewindMedia');

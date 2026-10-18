@@ -8,6 +8,12 @@ enum SessionPhase {
   monitoring,
   hrDropping,
   fadingAudio,
+
+  /// Media is paused; the user has ~90 s to say "still awake" and resume.
+  graceWindow,
+
+  /// No heart-rate packet for a while (watch out of range / disconnected).
+  signalLost,
   pausedCompleted,
   error,
 }
@@ -49,6 +55,21 @@ class ActiveSessionState {
   final int requiredLowHrSeconds;
   final List<DiscoveredBleWatch> discoveredWatches;
 
+  /// 0..1 while the awake baseline is being learned.
+  final double calibrationProgress;
+
+  /// Seconds since the last heart-rate packet exceeded the staleness limit.
+  final int signalLostSeconds;
+
+  /// Seconds left in the "still awake?" window after a pause.
+  final int graceRemainingSeconds;
+
+  /// How many times the user said "still awake" tonight.
+  final int stillAwakeCount;
+
+  /// BPM sampled every 30 s since the session started (night curve).
+  final List<int> bpmTimeline;
+
   // Phone (Fade & Shake) fields
   final int checkIntervalRemainingSeconds;
   final int checkIntervalTotalSeconds;
@@ -83,6 +104,11 @@ class ActiveSessionState {
     this.consecutiveLowHrSeconds = 0,
     this.requiredLowHrSeconds = 240,
     this.discoveredWatches = const [],
+    this.calibrationProgress = 0.0,
+    this.signalLostSeconds = 0,
+    this.graceRemainingSeconds = 0,
+    this.stillAwakeCount = 0,
+    this.bpmTimeline = const [],
     this.checkIntervalRemainingSeconds = 0,
     this.checkIntervalTotalSeconds = 900,
     this.lastShakeMagnitude = 0.0,
@@ -94,6 +120,9 @@ class ActiveSessionState {
     this.currentVolume,
     this.maxVolume,
   });
+
+  bool get isSignalStale => phase == SessionPhase.signalLost;
+  bool get isInGraceWindow => phase == SessionPhase.graceWindow;
 
   double get lowHrProgress {
     if (requiredLowHrSeconds <= 0) return 0.0;
@@ -133,6 +162,11 @@ class ActiveSessionState {
     int? consecutiveLowHrSeconds,
     int? requiredLowHrSeconds,
     List<DiscoveredBleWatch>? discoveredWatches,
+    double? calibrationProgress,
+    int? signalLostSeconds,
+    int? graceRemainingSeconds,
+    int? stillAwakeCount,
+    List<int>? bpmTimeline,
     int? checkIntervalRemainingSeconds,
     int? checkIntervalTotalSeconds,
     double? lastShakeMagnitude,
@@ -172,6 +206,11 @@ class ActiveSessionState {
           consecutiveLowHrSeconds ?? this.consecutiveLowHrSeconds,
       requiredLowHrSeconds: requiredLowHrSeconds ?? this.requiredLowHrSeconds,
       discoveredWatches: discoveredWatches ?? this.discoveredWatches,
+      calibrationProgress: calibrationProgress ?? this.calibrationProgress,
+      signalLostSeconds: signalLostSeconds ?? this.signalLostSeconds,
+      graceRemainingSeconds: graceRemainingSeconds ?? this.graceRemainingSeconds,
+      stillAwakeCount: stillAwakeCount ?? this.stillAwakeCount,
+      bpmTimeline: bpmTimeline ?? this.bpmTimeline,
       checkIntervalRemainingSeconds:
           checkIntervalRemainingSeconds ?? this.checkIntervalRemainingSeconds,
       checkIntervalTotalSeconds:

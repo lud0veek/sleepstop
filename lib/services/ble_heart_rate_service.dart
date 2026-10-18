@@ -25,7 +25,14 @@ class BleHeartRateService {
   static final Guid hrMeasurementCharGuid = Guid(hrMeasurementCharUuidString);
 
   BluetoothDevice? _connectedDevice;
+
+  /// Last device we successfully streamed from; kept after a disconnect so
+  /// the session can reconnect to it without re-scanning.
+  BluetoothDevice? _lastDevice;
   String? _resolvedWatchName;
+  DateTime? _lastPacketAt;
+  bool _isLinkUp = false;
+  bool _reconnectInFlight = false;
   StreamSubscription<List<ScanResult>>? _scanSubscription;
   StreamSubscription<BluetoothConnectionState>? _connectionSubscription;
   StreamSubscription<List<int>>? _hrCharSubscription;
@@ -48,6 +55,41 @@ class BleHeartRateService {
 
   BluetoothDevice? get connectedDevice => _connectedDevice;
   String? get resolvedWatchName => _resolvedWatchName;
+
+  /// Wall-clock time of the last valid heart-rate packet.
+  DateTime? get lastPacketAt => _lastPacketAt;
+
+  /// True while the GATT link to the watch is believed to be up.
+  bool get isLinkUp => _isLinkUp;
+
+  /// Seconds since the last packet, or null if none was ever received.
+  int? secondsSinceLastPacket([DateTime? now]) {
+    final last = _lastPacketAt;
+    if (last == null) return null;
+    return (now ?? DateTime.now()).difference(last).inSeconds;
+  }
+
+  /// Tries to re-establish the stream with the last known device. Safe to
+  /// call repeatedly; concurrent calls are coalesced.
+  Future<bool> reconnectLastDevice() async {
+    final device = _lastDevice;
+    if (device == null || _reconnectInFlight) return false;
+    _reconnectInFlight = true;
+    try {
+      _connectionStatusController.add('Reconnecting to watch...');
+      return await connectToDevice(device);
+    } catch (_) {
+      return false;
+    } finally {
+      _reconnectInFlight = false;
+    }
+  }
+
+  /// Used by the simulated feed so staleness logic behaves like a real watch.
+  void markSimulatedPacket() {
+    _lastPacketAt = DateTime.now();
+    _isLinkUp = true;
+  }
 
   /// Parses raw BLE Heart Rate Measurement (0x2A37) payload according to the
   /// official Bluetooth SIG GATT Specification:
@@ -283,9 +325,13 @@ class BleHeartRateService {
         autoConnect: false,
       );
       _connectedDevice = device;
+      _lastDevice = device;
 
       _connectionSubscription = device.connectionState.listen((state) {
         if (state == BluetoothConnectionState.disconnected) {
+          _isLinkUp = false;
+          _hrCharSubscription?.cancel();
+          _hrCharSubscription = null;
           _connectionStatusController.add('Watch disconnected');
         }
       });
@@ -328,16 +374,19 @@ class BleHeartRateService {
       _hrCharSubscription = hrCharacteristic.onValueReceived.listen((bytes) {
         final packet = parseHeartRatePacket(bytes);
         if (packet != null) {
+          _lastPacketAt = DateTime.now();
           _bpmStreamController.add(packet.bpm);
           _packetStreamController.add(packet);
         }
       });
+      _isLinkUp = true;
 
       if (hrCharacteristic.properties.read) {
         try {
           final initialBytes = await hrCharacteristic.read();
           final packet = parseHeartRatePacket(initialBytes);
           if (packet != null) {
+            _lastPacketAt = DateTime.now();
             _bpmStreamController.add(packet.bpm);
             _packetStreamController.add(packet);
           }
@@ -442,6 +491,7 @@ class BleHeartRateService {
   }
 
   Future<void> disconnect() async {
+    _isLinkUp = false;
     await stopScan();
     await _hrCharSubscription?.cancel();
     _hrCharSubscription = null;

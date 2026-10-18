@@ -138,10 +138,22 @@ class AppStrings {
         es: 'Conectando al reloj BLE (0x180D)...',
       ),
       SessionPhase.calibratingBaseline => tr(
-        fr: 'Calibration du pouls au repos (90s)...',
-        nl: 'Hartslag in rust kalibreren (90s)...',
-        de: 'Ruhepuls-Kalibrierung (90s)...',
-        es: 'Calibrando pulso en reposo (90s)...',
+        fr: 'Calibration du pouls au repos…',
+        nl: 'Hartslag in rust kalibreren…',
+        de: 'Ruhepuls-Kalibrierung…',
+        es: 'Calibrando pulso en reposo…',
+      ),
+      SessionPhase.graceWindow => tr(
+        fr: 'Média en pause • Encore réveillé ? (${session.graceRemainingSeconds}s)',
+        nl: 'Media gepauzeerd • Nog wakker? (${session.graceRemainingSeconds}s)',
+        de: 'Medien pausiert • Noch wach? (${session.graceRemainingSeconds}s)',
+        es: 'Medios en pausa • ¿Aún despierto? (${session.graceRemainingSeconds}s)',
+      ),
+      SessionPhase.signalLost => tr(
+        fr: 'Signal montre perdu • reconnexion… (${session.signalLostSeconds}s)',
+        nl: 'Horlogesignaal verloren • opnieuw verbinden… (${session.signalLostSeconds}s)',
+        de: 'Uhrsignal verloren • Verbinde erneut… (${session.signalLostSeconds}s)',
+        es: 'Señal del reloj perdida • reconectando… (${session.signalLostSeconds}s)',
       ),
       SessionPhase.monitoring => tr(
         fr: 'Surveillance active...',
@@ -1080,5 +1092,116 @@ class AppStrings {
     nl: 'Niet nu',
     de: 'Nicht jetzt',
     es: 'Ahora no',
+  );
+
+  // ===========================================================================
+  // Signal loss, grace window ("still awake") and calibration
+  // ===========================================================================
+  String get stillAwakeButton => tr(
+    fr: 'Encore réveillé',
+    nl: 'Nog wakker',
+    de: 'Noch wach',
+    es: 'Aún despierto',
+  );
+
+  String get graceCardTitle => tr(
+    fr: 'Média mis en pause',
+    nl: 'Media gepauzeerd',
+    de: 'Medien pausiert',
+    es: 'Medios en pausa',
+  );
+
+  String graceCardBody(int seconds) => tr(
+    fr: 'Si tu es encore réveillé, secoue le téléphone ou appuie ci-dessous : la lecture reprend et la nuit continue. Sinon, bonne nuit — fin dans ${seconds}s.',
+    nl: 'Nog wakker? Schud de telefoon of tik hieronder: het afspelen hervat en de nacht gaat door. Zo niet, welterusten — klaar over ${seconds}s.',
+    de: 'Noch wach? Schüttle das Telefon oder tippe unten: die Wiedergabe läuft weiter. Wenn nicht, gute Nacht — Ende in ${seconds}s.',
+    es: '¿Aún despierto? Agita el teléfono o pulsa abajo: la reproducción continúa. Si no, buenas noches — fin en ${seconds}s.',
+  );
+
+  String get fgGraceTitle => tr(
+    fr: 'SleepStop • Sommeil détecté, média en pause',
+    nl: 'SleepStop • Slaap gedetecteerd, media gepauzeerd',
+    de: 'SleepStop • Schlaf erkannt, Medien pausiert',
+    es: 'SleepStop • Sueño detectado, medios en pausa',
+  );
+
+  String fgGraceBody(int seconds) => tr(
+    fr: 'Encore réveillé ? Secoue le téléphone ou appuie (${seconds}s).',
+    nl: 'Nog wakker? Schud de telefoon of tik (${seconds}s).',
+    de: 'Noch wach? Telefon schütteln oder tippen (${seconds}s).',
+    es: '¿Aún despierto? Agita el teléfono o pulsa (${seconds}s).',
+  );
+
+  String get fgResumedTitle => tr(
+    fr: 'SleepStop • Lecture reprise',
+    nl: 'SleepStop • Afspelen hervat',
+    de: 'SleepStop • Wiedergabe fortgesetzt',
+    es: 'SleepStop • Reproducción reanudada',
+  );
+
+  String get fgResumedBody => tr(
+    fr: 'Seuil ajusté pour cette nuit. Surveillance relancée.',
+    nl: 'Drempel aangepast voor vannacht. Bewaking hervat.',
+    de: 'Schwelle für heute Nacht angepasst. Überwachung läuft weiter.',
+    es: 'Umbral ajustado para esta noche. Vigilancia reanudada.',
+  );
+
+  String get fgSignalLostTitle => tr(
+    fr: 'SleepStop • Signal montre perdu',
+    nl: 'SleepStop • Horlogesignaal verloren',
+    de: 'SleepStop • Uhrsignal verloren',
+    es: 'SleepStop • Señal del reloj perdida',
+  );
+
+  String fgSignalLostBody(int seconds) => tr(
+    fr: 'Reconnexion en cours (${seconds}s). Le média n\'est pas touché.',
+    nl: 'Opnieuw verbinden (${seconds}s). Media blijven ongemoeid.',
+    de: 'Verbinde erneut (${seconds}s). Medien bleiben unberührt.',
+    es: 'Reconectando (${seconds}s). Los medios no se tocan.',
+  );
+
+  String get fgSignalBackBody => tr(
+    fr: 'Montre reconnectée. Surveillance reprise.',
+    nl: 'Horloge opnieuw verbonden. Bewaking hervat.',
+    de: 'Uhr wieder verbunden. Überwachung läuft weiter.',
+    es: 'Reloj reconectado. Vigilancia reanudada.',
+  );
+
+  String get tileSignalLost => tr(
+    fr: 'Signal montre perdu…',
+    nl: 'Horlogesignaal verloren…',
+    de: 'Uhrsignal verloren…',
+    es: 'Señal del reloj perdida…',
+  );
+
+  String get tileGrace => tr(
+    fr: 'En pause • Encore réveillé ?',
+    nl: 'Gepauzeerd • Nog wakker?',
+    de: 'Pausiert • Noch wach?',
+    es: 'En pausa • ¿Aún despierto?',
+  );
+
+  String get signalLostAbortedDetail => tr(
+    fr: 'Montre injoignable pendant 10 minutes. Veille arrêtée, média intact.',
+    nl: 'Horloge 10 minuten onbereikbaar. Bewaking gestopt, media ongemoeid.',
+    de: 'Uhr 10 Minuten nicht erreichbar. Überwachung beendet, Medien unberührt.',
+    es: 'Reloj inalcanzable durante 10 minutos. Vigilancia detenida, medios intactos.',
+  );
+
+  String calibrationLabel(int secondsLeft) {
+    final mins = (secondsLeft / 60).ceil();
+    return tr(
+      fr: mins <= 1 ? 'Calibration • moins d\'une minute' : 'Calibration • ~$mins min',
+      nl: mins <= 1 ? 'Kalibratie • minder dan een minuut' : 'Kalibratie • ~$mins min',
+      de: mins <= 1 ? 'Kalibrierung • unter einer Minute' : 'Kalibrierung • ~$mins Min.',
+      es: mins <= 1 ? 'Calibración • menos de un minuto' : 'Calibración • ~$mins min',
+    );
+  }
+
+  String get stillAwakeToast => tr(
+    fr: 'Lecture reprise. Seuil ajusté pour cette nuit.',
+    nl: 'Afspelen hervat. Drempel aangepast voor vannacht.',
+    de: 'Wiedergabe fortgesetzt. Schwelle für heute Nacht angepasst.',
+    es: 'Reproducción reanudada. Umbral ajustado para esta noche.',
   );
 }

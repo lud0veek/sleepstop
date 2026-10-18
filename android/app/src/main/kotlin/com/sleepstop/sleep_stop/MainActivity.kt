@@ -99,6 +99,11 @@ class MainActivity : FlutterActivity() {
                             result.success(true)
                         }
 
+                        "resumeMedia" -> {
+                            resumeAllActiveSessionsAndDispatchKey()
+                            result.success(true)
+                        }
+
                         "rewindMedia" -> {
                             dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_REWIND)
                             result.success(true)
@@ -228,6 +233,21 @@ class MainActivity : FlutterActivity() {
         } catch (_: Exception) {
         }
         dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
+    }
+
+    private fun resumeAllActiveSessionsAndDispatchKey() {
+        try {
+            if (isNotificationServiceEnabled()) {
+                val msm = getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager
+                val component = ComponentName(this, SleepStopMediaListenerService::class.java)
+                val controllers = msm.getActiveSessions(component)
+                for (controller in controllers) {
+                    controller.transportControls.play()
+                }
+            }
+        } catch (_: Exception) {
+        }
+        dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
     }
 
     private fun getActiveMediaInfoMap(): Map<String, String?> {
