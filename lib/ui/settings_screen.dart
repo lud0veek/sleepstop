@@ -10,8 +10,10 @@ import '../providers/sleep_session_provider.dart';
 import 'privacy_sheet.dart';
 import 'pro_unlock_sheet.dart';
 import 'target_apps_sheet.dart';
+import 'sleep_actions_screen.dart';
 import 'theme/oled_theme.dart';
 import 'watch_guide_sheet.dart';
+import 'widgets/settings_blocks.dart';
 import 'widgets/flag_icon.dart';
 
 /// The single home of every setting. Five sections, one entry point
@@ -54,7 +56,7 @@ class SettingsScreen extends ConsumerWidget {
           // ------------------------------------------------------------------
           // 1. Detection
           // ------------------------------------------------------------------
-          _Section(
+          SettingsSection(
             icon: Icons.monitor_heart_outlined,
             accent: OledColors.warmAmber,
             title: s.tr(
@@ -64,7 +66,7 @@ class SettingsScreen extends ConsumerWidget {
               es: 'Detección del sueño',
             ),
             children: [
-              _Label(
+              SettingsLabel(
                 s.tr(
                   fr: 'Mode par défaut',
                   nl: 'Standaardmodus',
@@ -117,7 +119,7 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 18),
 
               // Watch settings
-              _SubHeader(s.settingsWatchSection, color: OledColors.warmAmber),
+              SettingsSubHeader(s.settingsWatchSection, color: OledColors.warmAmber),
               const SizedBox(height: 10),
               SegmentedButton<BiometricTriggerMode>(
                 segments: [
@@ -150,7 +152,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               if (isSmart) ...[
-                _InfoBox(
+                SettingsInfoBox(
                   title: s.howSmartWorksTitle,
                   body: s.howSmartWorksBody,
                   footer: settings.learnedSleepingBpm != null
@@ -160,10 +162,10 @@ class SettingsScreen extends ConsumerWidget {
                       : null,
                 ),
                 const SizedBox(height: 12),
-                _Label(s.sensitivityProfileTitle),
+                SettingsLabel(s.sensitivityProfileTitle),
                 const SizedBox(height: 8),
                 ...AdaptiveSensitivity.values.map(
-                  (preset) => _RadioRow(
+                  (preset) => SettingsRadioRow(
                     selected: settings.adaptiveSensitivity == preset,
                     title: s.sensitivityTitle(preset),
                     subtitle: s.sensitivityDesc(preset),
@@ -171,7 +173,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
               ] else ...[
-                _SliderRow(
+                SettingsSliderRow(
                   label: s.fixedBpmSliderLabel,
                   valueText: '${settings.sleepBpmThreshold} BPM',
                   value: settings.sleepBpmThreshold.toDouble(),
@@ -181,7 +183,7 @@ class SettingsScreen extends ConsumerWidget {
                   onChanged: (v) => notifier.setSleepBpmThreshold(v.round()),
                 ),
                 const SizedBox(height: 6),
-                _SliderRow(
+                SettingsSliderRow(
                   label: s.confirmationSliderLabel,
                   valueText: '${settings.confirmationDurationMinutes} min',
                   value: settings.confirmationDurationMinutes.toDouble(),
@@ -193,7 +195,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ],
               const SizedBox(height: 6),
-              _LinkRow(
+              SettingsLinkRow(
                 icon: Icons.help_outline_rounded,
                 color: OledColors.calmTeal,
                 label: s.watchGuideTooltip,
@@ -202,9 +204,9 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 18),
 
               // Phone settings
-              _SubHeader(s.settingsPhoneSection, color: OledColors.softIndigo),
+              SettingsSubHeader(s.settingsPhoneSection, color: OledColors.softIndigo),
               const SizedBox(height: 10),
-              _SliderRow(
+              SettingsSliderRow(
                 label: s.timerIntervalSliderLabel,
                 valueText: '${settings.checkIntervalMinutes} min',
                 value: settings.checkIntervalMinutes.toDouble(),
@@ -214,7 +216,7 @@ class SettingsScreen extends ConsumerWidget {
                 onChanged: (v) => notifier.setCheckIntervalMinutes(v.round()),
               ),
               const SizedBox(height: 6),
-              _SliderRow(
+              SettingsSliderRow(
                 label: s.shakeSensitivitySliderLabel,
                 valueText:
                     '${settings.shakeSensitivity.toStringAsFixed(1)} m/s²',
@@ -230,7 +232,7 @@ class SettingsScreen extends ConsumerWidget {
           // ------------------------------------------------------------------
           // 2. When you fall asleep
           // ------------------------------------------------------------------
-          _Section(
+          SettingsSection(
             icon: Icons.bedtime_rounded,
             accent: OledColors.softIndigo,
             title: s.tr(
@@ -240,13 +242,13 @@ class SettingsScreen extends ConsumerWidget {
               es: 'Al dormirse',
             ),
             children: [
-              _Toggle(
+              SettingsToggle(
                 title: s.autoRewindTitle,
                 subtitle: s.autoRewindSubtitle,
                 value: settings.rewindOnPause,
                 onChanged: notifier.setRewindOnPause,
               ),
-              _Toggle(
+              SettingsToggle(
                 title: s.tr(
                   fr: 'Écran noir et sortie du plein écran',
                   nl: 'Zwart scherm en volledig scherm verlaten',
@@ -262,7 +264,7 @@ class SettingsScreen extends ConsumerWidget {
                 value: settings.returnToHomeOnSleep,
                 onChanged: notifier.setReturnToHomeOnSleep,
               ),
-              _Toggle(
+              SettingsToggle(
                 title: s.tr(
                   fr: 'Fermer les apps choisies',
                   nl: 'Gekozen apps sluiten',
@@ -280,7 +282,18 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               _OverlayPermissionRow(s: s),
-              _LinkRow(
+              SettingsLinkRow(
+                icon: Icons.auto_awesome_rounded,
+                color: OledColors.gold,
+                label: s.sleepActionsTitle,
+                trailing: s.sleepActionsSummary(
+                  settings.sleepActions.enabled
+                      ? settings.sleepActions.activeCount
+                      : 0,
+                ),
+                onTap: () => SleepActionsScreen.open(context),
+              ),
+              SettingsLinkRow(
                 icon: Icons.apps_rounded,
                 color: OledColors.softIndigo,
                 label: s.appsToCloseTitle,
@@ -295,7 +308,7 @@ class SettingsScreen extends ConsumerWidget {
           // ------------------------------------------------------------------
           // 3. Language
           // ------------------------------------------------------------------
-          _Section(
+          SettingsSection(
             icon: Icons.language_rounded,
             accent: OledColors.calmTeal,
             title: s.tr(
@@ -359,7 +372,7 @@ class SettingsScreen extends ConsumerWidget {
           // ------------------------------------------------------------------
           // 4. Privacy
           // ------------------------------------------------------------------
-          _Section(
+          SettingsSection(
             icon: Icons.verified_user_outlined,
             accent: OledColors.calmTeal,
             title: s.tr(
@@ -369,7 +382,7 @@ class SettingsScreen extends ConsumerWidget {
               es: 'Privacidad',
             ),
             children: [
-              _Toggle(
+              SettingsToggle(
                 title: s.tr(
                   fr: 'Compteurs anonymes',
                   nl: 'Anonieme tellers',
@@ -386,7 +399,7 @@ class SettingsScreen extends ConsumerWidget {
                 onChanged: notifier.setAnonymousTelemetryEnabled,
               ),
               const SizedBox(height: 4),
-              _LinkRow(
+              SettingsLinkRow(
                 icon: Icons.policy_outlined,
                 color: OledColors.calmTeal,
                 label: s.tr(
@@ -397,7 +410,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 onTap: () => PrivacySheet.show(context),
               ),
-              _LinkRow(
+              SettingsLinkRow(
                 icon: Icons.delete_outline_rounded,
                 color: OledColors.mutedRose,
                 label: s.tr(
@@ -414,7 +427,7 @@ class SettingsScreen extends ConsumerWidget {
           // ------------------------------------------------------------------
           // 5. About
           // ------------------------------------------------------------------
-          _Section(
+          SettingsSection(
             icon: Icons.info_outline_rounded,
             accent: OledColors.textSecondary,
             title: s.tr(
@@ -424,7 +437,7 @@ class SettingsScreen extends ConsumerWidget {
               es: 'Acerca de',
             ),
             children: [
-              _LinkRow(
+              SettingsLinkRow(
                 icon: settings.isProUnlocked
                     ? Icons.verified_rounded
                     : Icons.workspace_premium_rounded,
@@ -434,7 +447,7 @@ class SettingsScreen extends ConsumerWidget {
                     : s.unlockProTitle,
                 onTap: () => ProUnlockSheet.show(context),
               ),
-              _LinkRow(
+              SettingsLinkRow(
                 icon: Icons.replay_rounded,
                 color: OledColors.textSecondary,
                 label: s.replayOnboarding,
@@ -445,13 +458,13 @@ class SettingsScreen extends ConsumerWidget {
                   }
                 },
               ),
-              _LinkRow(
+              SettingsLinkRow(
                 icon: Icons.public_rounded,
                 color: OledColors.textSecondary,
                 label: 'sleepstop.eu',
                 onTap: () => _copy(context, kWebsiteUrl, s),
               ),
-              _LinkRow(
+              SettingsLinkRow(
                 icon: Icons.mail_outline_rounded,
                 color: OledColors.textSecondary,
                 label: kSupportEmail,
@@ -559,407 +572,6 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Building blocks
-// ---------------------------------------------------------------------------
-
-class _Section extends StatelessWidget {
-  final IconData icon;
-  final Color accent;
-  final String title;
-  final List<Widget> children;
-
-  const _Section({
-    required this.icon,
-    required this.accent,
-    required this.title,
-    required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8),
-            child: Row(
-              children: [
-                Icon(icon, size: 16, color: accent),
-                const SizedBox(width: 8),
-                Text(
-                  title.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.0,
-                    color: accent,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-            decoration: BoxDecoration(
-              color: OledColors.cardSurface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: OledColors.subtleBorder),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: children,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SubHeader extends StatelessWidget {
-  final String text;
-  final Color color;
-  const _SubHeader(this.text, {required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 3,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.8,
-            color: color,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Label extends StatelessWidget {
-  final String text;
-  const _Label(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: OledColors.textPrimary,
-      ),
-    );
-  }
-}
-
-class _InfoBox extends StatelessWidget {
-  final String title;
-  final String body;
-  final String? footer;
-  const _InfoBox({required this.title, required this.body, this.footer});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: OledColors.elevatedSurface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: OledColors.subtleBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              color: OledColors.warmAmber,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            body,
-            style: const TextStyle(
-              fontSize: 12,
-              height: 1.4,
-              color: OledColors.textSecondary,
-            ),
-          ),
-          if (footer != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              footer!,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: OledColors.calmTeal,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _RadioRow extends StatelessWidget {
-  final bool selected;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _RadioRow({
-    required this.selected,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: selected
-                ? OledColors.warmAmber.withValues(alpha: 0.12)
-                : OledColors.elevatedSurface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: selected ? OledColors.warmAmber : OledColors.subtleBorder,
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                selected
-                    ? Icons.radio_button_checked_rounded
-                    : Icons.radio_button_off_rounded,
-                size: 18,
-                color: selected ? OledColors.warmAmber : OledColors.textMuted,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: selected
-                            ? OledColors.warmAmber
-                            : OledColors.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: OledColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SliderRow extends StatelessWidget {
-  final String label;
-  final String valueText;
-  final double value;
-  final double min;
-  final double max;
-  final int divisions;
-  final ValueChanged<double> onChanged;
-
-  const _SliderRow({
-    required this.label,
-    required this.valueText,
-    required this.value,
-    required this.min,
-    required this.max,
-    required this.divisions,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: OledColors.textPrimary,
-                ),
-              ),
-            ),
-            Text(
-              valueText,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: OledColors.warmAmber,
-                fontFeatures: [FontFeature.tabularFigures()],
-              ),
-            ),
-          ],
-        ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 3,
-            activeTrackColor: OledColors.warmAmber,
-            inactiveTrackColor: OledColors.subtleBorder,
-            thumbColor: OledColors.warmAmber,
-            overlayColor: OledColors.warmAmber.withValues(alpha: 0.12),
-          ),
-          child: Slider(
-            value: value.clamp(min, max),
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Toggle extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const _Toggle({
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SwitchListTile.adaptive(
-      contentPadding: EdgeInsets.zero,
-      activeThumbColor: OledColors.warmAmber,
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: OledColors.textPrimary,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(
-          fontSize: 12,
-          height: 1.35,
-          color: OledColors.textSecondary,
-        ),
-      ),
-      value: value,
-      onChanged: onChanged,
-    );
-  }
-}
-
-class _LinkRow extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final String? trailing;
-  final VoidCallback onTap;
-
-  const _LinkRow({
-    required this.icon,
-    required this.color,
-    required this.label,
-    this.trailing,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 2),
-        child: Row(
-          children: [
-            Icon(icon, size: 19, color: color),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: OledColors.textPrimary,
-                ),
-              ),
-            ),
-            if (trailing != null) ...[
-              Text(
-                trailing!,
-                style: const TextStyle(
-                  fontSize: 12.5,
-                  color: OledColors.textSecondary,
-                ),
-              ),
-              const SizedBox(width: 6),
-            ],
-            const Icon(
-              Icons.chevron_right_rounded,
-              size: 20,
-              color: OledColors.textMuted,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 /// "Display over other apps" status + shortcut to the system toggle.
 class _OverlayPermissionRow extends ConsumerStatefulWidget {
   final AppStrings s;
@@ -1004,7 +616,7 @@ class _OverlayPermissionRowState extends ConsumerState<_OverlayPermissionRow>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _LinkRow(
+        SettingsLinkRow(
           icon: Icons.brightness_2_rounded,
           color: granted == true ? OledColors.calmTeal : OledColors.warmAmber,
           label: s.overlayPermTitle,

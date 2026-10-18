@@ -5,6 +5,7 @@ import '../providers/session_logs_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/foreground_task_service.dart';
 import '../services/notification_service.dart';
+import '../sleep_actions/sleep_action_dispatcher.dart';
 import 'dashboard_tab.dart';
 import 'history_tab.dart';
 import 'pro_unlock_sheet.dart';
@@ -25,6 +26,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     final s = ref.read(appStringsProvider);
+    // Subscribes the "When I fall asleep" dispatcher to the sleep event bus.
+    ref.read(sleepActionDispatcherProvider);
     ForegroundTaskService.instance.init(
       channelName: s.fgChannelName,
       channelDescription: s.fgChannelDesc,

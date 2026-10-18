@@ -1376,4 +1376,69 @@ class AppStrings {
   String get overlayPermGranted => tr(fr: 'Autorisé', nl: 'Toegestaan', de: 'Erlaubt', es: 'Permitido');
   String get overlayPermMissing => tr(fr: 'À autoriser', nl: 'Nog toestaan', de: 'Noch erlauben', es: 'Por permitir');
   String get overlayPermOptional => tr(fr: 'Optionnel', nl: 'Optioneel', de: 'Optional', es: 'Opcional');
+
+  // ===========================================================================
+  // "When I fall asleep" module
+  // ===========================================================================
+  String get sleepActionsTitle => tr(
+    fr: 'Quand je m\'endors',
+    nl: 'Als ik in slaap val',
+    de: 'Wenn ich einschlafe',
+    es: 'Cuando me duermo',
+  );
+  String sleepActionsSummary(int active) => active == 0
+      ? tr(fr: 'Désactivé', nl: 'Uit', de: 'Aus', es: 'Desactivado')
+      : tr(
+          fr: '$active action${active > 1 ? 's' : ''} active${active > 1 ? 's' : ''}',
+          nl: '$active actie${active > 1 ? 's' : ''} actief',
+          de: '$active Aktion${active > 1 ? 'en' : ''} aktiv',
+          es: '$active acción${active > 1 ? 'es' : ''} activa${active > 1 ? 's' : ''}',
+        );
+  String get sleepActionsIntro => tr(
+    fr: 'Déclenche d\'autres choses au moment où SleepStop confirme que tu dors, après la fenêtre « Encore réveillé ». L\'arrêt du média reste prioritaire et ne dépend jamais de ces actions.',
+    nl: 'Start andere dingen op het moment dat SleepStop bevestigt dat je slaapt, na het venster "Nog wakker". Het stoppen van de media blijft prioritair en hangt nooit van deze acties af.',
+    de: 'Löst weitere Dinge aus, sobald SleepStop bestätigt, dass du schläfst, nach dem Fenster „Noch wach“. Das Stoppen der Wiedergabe hat immer Vorrang und hängt nie von diesen Aktionen ab.',
+    es: 'Activa otras cosas en el momento en que SleepStop confirma que duermes, tras la ventana «¿Aún despierto?». La parada del contenido sigue siendo prioritaria y nunca depende de estas acciones.',
+  );
+  String get sleepActionsMaster => tr(
+    fr: 'Activer les actions à l\'endormissement',
+    nl: 'Acties bij het inslapen inschakelen',
+    de: 'Aktionen beim Einschlafen aktivieren',
+    es: 'Activar las acciones al dormirse',
+  );
+  String get sleepActionsMasterSub => tr(
+    fr: 'Interrupteur général. Chaque action a aussi le sien.',
+    nl: 'Hoofdschakelaar. Elke actie heeft ook haar eigen schakelaar.',
+    de: 'Hauptschalter. Jede Aktion hat zusätzlich ihren eigenen.',
+    es: 'Interruptor general. Cada acción también tiene el suyo.',
+  );
+  String get actionLightsTitle => tr(fr: 'Éteindre les lumières', nl: 'Lichten uitdoen', de: 'Licht ausschalten', es: 'Apagar las luces');
+  String get actionLightsSub => tr(
+    fr: 'Via Google Home. Fondu progressif, annulable depuis la notification.',
+    nl: 'Via Google Home. Geleidelijk dimmen, te annuleren vanuit de melding.',
+    de: 'Über Google Home. Sanftes Dimmen, über die Benachrichtigung abbrechbar.',
+    es: 'Mediante Google Home. Atenuación progresiva, cancelable desde la notificación.',
+  );
+  String get actionIntentTitle => tr(fr: 'Signal pour Tasker / Automate', nl: 'Signaal voor Tasker / Automate', de: 'Signal für Tasker / Automate', es: 'Señal para Tasker / Automate');
+  String get actionIntentSub => tr(
+    fr: 'Envoie un broadcast Android que tes automatisations peuvent intercepter.',
+    nl: 'Stuurt een Android-broadcast die je automatiseringen kunnen opvangen.',
+    de: 'Sendet einen Android-Broadcast, den deine Automationen abfangen können.',
+    es: 'Envía un broadcast de Android que tus automatizaciones pueden interceptar.',
+  );
+  String get actionWebhookTitle => tr(fr: 'Webhook (Home Assistant, IFTTT…)', nl: 'Webhook (Home Assistant, IFTTT…)', de: 'Webhook (Home Assistant, IFTTT…)', es: 'Webhook (Home Assistant, IFTTT…)');
+  String get actionWebhookSub => tr(
+    fr: 'Requête HTTPS POST avec l\'heure d\'endormissement, signée si tu ajoutes un secret.',
+    nl: 'HTTPS POST-verzoek met het inslaapuur, ondertekend als je een geheim toevoegt.',
+    de: 'HTTPS-POST mit der Einschlafzeit, signiert, wenn du ein Geheimnis hinterlegst.',
+    es: 'Petición HTTPS POST con la hora de dormirse, firmada si añades un secreto.',
+  );
+  String get actionComingSoon => tr(fr: 'Bientôt', nl: 'Binnenkort', de: 'Bald', es: 'Pronto');
+  String get actionTestNow => tr(fr: 'Tester maintenant', nl: 'Nu testen', de: 'Jetzt testen', es: 'Probar ahora');
+  String get actionStatusIdle => tr(fr: 'Jamais exécutée', nl: 'Nog nooit uitgevoerd', de: 'Noch nie ausgeführt', es: 'Nunca ejecutada');
+  String get actionStatusSkipped => tr(fr: 'Ignorée (désactivée)', nl: 'Overgeslagen (uit)', de: 'Übersprungen (aus)', es: 'Omitida (desactivada)');
+  String get actionStatusRunning => tr(fr: 'En cours…', nl: 'Bezig…', de: 'Läuft…', es: 'En curso…');
+  String get actionStatusSuccess => tr(fr: 'OK', nl: 'OK', de: 'OK', es: 'OK');
+  String get actionStatusFailed => tr(fr: 'Échec', nl: 'Mislukt', de: 'Fehlgeschlagen', es: 'Error');
+  String get actionStatusTimeout => tr(fr: 'Délai dépassé (10 s)', nl: 'Time-out (10 s)', de: 'Zeitüberschreitung (10 s)', es: 'Tiempo agotado (10 s)');
 }

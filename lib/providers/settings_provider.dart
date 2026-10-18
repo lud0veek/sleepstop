@@ -149,6 +149,11 @@ class SettingsNotifier extends Notifier<SleepSettings> {
   Future<void> markOnboardingPermissionsShown() =>
       _update(state.copyWith(onboardingPermissionsShown: true));
 
+  /// Functional update of the "When I fall asleep" settings.
+  Future<void> updateSleepActions(
+    SleepActionsSettings Function(SleepActionsSettings current) change,
+  ) => _update(state.copyWith(sleepActions: change(state.sleepActions)));
+
   Future<void> markOnboardingCompleted() =>
       _update(state.copyWith(onboardingCompleted: true));
 
@@ -168,6 +173,7 @@ class SettingsNotifier extends Notifier<SleepSettings> {
       onboardingPermissionsShown: state.onboardingPermissionsShown,
       onboardingCompleted: state.onboardingCompleted,
       isHydrated: true,
+      sleepActions: state.sleepActions,
     );
     state = fresh;
     await _storage.saveSettings(fresh);

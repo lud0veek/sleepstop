@@ -89,6 +89,9 @@ class SleepSettings {
   /// users.
   final bool isHydrated;
 
+  /// "When I fall asleep" module (lights, intent, webhook). Off by default.
+  final SleepActionsSettings sleepActions;
+
   static const int totalFreeTrialNights = 5;
 
   int get remainingTrialNights =>
@@ -117,6 +120,7 @@ class SleepSettings {
     this.onboardingPermissionsShown = false,
     this.onboardingCompleted = false,
     this.isHydrated = false,
+    this.sleepActions = const SleepActionsSettings(),
   });
 
   SleepSettings copyWith({
@@ -144,6 +148,7 @@ class SleepSettings {
     bool? onboardingPermissionsShown,
     bool? onboardingCompleted,
     bool? isHydrated,
+    SleepActionsSettings? sleepActions,
   }) {
     return SleepSettings(
       preferredMode: preferredMode ?? this.preferredMode,
@@ -177,6 +182,7 @@ class SleepSettings {
           onboardingPermissionsShown ?? this.onboardingPermissionsShown,
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
       isHydrated: isHydrated ?? this.isHydrated,
+      sleepActions: sleepActions ?? this.sleepActions,
     );
   }
 
@@ -203,6 +209,7 @@ class SleepSettings {
       'trialNightsUsed': trialNightsUsed,
       'onboardingPermissionsShown': onboardingPermissionsShown,
       'onboardingCompleted': onboardingCompleted,
+      'sleepActions': sleepActions.toJson(),
     };
   }
 
@@ -260,6 +267,11 @@ class SleepSettings {
           json['onboardingPermissionsShown'] as bool? ?? false,
       onboardingCompleted: json['onboardingCompleted'] as bool? ?? false,
       isHydrated: true,
+      sleepActions: json['sleepActions'] is Map
+          ? SleepActionsSettings.fromJson(
+              Map<String, dynamic>.from(json['sleepActions'] as Map),
+            )
+          : const SleepActionsSettings(),
     );
   }
 
@@ -271,5 +283,157 @@ class SleepSettings {
     } catch (_) {
       return const SleepSettings(isHydrated: true);
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// "When I fall asleep" module settings
+// ---------------------------------------------------------------------------
+
+enum LightsFadeDuration { instant, s30, m1, m2 }
+
+extension LightsFadeDurationX on LightsFadeDuration {
+  int get seconds => switch (this) {
+    LightsFadeDuration.instant => 0,
+    LightsFadeDuration.s30 => 30,
+    LightsFadeDuration.m1 => 60,
+    LightsFadeDuration.m2 => 120,
+  };
+}
+
+class LightsActionSettings {
+  final bool enabled;
+  final List<String> deviceIds;
+  final List<String> roomIds;
+  final LightsFadeDuration fade;
+
+  const LightsActionSettings({
+    this.enabled = false,
+    this.deviceIds = const [],
+    this.roomIds = const [],
+    this.fade = LightsFadeDuration.s30,
+  });
+
+  LightsActionSettings copyWith({
+    bool? enabled,
+    List<String>? deviceIds,
+    List<String>? roomIds,
+    LightsFadeDuration? fade,
+  }) => LightsActionSettings(
+    enabled: enabled ?? this.enabled,
+    deviceIds: deviceIds ?? this.deviceIds,
+    roomIds: roomIds ?? this.roomIds,
+    fade: fade ?? this.fade,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'enabled': enabled,
+    'deviceIds': deviceIds,
+    'roomIds': roomIds,
+    'fade': fade.name,
+  };
+
+  factory LightsActionSettings.fromJson(Map<String, dynamic> json) =>
+      LightsActionSettings(
+        enabled: json['enabled'] as bool? ?? false,
+        deviceIds: (json['deviceIds'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+        roomIds: (json['roomIds'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+        fade: LightsFadeDuration.values.firstWhere(
+          (f) => f.name == json['fade'],
+          orElse: () => LightsFadeDuration.s30,
+        ),
+      );
+}
+
+class IntentActionSettings {
+  final bool enabled;
+  const IntentActionSettings({this.enabled = false});
+  IntentActionSettings copyWith({bool? enabled}) =>
+      IntentActionSettings(enabled: enabled ?? this.enabled);
+  Map<String, dynamic> toJson() => {'enabled': enabled};
+  factory IntentActionSettings.fromJson(Map<String, dynamic> json) =>
+      IntentActionSettings(enabled: json['enabled'] as bool? ?? false);
+}
+
+class WebhookActionSettings {
+  final bool enabled;
+  final String url;
+
+  /// The secret itself lives in secure storage; this only drives the UI.
+  final bool hasSecret;
+
+  const WebhookActionSettings({
+    this.enabled = false,
+    this.url = '',
+    this.hasSecret = false,
+  });
+
+  WebhookActionSettings copyWith({bool? enabled, String? url, bool? hasSecret}) =>
+      WebhookActionSettings(
+        enabled: enabled ?? this.enabled,
+        url: url ?? this.url,
+        hasSecret: hasSecret ?? this.hasSecret,
+      );
+
+  Map<String, dynamic> toJson() => {
+    'enabled': enabled,
+    'url': url,
+    'hasSecret': hasSecret,
+  };
+
+  factory WebhookActionSettings.fromJson(Map<String, dynamic> json) =>
+      WebhookActionSettings(
+        enabled: json['enabled'] as bool? ?? false,
+        url: json['url'] as String? ?? '',
+        hasSecret: json['hasSecret'] as bool? ?? false,
+      );
+}
+
+class SleepActionsSettings {
+  /// Master switch: when false nothing runs, whatever the per-action toggles.
+  final bool enabled;
+  final LightsActionSettings lights;
+  final IntentActionSettings intent;
+  final WebhookActionSettings webhook;
+
+  const SleepActionsSettings({
+    this.enabled = false,
+    this.lights = const LightsActionSettings(),
+    this.intent = const IntentActionSettings(),
+    this.webhook = const WebhookActionSettings(),
+  });
+
+  int get activeCount =>
+      (lights.enabled ? 1 : 0) + (intent.enabled ? 1 : 0) + (webhook.enabled ? 1 : 0);
+
+  SleepActionsSettings copyWith({
+    bool? enabled,
+    LightsActionSettings? lights,
+    IntentActionSettings? intent,
+    WebhookActionSettings? webhook,
+  }) => SleepActionsSettings(
+    enabled: enabled ?? this.enabled,
+    lights: lights ?? this.lights,
+    intent: intent ?? this.intent,
+    webhook: webhook ?? this.webhook,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'enabled': enabled,
+    'lights': lights.toJson(),
+    'intent': intent.toJson(),
+    'webhook': webhook.toJson(),
+  };
+
+  factory SleepActionsSettings.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic> sub(String key) => json[key] is Map
+        ? Map<String, dynamic>.from(json[key] as Map)
+        : const <String, dynamic>{};
+    return SleepActionsSettings(
+      enabled: json['enabled'] as bool? ?? false,
+      lights: LightsActionSettings.fromJson(sub('lights')),
+      intent: IntentActionSettings.fromJson(sub('intent')),
+      webhook: WebhookActionSettings.fromJson(sub('webhook')),
+    );
   }
 }

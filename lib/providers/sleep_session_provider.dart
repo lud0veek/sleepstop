@@ -14,6 +14,7 @@ import '../services/motion_detector_service.dart';
 import '../services/notification_service.dart';
 import '../services/sleep_onset_analyzer.dart';
 import '../services/telemetry_service.dart';
+import '../sleep_actions/sleep_event_bus.dart';
 import 'session_logs_provider.dart';
 import 'settings_provider.dart';
 
@@ -1039,6 +1040,11 @@ class SleepSessionNotifier extends Notifier<ActiveSessionState> {
     );
 
     _log('finalize done');
+    // Sleep is now confirmed: hand over to the "When I fall asleep" module.
+    // emit() never throws and never awaits listeners.
+    ref.read(sleepEventBusProvider).emit(
+      SleepDetectedEvent(timestamp: pending.asleepTime, mode: pending.mode),
+    );
     state = state.copyWith(
       isRunning: false,
       isFading: false,
