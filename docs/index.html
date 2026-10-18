@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SleepStop — Arrêt Média Intelligent au Sommeil (Android & Garmin / BLE)</title>
+  <meta name="description" content="SleepStop coupe automatiquement Audible, YouTube, Spotify et Netflix à la seconde exacte où votre montre connectée détecte que vous dormez." />
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #0E1017;
+      --border: #1E2230;
+      --amber: #FFB300;
+      --indigo: #7986CB;
+      --teal: #26A69A;
+      --text: #F5F7FA;
+      --muted: #9BA3B4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #141829 0%, #000000 55%);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 28px 0; border-bottom: 1px solid var(--border);
+    }
+    .brand { display: flex; align-items: center; gap: 14px; font-weight: 800; font-size: 1.35rem; }
+    .brand-badge {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(255,179,0,0.2), rgba(121,134,203,0.2));
+      border: 1px solid rgba(255,179,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--amber); font-size: 1.2rem;
+    }
+    .lang-pills { display: flex; gap: 8px; }
+    .pill {
+      padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
+      background: var(--card); border: 1px solid var(--border); color: var(--amber);
+    }
+    .hero { text-align: center; padding: 80px 0 60px; }
+    .tag {
+      display: inline-block; padding: 6px 16px; border-radius: 999px;
+      background: rgba(255,179,0,0.12); border: 1px solid rgba(255,179,0,0.35);
+      color: var(--amber); font-size: 0.82rem; font-weight: 700; margin-bottom: 22px;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      line-height: 1.12; letter-spacing: -0.03em; margin-bottom: 22px;
+    }
+    h1 span {
+      background: linear-gradient(90deg, #FFB300, #7986CB);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      max-width: 680px; margin: 0 auto 36px; font-size: 1.15rem; color: var(--muted);
+    }
+    .cta-group { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--amber); color: #000; font-weight: 800; padding: 15px 30px;
+      border-radius: 16px; text-decoration: none; font-size: 1rem;
+      box-shadow: 0 10px 30px rgba(255,179,0,0.25);
+    }
+    .btn-secondary {
+      background: var(--card); color: var(--text); font-weight: 600; padding: 15px 26px;
+      border-radius: 16px; text-decoration: none; border: 1px solid var(--border);
+    }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 22px; margin: 40px 0 80px;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 22px; padding: 28px;
+    }
+    .card h3 { color: var(--amber); margin-bottom: 10px; font-size: 1.18rem; }
+    .card p { color: var(--muted); font-size: 0.95rem; }
+    footer {
+      border-top: 1px solid var(--border); padding: 36px 0;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+      color: var(--muted); font-size: 0.9rem;
+    }
+    footer a { color: var(--amber); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-badge">☾</div>
+        <span>SleepStop</span>
+      </div>
+      <div class="lang-pills">
+        <span class="pill">🇫🇷 FR</span>
+        <span class="pill">🇳🇱 NL</span>
+        <span class="pill">🇩🇪 DE</span>
+        <span class="pill">🇪🇸 ES</span>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="tag">Compatible Garmin • Whoop • Polar • Coros • Amazfit • Mode Sans Montre</div>
+      <h1>Vos médias s'arrêtent <span>à la seconde précise</span> où vous dormez.</h1>
+      <p class="subtitle">
+        Fini les livres audio Audible qui tournent toute la nuit ou les vidéos YouTube qui vident votre batterie.
+        SleepStop analyse la baisse de votre rythme cardiaque en temps réel et coupe vos applications dès que vous vous endormez.
+      </p>
+      <div class="cta-group">
+        <a href="#features" class="btn-primary">Découvrir SleepStop (5 nuits d'essai gratuit)</a>
+        <a href="privacy.html" class="btn-secondary">Confidentialité 100 % Locale</a>
+      </div>
+    </section>
+
+    <section id="features" class="grid">
+      <div class="card">
+        <h3>♥ Biométrie Adaptative (Firstbeat)</h3>
+        <p>Calibre automatiquement votre pouls au coucher pendant 90 secondes et détecte le plateau parasympathique d'entrée en sommeil léger (BPM + variabilité R-R HRV).</p>
+      </div>
+      <div class="card">
+        <h3>⏹ Fermeture Forcée des Apps</h3>
+        <p>Met en pause votre média, quitte le plein écran vidéo (YouTube, Netflix, Twitch) pour laisser l'écran s'éteindre, et ferme les applications que vous avez sélectionnées.</p>
+      </div>
+      <div class="card">
+        <h3>📖 Journal & Signet Intelligent</h3>
+        <p>Retrouvez au réveil l'heure exacte à laquelle vous vous êtes endormi, le titre du chapitre en cours et la courbe complète de votre rythme cardiaque.</p>
+      </div>
+      <div class="card">
+        <h3>⚡ Tuile Rapide Android</h3>
+        <p>Lancez ou arrêtez la surveillance en 1 clic directement depuis le volet de raccourcis rapides d'Android sans même quitter votre vidéo ou livre audio.</p>
+      </div>
+      <div class="card">
+        <h3>📳 Mode Téléphone « Fade & Shake »</h3>
+        <p>Pas de montre ce soir ? Toutes les X minutes, le son baisse doucement sur 60 secondes. Bougez légèrement le téléphone pour continuer à écouter.</p>
+      </div>
+      <div class="card">
+        <h3>🔒 Sans Abonnement & 100 % Privé</h3>
+        <p>5 nuits complètes offertes, puis un seul paiement unique à vie (4,99 €). Aucune donnée cardiaque ne quitte jamais votre téléphone.</p>
+      </div>
+    </section>
+
+    <footer>
+      <div>© 2026 SleepStop (sleepstop.eu) — Tous droits réservés.</div>
+      <div>
+        <a href="privacy.html">Politique de Confidentialité (Privacy Policy)</a> •
+        <a href="mailto:support@sleepstop.eu">support@sleepstop.eu</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
