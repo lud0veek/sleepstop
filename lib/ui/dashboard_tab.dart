@@ -78,6 +78,7 @@ class DashboardTab extends ConsumerWidget {
           session: session,
           settings: settings,
           notifier: notifier,
+          s: s,
         ),
         const SizedBox(height: 14),
 
@@ -85,6 +86,7 @@ class DashboardTab extends ConsumerWidget {
           context: context,
           session: session,
           settings: settings,
+          s: s,
         ),
         const SizedBox(height: 14),
 
@@ -96,7 +98,7 @@ class DashboardTab extends ConsumerWidget {
         ),
         const SizedBox(height: 14),
 
-        _buildMediaControllerBar(context: context, ref: ref),
+        _buildMediaControllerBar(context: context, ref: ref, s: s),
       ],
     );
   }
@@ -526,6 +528,7 @@ class DashboardTab extends ConsumerWidget {
     required ActiveSessionState session,
     required SleepSettings settings,
     required SleepSessionNotifier notifier,
+    required AppStrings s,
   }) {
     final isWatchMode = session.activeMode == DetectionMode.watchBle;
     final isSmart =
@@ -585,7 +588,7 @@ class DashboardTab extends ConsumerWidget {
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(
-                            session.statusText,
+                            s.localizedPhaseStatus(session),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -604,9 +607,9 @@ class DashboardTab extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text(
-                    'ELAPSED',
-                    style: TextStyle(
+                  Text(
+                    s.elapsedLabel,
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: OledColors.textMuted,
@@ -641,7 +644,7 @@ class DashboardTab extends ConsumerWidget {
                   child: Text(
                     session.connectedWatchName ??
                         settings.savedWatchName ??
-                        'No watch connected (Garmin Broadcast HR / BLE 0x180D)',
+                        s.noWatchConnected,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -661,6 +664,8 @@ class DashboardTab extends ConsumerWidget {
                   child: PulsingHeartBadge(
                     bpm: session.currentBpm,
                     isMonitoring: session.isRunning,
+                    liveLabel: s.liveBleLabel,
+                    waitingLabel: s.waitingForHr,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -678,7 +683,7 @@ class DashboardTab extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        isSmart ? 'ADAPTIVE TARGET' : 'THRESHOLD',
+                        isSmart ? s.adaptiveTargetLabel : s.thresholdLabel,
                         style: const TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
@@ -697,7 +702,9 @@ class DashboardTab extends ConsumerWidget {
                       ),
                       if (session.baselineBpm != null)
                         Text(
-                          'Awake: ${session.baselineBpm!.toStringAsFixed(0)} BPM',
+                          s.awakeBaselineText(
+                            session.baselineBpm!.toStringAsFixed(0),
+                          ),
                           style: const TextStyle(
                             fontSize: 11,
                             color: OledColors.textSecondary,
@@ -736,9 +743,9 @@ class DashboardTab extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'HR STABILITY (60s)',
-                                  style: TextStyle(
+                                Text(
+                                  s.hrStabilityTitle,
+                                  style: const TextStyle(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w700,
                                     color: OledColors.textMuted,
@@ -747,8 +754,8 @@ class DashboardTab extends ConsumerWidget {
                                 ),
                                 Text(
                                   session.bpmStabilityStdDev != null
-                                      ? '±${session.bpmStabilityStdDev!.toStringAsFixed(1)} BPM (${session.bpmStabilityStdDev! <= 1.8 ? "Calm Plateau" : "Active"})'
-                                      : 'Collecting 60s window...',
+                                      ? '±${session.bpmStabilityStdDev!.toStringAsFixed(1)} BPM (${session.bpmStabilityStdDev! <= 1.8 ? s.calmPlateauLabel : s.activeMovementLabel})'
+                                      : s.collectingWindowLabel,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
@@ -811,8 +818,10 @@ class DashboardTab extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       isSmart
-                          ? 'Sleep Onset Confidence'
-                          : 'Confirmation Window (${settings.confirmationDurationMinutes}m)',
+                          ? s.sleepConfidenceLabel
+                          : s.confirmationWindowLabel(
+                              settings.confirmationDurationMinutes,
+                            ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -853,9 +862,9 @@ class DashboardTab extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'NEXT SLEEP CHECK IN',
-                        style: TextStyle(
+                      Text(
+                        s.nextSleepCheckLabel,
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                           color: OledColors.textMuted,
@@ -893,9 +902,9 @@ class DashboardTab extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text(
-                        'MOTION / SHAKE',
-                        style: TextStyle(
+                      Text(
+                        s.motionShakeLabel,
+                        style: const TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
                           color: OledColors.textMuted,
@@ -944,7 +953,7 @@ class DashboardTab extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Fading Volume (${session.fadeRemainingSeconds}s left)',
+                          s.fadingVolumeLabel(session.fadeRemainingSeconds),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -983,7 +992,7 @@ class DashboardTab extends ConsumerWidget {
                       child: OutlinedButton.icon(
                         onPressed: notifier.triggerManualWakeReset,
                         icon: const Icon(Icons.pan_tool_alt_rounded, size: 18),
-                        label: const Text('I\'m Awake — Restore Volume'),
+                        label: Text(s.imAwakeRestoreBtn),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: OledColors.warmAmber,
                           side: const BorderSide(color: OledColors.warmAmber),
@@ -992,17 +1001,6 @@ class DashboardTab extends ConsumerWidget {
                     ),
                   ],
                 ],
-              ),
-            ),
-          ],
-
-          if (session.detailText != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              session.detailText!,
-              style: const TextStyle(
-                fontSize: 12,
-                color: OledColors.textSecondary,
               ),
             ),
           ],
@@ -1017,7 +1015,7 @@ class DashboardTab extends ConsumerWidget {
                   OutlinedButton.icon(
                     onPressed: notifier.triggerManualWakeReset,
                     icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: const Text('Reset Timer'),
+                    label: Text(s.resetTimerBtn),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: OledColors.textPrimary,
                       side: const BorderSide(color: OledColors.subtleBorder),
@@ -1026,9 +1024,7 @@ class DashboardTab extends ConsumerWidget {
                 OutlinedButton.icon(
                   onPressed: notifier.triggerFadeNowForTesting,
                   icon: const Icon(Icons.trending_down_rounded, size: 16),
-                  label: Text(
-                    isWatchMode ? 'Test 10s Fade Now' : 'Test 60s Fade Now',
-                  ),
+                  label: Text(s.testFadeNowBtn(isWatchMode ? 10 : 60)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: OledColors.warmAmber,
                     side: BorderSide(
@@ -1048,6 +1044,7 @@ class DashboardTab extends ConsumerWidget {
     required BuildContext context,
     required ActiveSessionState session,
     required SleepSettings settings,
+    required AppStrings s,
   }) {
     final isWatch = session.activeMode == DetectionMode.watchBle;
     final isSmart =
@@ -1072,9 +1069,15 @@ class DashboardTab extends ConsumerWidget {
             child: Text(
               isWatch
                   ? (isSmart
-                        ? 'Smart Adaptive (${settings.adaptiveSensitivity.label}) • 90s Calibration + HR Plateau'
-                        : 'Manual: ≤ ${settings.sleepBpmThreshold} BPM • Confirm: ${settings.confirmationDurationMinutes}m')
-                  : 'Interval: ${settings.checkIntervalMinutes}m • Shake: ${settings.shakeSensitivity.toStringAsFixed(1)} m/s²',
+                        ? s.smartAdaptiveSummary(settings.adaptiveSensitivity)
+                        : s.manualBpmSummary(
+                            settings.sleepBpmThreshold,
+                            settings.confirmationDurationMinutes,
+                          ))
+                  : s.phoneIntervalSummary(
+                      settings.checkIntervalMinutes,
+                      settings.shakeSensitivity.toStringAsFixed(1),
+                    ),
               style: const TextStyle(
                 fontSize: 12,
                 color: OledColors.textPrimary,
@@ -1084,9 +1087,9 @@ class DashboardTab extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => SettingsBottomSheet.show(context),
-            child: const Text(
-              'Configure',
-              style: TextStyle(
+            child: Text(
+              s.configureButton,
+              style: const TextStyle(
                 color: OledColors.warmAmber,
                 fontWeight: FontWeight.w600,
               ),
@@ -1100,6 +1103,7 @@ class DashboardTab extends ConsumerWidget {
   Widget _buildMediaControllerBar({
     required BuildContext context,
     required WidgetRef ref,
+    required AppStrings s,
   }) {
     final mediaService = ref.read(mediaControlServiceProvider);
 
@@ -1113,9 +1117,9 @@ class DashboardTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'UNIVERSAL ANDROID MEDIA CONTROLLER',
-            style: TextStyle(
+          Text(
+            s.universalControllerTitle,
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: OledColors.textMuted,
@@ -1123,9 +1127,12 @@ class DashboardTab extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Controls Audible, YouTube, Spotify & Pocket Casts via AudioManager KeyEvents',
-            style: TextStyle(fontSize: 12, color: OledColors.textSecondary),
+          Text(
+            s.universalControllerDesc,
+            style: const TextStyle(
+              fontSize: 12,
+              color: OledColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 12),
           Row(
@@ -1136,18 +1143,16 @@ class DashboardTab extends ConsumerWidget {
                     await mediaService.rewindMedia();
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Dispatched KEYCODE_MEDIA_REWIND to active player',
-                          ),
-                          duration: Duration(seconds: 2),
+                        SnackBar(
+                          content: Text(s.dispatchedRewindMsg),
+                          duration: const Duration(seconds: 2),
                         ),
                       );
                     }
                   },
                   icon: const Icon(Icons.fast_rewind_rounded, size: 17),
-                  label: const Text(
-                    'Rewind',
+                  label: Text(
+                    s.rewindBtn,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1164,11 +1169,9 @@ class DashboardTab extends ConsumerWidget {
                     await mediaService.pauseMedia();
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Dispatched KEYCODE_MEDIA_PAUSE to active player',
-                          ),
-                          duration: Duration(seconds: 2),
+                        SnackBar(
+                          content: Text(s.dispatchedPauseMsg),
+                          duration: const Duration(seconds: 2),
                         ),
                       );
                     }
@@ -1177,8 +1180,8 @@ class DashboardTab extends ConsumerWidget {
                     Icons.pause_circle_outline_rounded,
                     size: 17,
                   ),
-                  label: const Text(
-                    'Pause Media',
+                  label: Text(
+                    s.pauseMediaBtn,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

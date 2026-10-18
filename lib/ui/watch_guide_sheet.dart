@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/settings_provider.dart';
 import 'theme/oled_theme.dart';
 
 class WatchGuideSheet extends StatelessWidget {
@@ -26,24 +28,46 @@ class WatchGuideSheet extends StatelessWidget {
   }
 }
 
-class WatchGuideSheetContent extends StatelessWidget {
+class WatchGuideSheetContent extends ConsumerWidget {
   final ScrollController scrollController;
 
   const WatchGuideSheetContent({super.key, required this.scrollController});
 
   @override
-  Widget build(BuildContext context) {
-    const guides = [
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(appStringsProvider);
+
+    final guides = [
       _WatchBrandGuide(
         brand: 'Garmin (Fenix, Forerunner, Venu, Epix, Instinct)',
         badge: '100% Native BLE',
         accent: OledColors.warmAmber,
         icon: Icons.watch_rounded,
         steps: [
-          'Sur la montre, maintiens le bouton Menu (milieu gauche) ou bouton bas (Venu/Vivoactive).',
-          'Va dans Paramètres → Capteurs et accessoires → Fréquence cardiaque au poignet.',
-          'Sélectionne « Diffuser la FC » (Broadcast Heart Rate) et appuie sur Start.',
-          'Astuce Lit 1-clic : Maintiens le bouton Light (haut gauche) ou configure un Raccourci bouton (Hot Key) vers « Diffuser la FC » pour l\'activer en 1 seconde le soir !',
+          s.tr(
+            fr: 'Sur la montre, maintiens le bouton Menu (milieu gauche) ou bouton bas (Venu/Vivoactive).',
+            nl: 'Houd op het horloge de Menu-knop (midden-links) of onderste knop (Venu/Vivoactive) ingedrukt.',
+            de: 'Halte an der Uhr die Menü-Taste (Mitte links) oder die untere Taste (Venu/Vivoactive) gedrückt.',
+            es: 'En el reloj, mantén pulsado el botón Menú (centro izquierda) o el botón inferior (Venu/Vivoactive).',
+          ),
+          s.tr(
+            fr: 'Va dans Paramètres → Capteurs et accessoires → Fréquence cardiaque au poignet.',
+            nl: 'Ga naar Instellingen → Sensoren en accessoires → Polshartslag.',
+            de: 'Gehe zu Einstellungen → Sensoren und Zubehör → Herzfrequenz am Handgelenk.',
+            es: 'Ve a Ajustes → Sensores y accesorios → Frecuencia cardíaca en la muñeca.',
+          ),
+          s.tr(
+            fr: 'Sélectionne « Diffuser la FC » (Broadcast Heart Rate) et appuie sur Start.',
+            nl: 'Selecteer "Hartslag uitzenden" (Broadcast Heart Rate) en druk op Start.',
+            de: 'Wähle „Herzfrequenz senden“ (Broadcast Heart Rate) und drücke Start.',
+            es: 'Selecciona «Transmitir frecuencia cardíaca» (Broadcast Heart Rate) y pulsa Start.',
+          ),
+          s.tr(
+            fr: 'Astuce Lit 1-clic : Configure un Raccourci bouton (Hot Key) vers « Diffuser la FC » pour l\'activer en 1 seconde le soir !',
+            nl: '1-tik tip in bed: Stel een sneltoets (Hot Key) in voor "Hartslag uitzenden" om het \'s avonds in 1 seconde te starten!',
+            de: '1-Klick-Bett-Tipp: Richte einen Hotkey für „HF senden“ ein, um es abends in 1 Sekunde zu aktivieren!',
+            es: 'Truco de 1 clic en la cama: Configura un atajo de botón (Hot Key) hacia «Transmitir FC» para activarlo en 1 segundo.',
+          ),
         ],
       ),
       _WatchBrandGuide(
@@ -52,10 +76,24 @@ class WatchGuideSheetContent extends StatelessWidget {
         accent: OledColors.calmTeal,
         icon: Icons.monitor_heart_outlined,
         steps: [
-          'Ouvre l\'application Whoop sur ton téléphone.',
-          'Appuie sur l\'icône de ton bracelet en bas à droite (Device Settings).',
-          'Active l\'option « Broadcast Heart Rate » (Diffusion FC).',
-          'Le bracelet diffuse automatiquement en continu dès qu\'il est à ton poignet.',
+          s.tr(
+            fr: 'Ouvre l\'application Whoop sur ton téléphone.',
+            nl: 'Open de Whoop-app op je telefoon.',
+            de: 'Öffne die Whoop-App auf deinem Smartphone.',
+            es: 'Abre la aplicación Whoop en tu teléfono.',
+          ),
+          s.tr(
+            fr: 'Appuie sur l\'icône de ton bracelet en bas à droite (Device Settings).',
+            nl: 'Tik rechtsonder op het band-icoon (Device Settings).',
+            de: 'Tippe unten rechts auf das Band-Symbol (Geräteeinstellungen).',
+            es: 'Toca el icono de tu banda abajo a la derecha (Device Settings).',
+          ),
+          s.tr(
+            fr: 'Active l\'option « Broadcast Heart Rate » (Diffusion FC).',
+            nl: 'Schakel "Broadcast Heart Rate" (Hartslag uitzenden) in.',
+            de: 'Aktiviere die Option „Broadcast Heart Rate“ (HF senden).',
+            es: 'Activa la opción «Broadcast Heart Rate» (Transmitir FC).',
+          ),
         ],
       ),
       _WatchBrandGuide(
@@ -64,9 +102,18 @@ class WatchGuideSheetContent extends StatelessWidget {
         accent: OledColors.softIndigo,
         icon: Icons.favorite_border_rounded,
         steps: [
-          'Aucune manipulation requise dans les menus !',
-          'Les brassards optiques (Polar Verity Sense, OH1) et ceintures émettent nativement le service standard Bluetooth 0x180D dès qu\'ils sont allumés.',
-          'Allume simplement le capteur et lance Start Sleep Session.',
+          s.tr(
+            fr: 'Aucune manipulation requise dans les menus !',
+            nl: 'Geen menu-instellingen nodig!',
+            de: 'Keine Menü-Konfiguration erforderlich!',
+            es: '¡No requiere configuración en los menús!',
+          ),
+          s.tr(
+            fr: 'Les brassards optiques (Polar Verity Sense, OH1) et ceintures émettent nativement le service standard Bluetooth 0x180D dès qu\'ils sont allumés.',
+            nl: 'Optische armbanden (Polar Verity Sense, OH1) en borstbanden zenden standaard Bluetooth 0x180D uit zodra ze aan staan.',
+            de: 'Optische Armbänder (Polar Verity Sense, OH1) und Brustgurte senden standardmäßig Bluetooth 0x180D, sobald sie eingeschaltet sind.',
+            es: 'Los brazaletes ópticos (Polar Verity Sense, OH1) y bandas emiten nativamente Bluetooth 0x180D en cuanto se encienden.',
+          ),
         ],
       ),
       _WatchBrandGuide(
@@ -75,20 +122,38 @@ class WatchGuideSheetContent extends StatelessWidget {
         accent: OledColors.warmAmber,
         icon: Icons.watch_later_outlined,
         steps: [
-          'Maintiens le bouton Retour/Bas sur ta montre Coros pour ouvrir la Boîte à outils (Toolbox).',
-          'Tourne la molette jusqu\'à « Diffuser la FC » (Broadcast HR).',
-          'Valide pour démarrer l\'émission Bluetooth vers SleepStop.',
+          s.tr(
+            fr: 'Maintiens le bouton Retour/Bas sur ta montre Coros pour ouvrir la Boîte à outils (Toolbox).',
+            nl: 'Houd de Terug/Onder-knop op je Coros-horloge ingedrukt om de Toolbox te openen.',
+            de: 'Halte die Zurück-/Unten-Taste an deiner Coros-Uhr gedrückt, um die Toolbox zu öffnen.',
+            es: 'Mantén pulsado el botón Atrás/Abajo en tu reloj Coros para abrir la Caja de herramientas.',
+          ),
+          s.tr(
+            fr: 'Tourne la molette jusqu\'à « Diffuser la FC » (Broadcast HR) et valide.',
+            nl: 'Draai het wieltje naar "Hartslag uitzenden" (Broadcast HR) en bevestig.',
+            de: 'Drehe die Krone auf „HF senden“ (Broadcast HR) und bestätige.',
+            es: 'Gira la corona hasta «Transmitir FC» (Broadcast HR) y confirma.',
+          ),
         ],
       ),
       _WatchBrandGuide(
         brand: 'Xiaomi Smart Band / Amazfit (Zepp / Mi Fitness)',
-        badge: 'Via App Zepp',
+        badge: 'Zepp / Mi App',
         accent: OledColors.deepOrange,
         icon: Icons.bluetooth_audio_rounded,
         steps: [
-          'Ouvre l\'application Zepp (Amazfit) ou Mi Fitness (Xiaomi) sur ton téléphone.',
-          'Va dans Profil → Ta montre → Paramètres de santé / Partage de fréquence cardiaque.',
-          'Active « Diffusion de fréquence cardiaque Bluetooth » (Activity Heart Rate Sharing).',
+          s.tr(
+            fr: 'Ouvre l\'application Zepp (Amazfit) ou Mi Fitness (Xiaomi) sur ton téléphone.',
+            nl: 'Open de Zepp- (Amazfit) of Mi Fitness-app (Xiaomi) op je telefoon.',
+            de: 'Öffne die Zepp- (Amazfit) oder Mi Fitness-App (Xiaomi) auf deinem Smartphone.',
+            es: 'Abre la app Zepp (Amazfit) o Mi Fitness (Xiaomi) en tu teléfono.',
+          ),
+          s.tr(
+            fr: 'Va dans Profil → Ta montre → Partage de fréquence cardiaque Bluetooth (Activity Heart Rate Sharing) et active-le.',
+            nl: 'Ga naar Profiel → Je horloge → Bluetooth-hartslag delen en schakel dit in.',
+            de: 'Gehe zu Profil → Deine Uhr → Bluetooth-Herzfrequenzfreigabe und aktiviere sie.',
+            es: 'Ve a Perfil → Tu reloj → Compartir frecuencia cardíaca por Bluetooth y actívalo.',
+          ),
         ],
       ),
       _WatchBrandGuide(
@@ -97,9 +162,18 @@ class WatchGuideSheetContent extends StatelessWidget {
         accent: OledColors.softIndigo,
         icon: Icons.watch_outlined,
         steps: [
-          'Par défaut, Wear OS garde le capteur FC en interne. Télécharge l\'application gratuite « Heart Rate BLE » ou « HR2VP » depuis le Play Store de ta montre.',
-          'Lance l\'application sur ta montre au moment de te coucher : elle transforme ta Galaxy Watch / Pixel Watch en émetteur standard BLE 0x180D.',
-          'Sinon, utilise le mode « Phone (Fade & Shake) » sans aucune montre !',
+          s.tr(
+            fr: 'Télécharge l\'application gratuite « Heart Rate BLE » ou « HR2VP » depuis le Play Store de ta montre Wear OS pour diffuser en BLE 0x180D.',
+            nl: 'Download de gratis app "Heart Rate BLE" of "HR2VP" uit de Play Store op je Wear OS-horloge om BLE 0x180D uit te zenden.',
+            de: 'Lade die kostenlose App „Heart Rate BLE“ oder „HR2VP“ im Play Store deiner Wear OS-Uhr herunter, um BLE 0x180D zu senden.',
+            es: 'Descarga la app gratuita «Heart Rate BLE» o «HR2VP» desde Play Store en tu reloj Wear OS para emitir BLE 0x180D.',
+          ),
+          s.tr(
+            fr: 'Ou utilise directement le mode « Téléphone (Secousse) » sans aucune montre !',
+            nl: 'Of gebruik direct de modus "Telefoon (Schudden)" zonder horloge!',
+            de: 'Oder nutze direkt den Modus „Telefon (Schütteln)“ ganz ohne Uhr!',
+            es: '¡O usa directamente el modo «Teléfono (Agitar)» sin ningún reloj!',
+          ),
         ],
       ),
     ];
@@ -135,21 +209,26 @@ class WatchGuideSheetContent extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Guide des Montres Compatibles',
-                    style: TextStyle(
+                    s.watchGuideTooltip,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: OledColors.textPrimary,
                     ),
                   ),
                   Text(
-                    'Comment activer le flux cardiaque temps réel (BLE 0x180D)',
-                    style: TextStyle(
+                    s.tr(
+                      fr: 'Comment activer le flux cardiaque temps réel (BLE 0x180D)',
+                      nl: 'Hoe realtime hartslag-uitzending te activeren (BLE 0x180D)',
+                      de: 'So aktivierst du den Echtzeit-Herzfrequenz-Stream (BLE 0x180D)',
+                      es: 'Cómo activar la transmisión de pulso en tiempo real (BLE 0x180D)',
+                    ),
+                    style: const TextStyle(
                       fontSize: 12,
                       color: OledColors.textSecondary,
                     ),

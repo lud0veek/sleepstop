@@ -4,11 +4,15 @@ import '../theme/oled_theme.dart';
 class PulsingHeartBadge extends StatefulWidget {
   final int? bpm;
   final bool isMonitoring;
+  final String liveLabel;
+  final String waitingLabel;
 
   const PulsingHeartBadge({
     super.key,
     required this.bpm,
     required this.isMonitoring,
+    this.liveLabel = 'Direct BLE 0x2A37',
+    this.waitingLabel = 'En attente FC',
   });
 
   @override
@@ -134,7 +138,7 @@ class _PulsingHeartBadgeState extends State<PulsingHeartBadge>
               ),
               const SizedBox(height: 2),
               Text(
-                active ? 'Live BLE 0x2A37' : 'Waiting for HR',
+                active ? widget.liveLabel : widget.waitingLabel,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(

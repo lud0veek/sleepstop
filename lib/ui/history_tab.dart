@@ -233,7 +233,7 @@ class _SessionHistoryCard extends ConsumerWidget {
                     await ref.read(mediaControlServiceProvider).rewindMedia();
                   },
                   icon: const Icon(Icons.fast_rewind_rounded, size: 15),
-                  label: const Text('Rewind'),
+                  label: Text(s.rewindBtn),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: OledColors.warmAmber,
                     side: BorderSide(
@@ -341,9 +341,9 @@ class _SessionHistoryCard extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'HEART RATE SLEEP CURVE',
-                        style: TextStyle(
+                      Text(
+                        s.hrSleepCurveTitle,
+                        style: const TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
                           color: OledColors.textMuted,
@@ -383,9 +383,9 @@ class _SessionHistoryCard extends ConsumerWidget {
                 color: OledColors.deepOrange,
               ),
               const SizedBox(width: 6),
-              const Text(
-                'Trigger: ',
-                style: TextStyle(
+              Text(
+                s.triggerPrefix,
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: OledColors.textSecondary,

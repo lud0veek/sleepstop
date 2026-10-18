@@ -71,6 +71,7 @@ class _TargetAppsSheetContentState
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
+    final s = ref.watch(appStringsProvider);
     final notifier = ref.read(settingsProvider.notifier);
 
     final filteredApps = _installedApps.where((app) {
@@ -97,21 +98,26 @@ class _TargetAppsSheetContentState
         const SizedBox(height: 16),
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Apps à Fermer à l\'Endormissement',
-                    style: TextStyle(
+                    s.appsToCloseTitle,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: OledColors.textPrimary,
                     ),
                   ),
                   Text(
-                    'Coupe le son, quitte le plein écran vidéo et ferme les apps choisies',
-                    style: TextStyle(
+                    s.tr(
+                      fr: 'Coupe le son, quitte le plein écran vidéo et ferme les apps choisies',
+                      nl: 'Dempt audio, verlaat volledig scherm en sluit gekozen apps',
+                      de: 'Schaltet Ton stumm, beendet Vollbild und schließt gewählte Apps',
+                      es: 'Silencia el audio, sale de pantalla completa y cierra las apps elegidas',
+                    ),
+                    style: const TextStyle(
                       fontSize: 12,
                       color: OledColors.textSecondary,
                     ),
@@ -162,8 +168,18 @@ class _TargetAppsSheetContentState
                   children: [
                     Text(
                       _notifListenerEnabled
-                          ? 'Détection du titre & de l\'app active : ACTIVÉE'
-                          : 'Identifier l\'app exacte & le titre du chapitre dans les logs',
+                          ? s.tr(
+                              fr: 'Détection du titre & de l\'app active : ACTIVÉE',
+                              nl: 'Detectie van titel & actieve app: AAN',
+                              de: 'Erkennung von Titel & aktiver App: AKTIV',
+                              es: 'Detección de título y app activa: ACTIVADA',
+                            )
+                          : s.tr(
+                              fr: 'Identifier l\'app exacte & le titre du chapitre dans les logs',
+                              nl: 'Identificeer exacte app & hoofdstuktitel in geschiedenis',
+                              de: 'Genaue App & Kapiteltitel im Verlauf protokollieren',
+                              es: 'Identificar la app exacta y el título del capítulo en el historial',
+                            ),
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -173,8 +189,18 @@ class _TargetAppsSheetContentState
                     const SizedBox(height: 2),
                     Text(
                       _notifListenerEnabled
-                          ? 'SleepStop enregistrera automatiquement le nom du lecteur et le titre du média joué.'
-                          : 'Autorise « SleepStop Media Detector » pour voir le nom exact du livre/vidéo dans ton historique du matin.',
+                          ? s.tr(
+                              fr: 'SleepStop enregistrera automatiquement le nom du lecteur et le titre du média joué.',
+                              nl: 'SleepStop slaat automatisch de naam van de speler en de mediatitel op.',
+                              de: 'SleepStop speichert automatisch den Namen des Players und den Medientitel.',
+                              es: 'SleepStop guardará automáticamente el nombre del reproductor y el título del medio.',
+                            )
+                          : s.tr(
+                              fr: 'Autorise « SleepStop Media Detector » pour voir le nom exact du livre/vidéo dans ton historique du matin.',
+                              nl: 'Geef toestemming aan "SleepStop Media Detector" om de exacte boek-/videotitel te zien.',
+                              de: 'Erlaube „SleepStop Media Detector“, um den genauen Buch-/Videotitel im Verlauf zu sehen.',
+                              es: 'Autoriza «SleepStop Media Detector» para ver el título exacto del libro/vídeo en tu historial.',
+                            ),
                       style: const TextStyle(
                         fontSize: 11,
                         color: OledColors.textSecondary,
@@ -198,7 +224,14 @@ class _TargetAppsSheetContentState
                     side: const BorderSide(color: OledColors.warmAmber),
                     visualDensity: VisualDensity.compact,
                   ),
-                  child: const Text('Activer'),
+                  child: Text(
+                    s.tr(
+                      fr: 'Activer',
+                      nl: 'Activeren',
+                      de: 'Aktivieren',
+                      es: 'Activar',
+                    ),
+                  ),
                 ),
               ],
             ],
@@ -209,17 +242,30 @@ class _TargetAppsSheetContentState
         SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
           activeThumbColor: OledColors.warmAmber,
-          title: const Text(
-            'Forcer la fermeture des apps cibles au sommeil',
-            style: TextStyle(
+          title: Text(
+            s.tr(
+              fr: 'Forcer la fermeture des apps cibles au sommeil',
+              nl: 'Geforceerd sluiten van doel-apps bij inslapen',
+              de: 'Ziel-Apps beim Einschlafen geschlossen halten',
+              es: 'Forzar el cierre de las apps objetivo al dormir',
+            ),
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: OledColors.textPrimary,
             ),
           ),
-          subtitle: const Text(
-            'Arrête les processus en arrière-plan des apps cochées ci-dessous',
-            style: TextStyle(fontSize: 12, color: OledColors.textSecondary),
+          subtitle: Text(
+            s.tr(
+              fr: 'Arrête les processus en arrière-plan des apps cochées ci-dessous',
+              nl: 'Stopt achtergrondprocessen van de hieronder aangevinkte apps',
+              de: 'Beendet Hintergrundprozesse der unten ausgewählten Apps',
+              es: 'Detiene los procesos en segundo plano de las apps marcadas abajo',
+            ),
+            style: const TextStyle(
+              fontSize: 12,
+              color: OledColors.textSecondary,
+            ),
           ),
           value: settings.closeAppsOnSleep,
           onChanged: notifier.setCloseAppsOnSleep,
@@ -228,17 +274,30 @@ class _TargetAppsSheetContentState
         SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
           activeThumbColor: OledColors.warmAmber,
-          title: const Text(
-            'Quitter le plein écran vidéo (Éteindre l\'écran)',
-            style: TextStyle(
+          title: Text(
+            s.tr(
+              fr: 'Quitter le plein écran vidéo (Éteindre l\'écran)',
+              nl: 'Volledig scherm verlaten (Scherm uitschakelen)',
+              de: 'Video-Vollbild beenden (Display ausschalten)',
+              es: 'Salir de pantalla completa de vídeo (Apagar pantalla)',
+            ),
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: OledColors.textPrimary,
             ),
           ),
-          subtitle: const Text(
-            'Revient à l\'écran d\'accueil pour que YouTube/Netflix/Twitch laisse l\'écran s\'éteindre',
-            style: TextStyle(fontSize: 12, color: OledColors.textSecondary),
+          subtitle: Text(
+            s.tr(
+              fr: 'Revient à l\'écran d\'accueil pour que YouTube/Netflix/Twitch laisse l\'écran s\'éteindre',
+              nl: 'Keert terug naar het startscherm zodat YouTube/Netflix/Twitch het scherm laat uitgaan',
+              de: 'Kehrt zum Startbildschirm zurück, damit YouTube/Netflix/Twitch das Display ausschalten lässt',
+              es: 'Vuelve a la pantalla de inicio para que YouTube/Netflix/Twitch permita apagar la pantalla',
+            ),
+            style: const TextStyle(
+              fontSize: 12,
+              color: OledColors.textSecondary,
+            ),
           ),
           value: settings.returnToHomeOnSleep,
           onChanged: notifier.setReturnToHomeOnSleep,
@@ -250,7 +309,12 @@ class _TargetAppsSheetContentState
           onChanged: (v) => setState(() => _searchQuery = v),
           style: const TextStyle(color: OledColors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
-            hintText: 'Rechercher une application installée...',
+            hintText: s.tr(
+              fr: 'Rechercher une application installée...',
+              nl: 'Zoek een geïnstalleerde app...',
+              de: 'Installierte App suchen...',
+              es: 'Buscar una aplicación instalada...',
+            ),
             hintStyle: const TextStyle(
               color: OledColors.textMuted,
               fontSize: 13,
@@ -287,7 +351,12 @@ class _TargetAppsSheetContentState
           )
         else ...[
           Text(
-            'APPLICATIONS SÉLECTIONNÉES (${settings.targetAppsToClose.length})',
+            s.tr(
+              fr: 'APPLICATIONS SÉLECTIONNÉES (${settings.targetAppsToClose.length})',
+              nl: 'GESELECTEERDE APPS (${settings.targetAppsToClose.length})',
+              de: 'AUSGEWÄHLTE APPS (${settings.targetAppsToClose.length})',
+              es: 'APLICACIONES SELECCIONADAS (${settings.targetAppsToClose.length})',
+            ),
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -318,14 +387,20 @@ class _TargetAppsSheetContentState
                   size: 16,
                   color: OledColors.warmAmber,
                 ),
-                onDeleted: () => notifier.toggleTargetApp(entry.key, entry.value),
+                onDeleted: () =>
+                    notifier.toggleTargetApp(entry.key, entry.value),
               );
             }).toList(),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'TOUTES TES APPLICATIONS INSTALLÉES',
-            style: TextStyle(
+          Text(
+            s.tr(
+              fr: 'TOUTES TES APPLICATIONS INSTALLÉES',
+              nl: 'ALLE GEÏNSTALLEERDE APPS',
+              de: 'ALLE INSTALLIERTEN APPS',
+              es: 'TODAS TUS APLICACIONES INSTALADAS',
+            ),
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: OledColors.textMuted,
@@ -369,9 +444,14 @@ class _TargetAppsSheetContentState
                         color: OledColors.softIndigo.withValues(alpha: 0.16),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text(
-                        'Média',
-                        style: TextStyle(
+                      child: Text(
+                        s.tr(
+                          fr: 'Média',
+                          nl: 'Media',
+                          de: 'Medien',
+                          es: 'Medios',
+                        ),
+                        style: const TextStyle(
                           fontSize: 10,
                           color: OledColors.softIndigo,
                           fontWeight: FontWeight.w600,

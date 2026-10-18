@@ -19,6 +19,7 @@ class SettingsBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
+    final s = ref.watch(appStringsProvider);
     final notifier = ref.read(settingsProvider.notifier);
     final isSmart =
         settings.biometricTriggerMode == BiometricTriggerMode.smartAdaptive;
@@ -44,12 +45,14 @@ class SettingsBottomSheet extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Sleep Detection Settings',
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w700,
-                    color: OledColors.textPrimary,
+                Expanded(
+                  child: Text(
+                    s.settingsSheetTitle,
+                    style: const TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w700,
+                      color: OledColors.textPrimary,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -64,9 +67,9 @@ class SettingsBottomSheet extends ConsumerWidget {
             const SizedBox(height: 14),
 
             // Section 1: Watch (BLE) Biometric Trigger Mode
-            const Text(
-              'SMARTWATCH BIOMETRIC ALGORITHM (GARMIN / BLE)',
-              style: TextStyle(
+            Text(
+              s.settingsWatchSection,
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: OledColors.warmAmber,
@@ -78,21 +81,21 @@ class SettingsBottomSheet extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: SegmentedButton<BiometricTriggerMode>(
-                segments: const [
+                segments: [
                   ButtonSegment<BiometricTriggerMode>(
                     value: BiometricTriggerMode.smartAdaptive,
-                    icon: Icon(Icons.auto_awesome_rounded, size: 16),
+                    icon: const Icon(Icons.auto_awesome_rounded, size: 16),
                     label: Text(
-                      'Smart Adaptive',
+                      s.smartAdaptiveLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   ButtonSegment<BiometricTriggerMode>(
                     value: BiometricTriggerMode.manualBpm,
-                    icon: Icon(Icons.tune_rounded, size: 16),
+                    icon: const Icon(Icons.tune_rounded, size: 16),
                     label: Text(
-                      'Manual BPM',
+                      s.manualBpmLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -120,20 +123,18 @@ class SettingsBottomSheet extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'How Smart Adaptive Works (Firstbeat Style)',
-                      style: TextStyle(
+                    Text(
+                      s.howSmartWorksTitle,
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: OledColors.warmAmber,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      '1. Measures your personal Awake Baseline during the first 90s.\n'
-                      '2. Adapts automatically whether your starting HR is high (72 BPM) or already low in bed (54 BPM).\n'
-                      '3. Confirms sleep when HR drops AND enters a flat parasympathetic plateau (±1.8 BPM stability).',
-                      style: TextStyle(
+                    Text(
+                      s.howSmartWorksBody,
+                      style: const TextStyle(
                         fontSize: 12,
                         color: OledColors.textSecondary,
                         height: 1.4,
@@ -142,7 +143,9 @@ class SettingsBottomSheet extends ConsumerWidget {
                     if (settings.learnedSleepingBpm != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Learned Personal Sleep HR: ~${settings.learnedSleepingBpm!.toStringAsFixed(0)} BPM',
+                        s.learnedSleepHrText(
+                          settings.learnedSleepingBpm!.toStringAsFixed(0),
+                        ),
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -154,9 +157,9 @@ class SettingsBottomSheet extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 14),
-              const Text(
-                'Sensitivity Profile',
-                style: TextStyle(
+              Text(
+                s.sensitivityProfileTitle,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: OledColors.textPrimary,
@@ -203,7 +206,7 @@ class SettingsBottomSheet extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  preset.label,
+                                  s.sensitivityTitle(preset),
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
@@ -213,7 +216,7 @@ class SettingsBottomSheet extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  preset.description,
+                                  s.sensitivityDesc(preset),
                                   style: const TextStyle(
                                     fontSize: 11,
                                     color: OledColors.textSecondary,
@@ -230,7 +233,7 @@ class SettingsBottomSheet extends ConsumerWidget {
               }),
             ] else ...[
               _SliderRow(
-                label: 'Fixed Sleep BPM Threshold',
+                label: s.fixedBpmSliderLabel,
                 valueText: '${settings.sleepBpmThreshold} BPM',
                 value: settings.sleepBpmThreshold.toDouble(),
                 min: 40,
@@ -240,7 +243,7 @@ class SettingsBottomSheet extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               _SliderRow(
-                label: 'Confirmation Duration',
+                label: s.confirmationSliderLabel,
                 valueText: '${settings.confirmationDurationMinutes} min',
                 value: settings.confirmationDurationMinutes.toDouble(),
                 min: 1,
@@ -254,9 +257,9 @@ class SettingsBottomSheet extends ConsumerWidget {
             const Divider(color: OledColors.subtleBorder, height: 32),
 
             // Section 2: Phone (Fade & Shake) Mode Settings
-            const Text(
-              'PHONE MODE (SMART FADE & SHAKE)',
-              style: TextStyle(
+            Text(
+              s.settingsPhoneSection,
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: OledColors.softIndigo,
@@ -266,7 +269,7 @@ class SettingsBottomSheet extends ConsumerWidget {
             const SizedBox(height: 12),
 
             _SliderRow(
-              label: 'Timer Check Interval',
+              label: s.timerIntervalSliderLabel,
               valueText: '${settings.checkIntervalMinutes} min',
               value: settings.checkIntervalMinutes.toDouble(),
               min: 1,
@@ -277,7 +280,7 @@ class SettingsBottomSheet extends ConsumerWidget {
             const SizedBox(height: 8),
 
             _SliderRow(
-              label: 'Shake Sensitivity (m/s²)',
+              label: s.shakeSensitivitySliderLabel,
               valueText: '${settings.shakeSensitivity.toStringAsFixed(1)} m/s²',
               value: settings.shakeSensitivity,
               min: 0.5,
@@ -291,17 +294,20 @@ class SettingsBottomSheet extends ConsumerWidget {
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
               activeThumbColor: OledColors.warmAmber,
-              title: const Text(
-                'Auto-Rewind Before Pausing',
-                style: TextStyle(
+              title: Text(
+                s.autoRewindTitle,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: OledColors.textPrimary,
                 ),
               ),
-              subtitle: const Text(
-                'Dispatches KEYCODE_MEDIA_REWIND right before pausing media',
-                style: TextStyle(fontSize: 12, color: OledColors.textSecondary),
+              subtitle: Text(
+                s.autoRewindSubtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: OledColors.textSecondary,
+                ),
               ),
               value: settings.rewindOnPause,
               onChanged: notifier.setRewindOnPause,
