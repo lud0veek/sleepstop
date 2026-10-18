@@ -6,6 +6,7 @@ import '../providers/settings_provider.dart';
 import '../services/permission_service.dart';
 import 'theme/oled_theme.dart';
 import 'watch_guide_sheet.dart';
+import 'widgets/flag_icon.dart';
 
 /// Four-page introduction shown on the very first launch (and again from
 /// Settings → "Replay the introduction"). The last page doubles as the
@@ -718,20 +719,26 @@ class _LanguagePill extends StatelessWidget {
       tooltip: 'FR / NL / DE / ES',
       color: OledColors.elevatedSurface,
       onSelected: onSelected,
-      itemBuilder: (_) => const ['fr', 'nl', 'de', 'es']
+      itemBuilder: (_) => AppStrings.supportedLanguages
           .map(
             (code) => PopupMenuItem<String>(
               value: code,
-              child: Text(
-                code.toUpperCase(),
-                style: TextStyle(
-                  fontWeight: code == current
-                      ? FontWeight.w700
-                      : FontWeight.w500,
-                  color: code == current
-                      ? OledColors.warmAmber
-                      : OledColors.textPrimary,
-                ),
+              child: Row(
+                children: [
+                  FlagIcon(code: code, width: 22),
+                  const SizedBox(width: 10),
+                  Text(
+                    AppStrings.languageName(code),
+                    style: TextStyle(
+                      fontWeight: code == current
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: code == current
+                          ? OledColors.warmAmber
+                          : OledColors.textPrimary,
+                    ),
+                  ),
+                ],
               ),
             ),
           )
@@ -746,12 +753,8 @@ class _LanguagePill extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.language_rounded,
-              size: 14,
-              color: OledColors.textSecondary,
-            ),
-            const SizedBox(width: 6),
+            FlagIcon(code: current, width: 18),
+            const SizedBox(width: 7),
             Text(
               current.toUpperCase(),
               style: const TextStyle(

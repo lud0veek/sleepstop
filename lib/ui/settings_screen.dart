@@ -12,6 +12,7 @@ import 'pro_unlock_sheet.dart';
 import 'target_apps_sheet.dart';
 import 'theme/oled_theme.dart';
 import 'watch_guide_sheet.dart';
+import 'widgets/flag_icon.dart';
 
 /// The single home of every setting. Five sections, one entry point
 /// (the gear icon in the app bar).
@@ -311,9 +312,8 @@ class SettingsScreen extends ConsumerWidget {
                   return ChoiceChip(
                     selected: selected,
                     showCheckmark: false,
-                    label: Text(
-                      '${AppStrings.flagFor(code).split(' ').first}  ${AppStrings.languageName(code)}',
-                    ),
+                    avatar: FlagIcon(code: code, width: 18, radius: 2),
+                    label: Text(AppStrings.languageName(code)),
                     labelStyle: TextStyle(
                       fontSize: 13,
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w500,

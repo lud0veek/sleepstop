@@ -1219,16 +1219,16 @@ class AppStrings {
   String get onbRecommended => tr(fr: 'CONSEILLÉ', nl: 'AANBEVOLEN', de: 'EMPFOHLEN', es: 'RECOMENDADO');
 
   String get onbPromiseTitle => tr(
-    fr: 'Ton livre audio s\'arrête à la seconde où tu t\'endors.',
-    nl: 'Je luisterboek stopt op de seconde dat je in slaap valt.',
-    de: 'Dein Hörbuch stoppt in der Sekunde, in der du einschläfst.',
-    es: 'Tu audiolibro se detiene en el segundo en que te duermes.',
+    fr: 'Livre audio, podcast, série ou vidéo : tout s\'arrête à la seconde où tu t\'endors.',
+    nl: 'Luisterboek, podcast, serie of video: alles stopt op de seconde dat je in slaap valt.',
+    de: 'Hörbuch, Podcast, Serie oder Video: alles stoppt in der Sekunde, in der du einschläfst.',
+    es: 'Audiolibro, pódcast, serie o vídeo: todo se detiene en el segundo en que te duermes.',
   );
   String get onbPromiseBody => tr(
-    fr: 'Plus de minuteur à deviner. SleepStop lit ton corps, baisse le son en douceur et met en pause au bon moment.',
-    nl: 'Geen timer meer om te gokken. SleepStop leest je lichaam, dimt het geluid zacht en pauzeert op het juiste moment.',
-    de: 'Kein Timer mehr zum Raten. SleepStop liest deinen Körper, blendet den Ton sanft aus und pausiert im richtigen Moment.',
-    es: 'Se acabó adivinar el temporizador. SleepStop lee tu cuerpo, baja el sonido suavemente y pausa en el momento justo.',
+    fr: 'Audible, Spotify, YouTube, Netflix, Twitch… Plus de minuteur à deviner : SleepStop lit ton corps, baisse le son en douceur et met en pause au bon moment.',
+    nl: 'Audible, Spotify, YouTube, Netflix, Twitch… Geen timer meer om te gokken: SleepStop leest je lichaam, dimt het geluid zacht en pauzeert op het juiste moment.',
+    de: 'Audible, Spotify, YouTube, Netflix, Twitch… Kein Timer mehr zum Raten: SleepStop liest deinen Körper, blendet den Ton sanft aus und pausiert im richtigen Moment.',
+    es: 'Audible, Spotify, YouTube, Netflix, Twitch… Se acabó adivinar el temporizador: SleepStop lee tu cuerpo, baja el sonido suavemente y pausa en el momento justo.',
   );
   String get onbPromiseBullet1 => tr(
     fr: 'Avec ta montre cardio, ou juste ton téléphone.',
