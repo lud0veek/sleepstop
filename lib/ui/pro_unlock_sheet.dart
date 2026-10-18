@@ -117,7 +117,7 @@ class ProUnlockSheet extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: settings.isProUnlocked
-                      ? OledColors.calmTeal.withValues(alpha: 0.45)
+                      ? OledColors.gold.withValues(alpha: 0.5)
                       : OledColors.warmAmber.withValues(alpha: 0.35),
                 ),
               ),
@@ -128,7 +128,7 @@ class ProUnlockSheet extends ConsumerWidget {
                         ? Icons.verified_rounded
                         : Icons.nights_stay_rounded,
                     color: settings.isProUnlocked
-                        ? OledColors.calmTeal
+                        ? OledColors.gold
                         : OledColors.warmAmber,
                     size: 20,
                   ),
@@ -142,7 +142,7 @@ class ProUnlockSheet extends ConsumerWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: settings.isProUnlocked
-                            ? OledColors.calmTeal
+                            ? OledColors.gold
                             : OledColors.warmAmber,
                       ),
                     ),
@@ -285,19 +285,25 @@ class ProUnlockSheet extends ConsumerWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(
-                    Icons.check_circle_rounded,
-                    color: OledColors.calmTeal,
+                    Icons.favorite_rounded,
+                    color: OledColors.gold,
+                    size: 18,
                   ),
                   label: Text(
-                    s.proActiveBadge,
+                    s.tr(
+                      fr: 'Merci de soutenir SleepStop',
+                      nl: 'Bedankt dat je SleepStop steunt',
+                      de: 'Danke, dass du SleepStop unterstützt',
+                      es: 'Gracias por apoyar SleepStop',
+                    ),
                     style: const TextStyle(
-                      color: OledColors.calmTeal,
+                      color: OledColors.gold,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: const BorderSide(color: OledColors.calmTeal),
+                    side: BorderSide(color: OledColors.gold.withValues(alpha: 0.6)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -390,7 +396,7 @@ class ProUnlockSheet extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: OledColors.calmTeal),
+        Icon(icon, size: 18, color: OledColors.gold),
         const SizedBox(width: 10),
         Expanded(
           child: Text(

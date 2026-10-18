@@ -28,6 +28,9 @@ class FlagIcon extends StatelessWidget {
         height: height,
         child: Flex(
           direction: stripes.vertical ? Axis.horizontal : Axis.vertical,
+          // A childless ColoredBox collapses to zero on the cross axis unless
+          // the Flex stretches it.
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (final (color, flex) in stripes.bands)
               Expanded(

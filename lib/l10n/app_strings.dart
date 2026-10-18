@@ -645,10 +645,10 @@ class AppStrings {
   );
 
   String get proActiveBadge => tr(
-    fr: 'SleepStop Pro (À vie) activé',
-    nl: 'SleepStop Pro (Levenslang) actief',
-    de: 'SleepStop Pro (Lebenslang) aktiv',
-    es: 'SleepStop Pro (De por vida) activo',
+    fr: 'SleepStop Pro activé',
+    nl: 'SleepStop Pro actief',
+    de: 'SleepStop Pro aktiv',
+    es: 'SleepStop Pro activado',
   );
 
   String get unlockProTitle => tr(
