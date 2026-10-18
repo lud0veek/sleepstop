@@ -24,7 +24,7 @@ class BillingState {
     this.isStoreAvailable = false,
     this.isLoading = false,
     this.proProduct,
-    this.displayPrice = '4,99 €',
+    this.displayPrice = '9,99 €',
     this.errorMessage,
   });
 
@@ -88,7 +88,7 @@ class BillingNotifier extends Notifier<BillingState> {
       state = state.copyWith(
         isStoreAvailable: true,
         proProduct: product,
-        displayPrice: product?.price ?? '4,99 €',
+        displayPrice: product?.price ?? '9,99 €',
       );
     } catch (_) {
       state = state.copyWith(isStoreAvailable: false);

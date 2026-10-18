@@ -643,17 +643,17 @@ class AppStrings {
   );
 
   String get unlockProSubtitle => tr(
-    fr: '1 seul paiement unique (4,99 €) • Aucun abonnement • Zéro publicité',
-    nl: 'Slechts 1 eenmalige betaling (€ 4,99) • Geen abonnement • Geen reclame',
-    de: 'Nur 1 Einmalzahlung (4,99 €) • Kein Abo • Keine Werbung',
-    es: '1 único pago (4,99 €) • Sin suscripción • Cero publicidad',
+    fr: '1 seul paiement unique (9,99 €) • Aucun abonnement • Zéro publicité',
+    nl: 'Slechts 1 eenmalige betaling (€ 9,99) • Geen abonnement • Geen reclame',
+    de: 'Nur 1 Einmalzahlung (9,99 €) • Kein Abo • Keine Werbung',
+    es: '1 único pago (9,99 €) • Sin suscripción • Cero publicidad',
   );
 
   String get unlockProCta => tr(
-    fr: 'Débloquer à vie — 4,99 €',
-    nl: 'Levenslang ontgrendelen — € 4,99',
-    de: 'Lebenslang freischalten — 4,99 €',
-    es: 'Desbloquear de por vida — 4,99 €',
+    fr: 'Débloquer à vie — 9,99 €',
+    nl: 'Levenslang ontgrendelen — € 9,99',
+    de: 'Lebenslang freischalten — 9,99 €',
+    es: 'Desbloquear de por vida — 9,99 €',
   );
 
   String get restorePurchaseBtn => tr(
