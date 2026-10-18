@@ -1736,7 +1736,9 @@
     };
 
     function setSiteLang(lang) {
+      if (!I18N[lang]) lang = "fr";
       currentLang = lang;
+      try { localStorage.setItem("sleepstop_lang", lang); } catch (e) {}
       const dict = I18N[lang] || I18N.fr;
       document.documentElement.lang = lang;
       document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -1748,6 +1750,9 @@
       ["fr", "nl", "de", "es"].forEach(code => {
         const btn = document.getElementById("btn-" + code);
         if (btn) btn.classList.toggle("active", code === lang);
+      });
+      document.querySelectorAll('a[href^="/privacy"]').forEach(link => {
+        link.setAttribute("href", "/privacy?lang=" + lang);
       });
       switchMockupMode(currentMockupMode);
     }
@@ -1775,6 +1780,19 @@
         document.getElementById("mockBannerText").innerHTML = dict.mock_banner_phone;
       }
     }
+
+    (function initSiteLang() {
+      const params = new URLSearchParams(window.location.search);
+      let saved = params.get("lang");
+      if (!saved) {
+        try { saved = localStorage.getItem("sleepstop_lang"); } catch (e) {}
+      }
+      if (!saved && navigator.language) {
+        const nav = navigator.language.slice(0, 2).toLowerCase();
+        if (I18N[nav]) saved = nav;
+      }
+      setSiteLang(saved && I18N[saved] ? saved : "fr");
+    })();
   </script>
 </body>
 </html>

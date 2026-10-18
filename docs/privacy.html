@@ -245,14 +245,43 @@
   </div>
 
   <script>
+    const BACK_LABELS = {
+      fr: "← Retour à SleepStop",
+      nl: "← Terug naar SleepStop",
+      de: "← Zurück zu SleepStop",
+      es: "← Volver a SleepStop"
+    };
+
     function setLang(code) {
+      if (!['fr', 'nl', 'de', 'es'].includes(code)) code = 'fr';
+      try { localStorage.setItem('sleepstop_lang', code); } catch (e) {}
+      document.documentElement.lang = code;
       ['fr', 'nl', 'de', 'es'].forEach(l => {
-        document.getElementById('content-' + l).style.display = (l === code) ? 'block' : 'none';
+        const el = document.getElementById('content-' + l);
+        if (el) el.style.display = (l === code) ? 'block' : 'none';
       });
       document.querySelectorAll('.lang-btn').forEach((btn, idx) => {
         btn.classList.toggle('active', ['fr', 'nl', 'de', 'es'][idx] === code);
       });
+      const backLink = document.querySelector('a.back');
+      if (backLink) {
+        backLink.setAttribute('href', '/?lang=' + code);
+        backLink.textContent = BACK_LABELS[code] || BACK_LABELS.fr;
+      }
     }
+
+    (function initPrivacyLang() {
+      const params = new URLSearchParams(window.location.search);
+      let saved = params.get('lang');
+      if (!saved) {
+        try { saved = localStorage.getItem('sleepstop_lang'); } catch (e) {}
+      }
+      if (!saved && navigator.language) {
+        const nav = navigator.language.slice(0, 2).toLowerCase();
+        if (['fr', 'nl', 'de', 'es'].includes(nav)) saved = nav;
+      }
+      setLang(saved || 'fr');
+    })();
   </script>
 </body>
 </html>
