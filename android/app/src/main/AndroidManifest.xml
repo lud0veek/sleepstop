@@ -20,6 +20,9 @@
     <!-- Notification Permission (Android 13+ / API 33+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Google Play In-App Billing Permission -->
+    <uses-permission android:name="com.android.vending.BILLING" />
+
     <!-- Hardware Features -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
     <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />

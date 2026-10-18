@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/sleep_settings.dart';
 import '../providers/session_logs_provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/billing_service.dart';
 import 'theme/oled_theme.dart';
 
 class ProUnlockSheet extends ConsumerWidget {
@@ -24,6 +25,7 @@ class ProUnlockSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     final logs = ref.watch(sessionLogsProvider);
+    final billing = ref.watch(billingProvider);
     final s = ref.watch(appStringsProvider);
     final lang = settings.languageCode;
 
@@ -193,22 +195,35 @@ class ProUnlockSheet extends ConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: () async {
-                    // Ready for Google Play Billing (`in_app_purchase` SKU: `sleepstop_lifetime_pro`)
-                    await ref
-                        .read(settingsProvider.notifier)
-                        .setProUnlocked(true);
-                    if (!context.mounted) return;
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(s.proActiveBadge),
-                        backgroundColor: OledColors.elevatedSurface,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.lock_open_rounded, size: 18),
+                  onPressed: billing.isLoading
+                      ? null
+                      : () async {
+                          final status = await ref
+                              .read(billingProvider.notifier)
+                              .buyLifetimePro();
+                          if (!context.mounted) return;
+                          if (status ==
+                              BillingResultStatus.unlockedDebugFallback) {
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(s.proActiveBadge),
+                                backgroundColor: OledColors.elevatedSurface,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        },
+                  icon: billing.isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: OledColors.trueBlack,
+                          ),
+                        )
+                      : const Icon(Icons.lock_open_rounded, size: 18),
                   label: Text(
                     s.unlockProCta,
                     style: const TextStyle(
@@ -229,13 +244,17 @@ class ProUnlockSheet extends ConsumerWidget {
               const SizedBox(height: 8),
               Center(
                 child: TextButton(
-                  onPressed: () async {
-                    await ref
-                        .read(settingsProvider.notifier)
-                        .setProUnlocked(true);
-                    if (!context.mounted) return;
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: billing.isLoading
+                      ? null
+                      : () async {
+                          await ref
+                              .read(billingProvider.notifier)
+                              .restorePurchases();
+                          if (!context.mounted) return;
+                          if (ref.read(settingsProvider).isProUnlocked) {
+                            Navigator.of(context).pop();
+                          }
+                        },
                   child: Text(
                     s.restorePurchaseBtn,
                     style: const TextStyle(
