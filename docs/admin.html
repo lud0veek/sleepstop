@@ -90,11 +90,11 @@
       border: 1px solid rgba(38, 166, 154, 0.35);
     }
 
-    /* KPI Grid */
+    /* KPI Grid: 2 rows of 3 cards */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
       margin-bottom: 24px;
     }
 
@@ -531,7 +531,14 @@
       z-index: 400;
     }
 
+    @media (max-width: 960px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 640px) {
+      .kpi-grid,
       .grid-2col {
         grid-template-columns: 1fr;
       }
@@ -674,40 +681,48 @@
       <!-- Domain OVH & Google Play Console Guide (Clean Aligned Layout) -->
       <div class="grid-2col">
         <div class="card" style="margin-bottom:0;">
-          <h2 class="card-title">🌐 Relier ton domaine OVH <code>sleepstop.eu</code> à Firebase</h2>
+          <h2 class="card-title">🌐 Configuration DNS OVH pour <code>sleepstop.eu</code></h2>
           <p class="sub">
-            Avec Firebase Hosting, tu profites du CDN mondial Google + certificat HTTPS automatique gratuit :
+            <code>sleepstop.eu</code> est déjà déclaré sur Firebase Hosting ! Copie ces entrées dans <strong>OVH → Zone DNS</strong> :
           </p>
 
           <div class="step-list">
             <div class="step-row">
               <div class="step-num-badge">1</div>
               <div class="step-body">
-                Ouvre la <a href="https://console.firebase.google.com/project/sleepstop-eu/hosting/sites" target="_blank" rel="noopener">Console Firebase Hosting (sleepstop-eu)</a>.
+                <strong>Supprimer l'ancienne IP OVH :</strong> supprime l'entrée <code>A</code> pointant vers <code>213.186.33.5</code>.
               </div>
             </div>
 
             <div class="step-row">
               <div class="step-num-badge">2</div>
               <div class="step-body">
-                Clique sur <strong>Ajouter un domaine personnalisé</strong> et saisis <code>sleepstop.eu</code>.
+                <strong>Ajouter l'entrée <code>A</code> (racine vide) :</strong>
+                <div class="copy-box">
+                  <span>199.36.158.100</span>
+                  <button class="btn-sm" onclick="copyText('199.36.158.100', 'IP 199.36.158.100 copiée !')">📋 Copier</button>
+                </div>
               </div>
             </div>
 
             <div class="step-row">
               <div class="step-num-badge">3</div>
               <div class="step-body">
-                Copie les 2 enregistrements <code>A</code> (adresses IP) fournis par Firebase dans ta <strong>Zone DNS OVH</strong> (et supprime l'ancien enregistrement <code>A</code> par défaut d'OVH).
+                <strong>Ajouter l'entrée <code>TXT</code> (racine vide) :</strong>
+                <div class="copy-box">
+                  <span>hosting-site=sleepstop-eu</span>
+                  <button class="btn-sm" onclick="copyText('hosting-site=sleepstop-eu', 'TXT hosting-site=sleepstop-eu copié !')">📋 Copier</button>
+                </div>
               </div>
             </div>
 
             <div class="step-row">
               <div class="step-num-badge">4</div>
               <div class="step-body">
-                <strong>URL de Politique de Confidentialité</strong> à coller dans Google Play Console :
+                <strong>Ajouter l'entrée <code>TXT</code> SSL (sous-domaine <code>_acme-challenge</code>) :</strong>
                 <div class="copy-box">
-                  <span>https://sleepstop-eu.web.app/privacy</span>
-                  <button class="btn-sm" onclick="copyText('https://sleepstop-eu.web.app/privacy', 'URL Privacy copiée !')">📋 Copier</button>
+                  <span>3HgrD_u1NifkkC983Howc9kdQbYVbB9xJeXztq3LF80</span>
+                  <button class="btn-sm" onclick="copyText('3HgrD_u1NifkkC983Howc9kdQbYVbB9xJeXztq3LF80', 'Clé ACME SSL copiée !')">📋 Copier</button>
                 </div>
               </div>
             </div>
