@@ -44,6 +44,7 @@
     .back:hover { border-color: var(--amber); color: var(--amber); }
     .lang-bar { display: flex; gap: 6px; background: var(--card); padding: 4px; border-radius: 999px; border: 1px solid var(--border); }
     .lang-btn {
+      display: inline-flex; align-items: center; gap: 6px;
       background: transparent; color: var(--muted);
       border: none; padding: 6px 12px;
       border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 0.8rem;
@@ -52,6 +53,10 @@
       color: var(--amber);
       background: rgba(255,179,0,0.16);
       box-shadow: inset 0 0 0 1px rgba(255,179,0,0.4);
+    }
+    .flag-svg {
+      width: 15px; height: 11px; border-radius: 2px; flex-shrink: 0;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
     }
     .card {
       background: var(--card);
@@ -100,12 +105,12 @@
 <body>
   <div class="container">
     <div class="topbar">
-      <a href="/" class="back">← Retour à SleepStop</a>
+      <a href="/" class="back">← SleepStop</a>
       <div class="lang-bar">
-        <button class="lang-btn active" onclick="setLang('fr')">🇫🇷 FR</button>
-        <button class="lang-btn" onclick="setLang('nl')">🇳🇱 NL</button>
-        <button class="lang-btn" onclick="setLang('de')">🇩🇪 DE</button>
-        <button class="lang-btn" onclick="setLang('es')">🇪🇸 ES</button>
+        <button class="lang-btn active" onclick="setLang('fr')"><svg class="flag-svg" viewBox="0 0 3 2"><rect width="1" height="2" fill="#002395"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ED2939"/></svg> FR</button>
+        <button class="lang-btn" onclick="setLang('nl')"><svg class="flag-svg" viewBox="0 0 3 2"><rect width="3" height="0.67" fill="#AE1C28"/><rect y="0.67" width="3" height="0.67" fill="#fff"/><rect y="1.33" width="3" height="0.67" fill="#21468B"/></svg> NL</button>
+        <button class="lang-btn" onclick="setLang('de')"><svg class="flag-svg" viewBox="0 0 3 2"><rect width="3" height="0.67" fill="#000"/><rect y="0.67" width="3" height="0.67" fill="#D00"/><rect y="1.33" width="3" height="0.67" fill="#FFCE00"/></svg> DE</button>
+        <button class="lang-btn" onclick="setLang('es')"><svg class="flag-svg" viewBox="0 0 3 2"><rect width="3" height="0.5" fill="#AA151B"/><rect y="0.5" width="3" height="1" fill="#F1BF00"/><rect y="1.5" width="3" height="0.5" fill="#AA151B"/></svg> ES</button>
       </div>
     </div>
 

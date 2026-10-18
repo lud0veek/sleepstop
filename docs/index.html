@@ -58,12 +58,12 @@
       padding: 0 24px;
     }
 
-    /* Sticky Glass Navbar */
+    /* Sticky Glass Navbar — Strictly Single-Line on Desktop */
     .navbar-wrap {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(3, 4, 7, 0.78);
+      background: rgba(3, 4, 7, 0.82);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border-bottom: 1px solid var(--border);
@@ -74,9 +74,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      min-height: 76px;
-      padding: 12px 0;
-      flex-wrap: wrap;
+      height: 76px;
+      flex-wrap: nowrap;
     }
 
     .brand {
@@ -86,23 +85,26 @@
       text-decoration: none;
       color: var(--text);
       font-weight: 800;
-      font-size: 1.28rem;
+      font-size: 1.25rem;
       letter-spacing: -0.02em;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
     .brand img {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
-      border: 1px solid rgba(255, 179, 0, 0.4);
-      box-shadow: 0 6px 20px rgba(255, 179, 0, 0.15);
+      border: 1px solid rgba(255, 179, 0, 0.45);
+      box-shadow: 0 6px 20px rgba(255, 179, 0, 0.18);
+      flex-shrink: 0;
     }
 
     .brand-tag {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       padding: 3px 8px;
       border-radius: 999px;
       background: rgba(38, 166, 154, 0.15);
@@ -113,16 +115,20 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
+      justify-content: center;
+      gap: clamp(14px, 1.8vw, 24px);
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
     }
 
     .nav-links a {
       color: var(--text-secondary);
       text-decoration: none;
-      font-size: 0.92rem;
+      font-size: 0.89rem;
       font-weight: 600;
       transition: color 0.18s ease;
+      white-space: nowrap;
     }
 
     .nav-links a:hover {
@@ -132,14 +138,18 @@
     .lang-pills {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       background: var(--card);
       padding: 4px;
       border-radius: 999px;
       border: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
     .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 6px 11px;
       border-radius: 999px;
       font-size: 0.78rem;
@@ -149,6 +159,7 @@
       color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.18s ease;
+      white-space: nowrap;
     }
 
     .pill:hover {
@@ -161,32 +172,56 @@
       box-shadow: inset 0 0 0 1px rgba(255, 179, 0, 0.4);
     }
 
+    .flag-svg {
+      width: 15px;
+      height: 11px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
+    }
+
     /* Hero Split Section */
     .hero {
-      padding: 72px 0 64px;
+      padding: 68px 0 64px;
       display: grid;
       grid-template-columns: 1.12fr 0.88fr;
       gap: 48px;
       align-items: center;
     }
 
+    .hero-brand-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .hero-app-icon {
+      width: 78px;
+      height: 78px;
+      border-radius: 22px;
+      border: 1.5px solid rgba(255, 179, 0, 0.5);
+      box-shadow: 0 14px 38px rgba(255, 179, 0, 0.22);
+      flex-shrink: 0;
+    }
+
     .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 14px;
+      padding: 6px 13px;
       border-radius: 999px;
       background: rgba(255, 179, 0, 0.1);
       border: 1px solid rgba(255, 179, 0, 0.3);
       color: var(--amber);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 700;
-      margin-bottom: 22px;
+      margin-bottom: 6px;
     }
 
     h1 {
-      font-size: clamp(2.35rem, 4.4vw, 3.65rem);
-      line-height: 1.08;
+      font-size: clamp(2.25rem, 4.2vw, 3.55rem);
+      line-height: 1.09;
       letter-spacing: -0.03em;
       font-weight: 850;
       margin-bottom: 22px;
@@ -199,7 +234,7 @@
     }
 
     .hero-sub {
-      font-size: 1.12rem;
+      font-size: 1.1rem;
       color: var(--text-secondary);
       margin-bottom: 32px;
       max-width: 60ch;
@@ -263,7 +298,7 @@
 
     .stat-item strong {
       display: block;
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       font-weight: 800;
       color: var(--text);
       font-variant-numeric: tabular-nums;
@@ -300,7 +335,40 @@
       height: 6px;
       background: #1b2030;
       border-radius: 999px;
-      margin: 0 auto 16px;
+      margin: 0 auto 14px;
+    }
+
+    .phone-app-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 0 4px;
+    }
+
+    .phone-app-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .phone-app-brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      border: 1px solid rgba(255, 179, 0, 0.45);
+    }
+
+    .phone-pro-pill {
+      font-size: 0.7rem;
+      padding: 3px 9px;
+      border-radius: 99px;
+      background: rgba(255, 179, 0, 0.14);
+      color: var(--amber);
+      font-weight: 800;
+      letter-spacing: 0.04em;
     }
 
     .phone-mode-tabs {
@@ -311,7 +379,7 @@
       padding: 5px;
       border-radius: 14px;
       border: 1px solid var(--border);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .phone-mode-tab {
@@ -373,11 +441,12 @@
       display: flex;
       align-items: baseline;
       justify-content: space-between;
+      gap: 8px;
       margin-bottom: 12px;
     }
 
     .bpm-value {
-      font-size: 2.4rem;
+      font-size: 2.35rem;
       font-weight: 850;
       color: var(--text);
       font-variant-numeric: tabular-nums;
@@ -385,25 +454,26 @@
     }
 
     .bpm-value small {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 700;
       color: var(--amber);
       margin-left: 4px;
     }
 
     .bpm-delta {
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       font-weight: 700;
       padding: 4px 10px;
       border-radius: 999px;
       background: rgba(38, 166, 154, 0.16);
       color: var(--teal);
       border: 1px solid rgba(38, 166, 154, 0.35);
+      white-space: nowrap;
     }
 
     .chart-box {
       width: 100%;
-      height: 108px;
+      height: 106px;
       margin: 8px 0 6px;
     }
 
@@ -549,7 +619,7 @@
       font-size: 0.94rem;
     }
 
-    /* Bento Features Grid */
+    /* Bento Features Grid (2 rows of 3 cards) */
     .bento-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -656,7 +726,7 @@
       background: var(--teal);
     }
 
-    /* Pricing & Comparison Section */
+    /* Pricing Section */
     .pricing-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -800,6 +870,19 @@
       gap: 20px;
     }
 
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: 1px solid rgba(255, 179, 0, 0.4);
+    }
+
     .footer-links {
       display: flex;
       align-items: center;
@@ -818,19 +901,38 @@
       color: var(--amber);
     }
 
-    @media (max-width: 960px) {
+    /* Responsive Breakpoints */
+    @media (max-width: 1020px) {
+      .nav-links {
+        display: none;
+      }
       .hero {
         grid-template-columns: 1fr;
-        padding: 48px 0;
+        padding: 44px 0;
       }
       .steps-grid,
-      .bento-grid,
+      .bento-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
       .compat-grid,
       .pricing-grid {
         grid-template-columns: 1fr;
       }
-      .nav-links {
+    }
+
+    @media (max-width: 640px) {
+      header.navbar {
+        height: auto;
+        padding: 12px 0;
+        flex-wrap: wrap;
+      }
+      .brand-tag {
         display: none;
+      }
+      .steps-grid,
+      .bento-grid,
+      .hero-stats {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -840,7 +942,7 @@
     <div class="container">
       <header class="navbar">
         <a href="/" class="brand">
-          <img src="/icon-512.png?v=2" alt="SleepStop Official Icon" style="width:48px;height:48px;border-radius:14px;" />
+          <img src="/icon-512.png?v=2" alt="SleepStop Official Icon" />
           <span>SleepStop</span>
           <span class="brand-tag">Android • BLE</span>
         </a>
@@ -851,14 +953,26 @@
           <a href="#compat" data-i18n="nav_compat">Compatibilité</a>
           <a href="#pricing" data-i18n="nav_pricing">Tarif</a>
           <a href="#faq">FAQ</a>
-          <a href="/privacy" data-i18n="nav_privacy">Confidentialité RGPD</a>
+          <a href="/privacy" data-i18n="nav_privacy">RGPD</a>
         </nav>
 
         <div class="lang-pills" role="group" aria-label="Language selector">
-          <button class="pill active" onclick="setSiteLang('fr')" id="btn-fr">🇫🇷 FR</button>
-          <button class="pill" onclick="setSiteLang('nl')" id="btn-nl">🇳🇱 NL</button>
-          <button class="pill" onclick="setSiteLang('de')" id="btn-de">🇩🇪 DE</button>
-          <button class="pill" onclick="setSiteLang('es')" id="btn-es">🇪🇸 ES</button>
+          <button class="pill active" onclick="setSiteLang('fr')" id="btn-fr">
+            <svg class="flag-svg" viewBox="0 0 3 2"><rect width="1" height="2" fill="#002395"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ED2939"/></svg>
+            FR
+          </button>
+          <button class="pill" onclick="setSiteLang('nl')" id="btn-nl">
+            <svg class="flag-svg" viewBox="0 0 3 2"><rect width="3" height="0.67" fill="#AE1C28"/><rect y="0.67" width="3" height="0.67" fill="#fff"/><rect y="1.33" width="3" height="0.67" fill="#21468B"/></svg>
+            NL
+          </button>
+          <button class="pill" onclick="setSiteLang('de')" id="btn-de">
+            <svg class="flag-svg" viewBox="0 0 3 2"><rect width="3" height="0.67" fill="#000"/><rect y="0.67" width="3" height="0.67" fill="#D00"/><rect y="1.33" width="3" height="0.67" fill="#FFCE00"/></svg>
+            DE
+          </button>
+          <button class="pill" onclick="setSiteLang('es')" id="btn-es">
+            <svg class="flag-svg" viewBox="0 0 3 2"><rect width="3" height="0.5" fill="#AA151B"/><rect y="0.5" width="3" height="1" fill="#F1BF00"/><rect y="1.5" width="3" height="0.5" fill="#AA151B"/></svg>
+            ES
+          </button>
         </div>
       </header>
     </div>
@@ -868,17 +982,19 @@
     <!-- HERO -->
     <div class="hero">
       <div>
-        <div style="display:flex;align-items:center;gap:18px;margin-bottom:22px;flex-wrap:wrap;">
-          <img src="/icon-512.png?v=2" alt="Icône officielle SleepStop" style="width:78px;height:78px;border-radius:22px;border:1.5px solid rgba(255,179,0,0.5);box-shadow:0 14px 38px rgba(255,179,0,0.22);" />
+        <div class="hero-brand-row">
+          <img src="/icon-512.png?v=2" alt="Icône officielle SleepStop" class="hero-app-icon" />
           <div>
-            <div class="eyebrow" style="margin-bottom:6px;" data-i18n="hero_eyebrow">
-              🇧🇪 Conçu en Belgique • 100 % Local & Privé
+            <div class="eyebrow">
+              <svg class="flag-svg" viewBox="0 0 3 2"><rect width="1" height="2" fill="#000"/><rect x="1" width="1" height="2" fill="#FAE042"/><rect x="2" width="1" height="2" fill="#ED2939"/></svg>
+              <span data-i18n="hero_eyebrow">Conçu en Belgique • 100 % Local & Privé</span>
             </div>
-            <div style="font-size:0.86rem;color:var(--text-secondary);font-weight:600;">
+            <div style="font-size:0.86rem;color:var(--text-secondary);font-weight:600;" data-i18n="hero_compat_sub">
               Compatible Garmin • Whoop • Polar • Coros • Mode Sans Montre
             </div>
           </div>
         </div>
+
         <h1 data-i18n="hero_title">
           Vos médias s'arrêtent <span class="accent">à la seconde précise</span> où vous dormez.
         </h1>
@@ -897,7 +1013,7 @@
 
         <div class="hero-stats">
           <div class="stat-item">
-            <strong>5 nuits</strong>
+            <strong data-i18n="stat_trial_val">5 nuits</strong>
             <span data-i18n="stat_trial">Essai 100 % gratuit sans compte</span>
           </div>
           <div class="stat-item">
@@ -916,37 +1032,37 @@
         <div class="phone-frame">
           <div class="phone-notch"></div>
 
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 4px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <img src="/icon-512.png?v=2" alt="SleepStop" style="width:32px;height:32px;border-radius:9px;border:1px solid rgba(255,179,0,0.4);" />
-              <span style="font-weight:800;font-size:0.95rem;">SleepStop</span>
+          <div class="phone-app-bar">
+            <div class="phone-app-brand">
+              <img src="/icon-512.png?v=2" alt="SleepStop" />
+              <span>SleepStop</span>
             </div>
-            <span style="font-size:0.72rem;padding:3px 9px;border-radius:99px;background:rgba(255,179,0,0.14);color:var(--amber);font-weight:700;">PRO ACTIF</span>
+            <span class="phone-pro-pill" data-i18n="mock_pro_badge">PRO ACTIF</span>
           </div>
 
           <div class="phone-mode-tabs">
-            <button class="phone-mode-tab active" id="tabWatch" onclick="switchMockupMode('watch')">
+            <button class="phone-mode-tab active" id="tabWatch" onclick="switchMockupMode('watch')" data-i18n="mock_tab_watch">
               ⌚ Mode Montre BLE
             </button>
-            <button class="phone-mode-tab" id="tabPhone" onclick="switchMockupMode('phone')">
+            <button class="phone-mode-tab" id="tabPhone" onclick="switchMockupMode('phone')" data-i18n="mock_tab_phone">
               📳 Mode Sans Montre
             </button>
           </div>
 
           <div class="phone-status-row">
             <span id="mockSensorLabel"><span class="live-dot"></span>Garmin Fenix 7 • BLE 0x180D</span>
-            <span style="color:var(--amber);font-weight:700;" id="mockStatusBadge">Calibration OK</span>
+            <span style="color:var(--amber);font-weight:700;" id="mockStatusBadge" data-i18n="mock_status_ok">Calibration OK</span>
           </div>
 
           <div class="phone-bpm-card">
             <div class="bpm-header">
               <div>
-                <div style="font-size:0.74rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;" id="mockMetricTitle">
+                <div style="font-size:0.74rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;" id="mockMetricTitle" data-i18n="mock_metric_title">
                   Fréquence Cardiaque & HRV
                 </div>
                 <div class="bpm-value" id="mockMetricValue">54<small>BPM</small></div>
               </div>
-              <span class="bpm-delta" id="mockDeltaBadge">−18 % • Seuil sommeil atteint</span>
+              <span class="bpm-delta" id="mockDeltaBadge" data-i18n="mock_delta_badge">−18 % • Seuil atteint</span>
             </div>
 
             <svg class="chart-box" viewBox="0 0 320 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -956,20 +1072,16 @@
                   <stop offset="100%" stop-color="#FFB300" stop-opacity="0.0" />
                 </linearGradient>
               </defs>
-              <!-- Threshold dashed line -->
               <line x1="0" y1="64" x2="320" y2="64" stroke="#26A69A" stroke-width="1.2" stroke-dasharray="4 4" />
-              <!-- Area under curve -->
-              <path id="mockCurveArea" d="M0 24 C40 22, 70 28, 110 34 C150 40, 185 52, 225 66 C260 76, 290 78, 320 80 L320 100 L0 100 Z" fill="url(#curveGrad)" />
-              <!-- Main telemetry line -->
-              <path id="mockCurveLine" d="M0 24 C40 22, 70 28, 110 34 C150 40, 185 52, 225 66 C260 76, 290 78, 320 80" stroke="#FFB300" stroke-width="3" stroke-linecap="round" />
-              <!-- Sleep trigger point -->
+              <path d="M0 24 C40 22, 70 28, 110 34 C150 40, 185 52, 225 66 C260 76, 290 78, 320 80 L320 100 L0 100 Z" fill="url(#curveGrad)" />
+              <path d="M0 24 C40 22, 70 28, 110 34 C150 40, 185 52, 225 66 C260 76, 290 78, 320 80" stroke="#FFB300" stroke-width="3" stroke-linecap="round" />
               <circle cx="225" cy="66" r="5" fill="#26A69A" stroke="#05070C" stroke-width="2" />
             </svg>
 
             <div class="chart-labels">
-              <span>23:18 (Repos : 66 BPM)</span>
-              <span style="color:var(--teal);font-weight:700;">Seuil : 56 BPM</span>
-              <span>23:42 (Sommeil)</span>
+              <span data-i18n="mock_chart_start">23:18 (Repos : 66 BPM)</span>
+              <span style="color:var(--teal);font-weight:700;" data-i18n="mock_chart_thresh">Seuil : 56 BPM</span>
+              <span data-i18n="mock_chart_end">23:42 (Sommeil)</span>
             </div>
           </div>
 
@@ -977,14 +1089,14 @@
             <div class="media-info">
               <div class="media-icon">🎧</div>
               <div>
-                <div class="media-title">Audible • Dune (Chapitre 14)</div>
-                <div class="media-sub">Signet sauvegardé automatiquement à 23:42</div>
+                <div class="media-title">Audible • Dune (Chap. 14)</div>
+                <div class="media-sub" data-i18n="mock_media_sub">Signet sauvegardé à 23:42</div>
               </div>
             </div>
-            <span style="font-size:0.75rem;font-weight:800;color:var(--amber);">PAUSÉ</span>
+            <span style="font-size:0.75rem;font-weight:800;color:var(--amber);" data-i18n="mock_paused">PAUSÉ</span>
           </div>
 
-          <div class="phone-trigger-banner" id="mockBannerText">
+          <div class="phone-trigger-banner" id="mockBannerText" data-i18n="mock_banner_watch">
             <span>😴</span>
             <div><strong>Sommeil détecté :</strong> Fondu sonore terminé, plein écran fermé et écran verrouillé.</div>
           </div>
@@ -1055,7 +1167,7 @@
           <p data-i18n="f2_desc">
             Coupe le flux audio, ramène automatiquement YouTube, Netflix ou Twitch à l'écran d'accueil pour permettre la mise en veille de l'écran, et ferme les apps choisies.
           </p>
-          <div class="bento-meta">Économie maximale de batterie OLED</div>
+          <div class="bento-meta">OLED Battery Saver</div>
         </div>
 
         <div class="bento-card">
@@ -1064,7 +1176,7 @@
           <p data-i18n="f3_desc">
             Vous ne portez pas votre montre ce soir ? Toutes les X minutes, le volume baisse progressivement sur 60 secondes. Bougez légèrement le téléphone pour relancer l'écoute.
           </p>
-          <div class="bento-meta">Accéléromètre 3D haute sensibilité</div>
+          <div class="bento-meta">Accéléromètre 3D</div>
         </div>
 
         <div class="bento-card">
@@ -1073,7 +1185,7 @@
           <p data-i18n="f4_desc">
             Consultez au réveil l'heure exacte de votre endormissement, le titre du chapitre ou de la vidéo en cours, et la courbe complète de votre rythme cardiaque.
           </p>
-          <div class="bento-meta">Stocké 100 % en mémoire locale</div>
+          <div class="bento-meta">100 % Local Storage</div>
         </div>
 
         <div class="bento-card">
@@ -1082,16 +1194,16 @@
           <p data-i18n="f5_desc">
             Activez la veille en 1 clic depuis le volet de raccourcis rapides d'Android sans quitter votre livre audio, et programmez une alarme matinale progressive.
           </p>
-          <div class="bento-meta">Intégration native Android</div>
+          <div class="bento-meta">Android Quick Settings Tile</div>
         </div>
 
         <div class="bento-card">
-          <div class="bento-icon">🇧🇪</div>
+          <div class="bento-icon">🛡️</div>
           <h3 data-i18n="f6_title">RGPD Belge & Zéro Cloud Santé</h3>
           <p data-i18n="f6_desc">
             Aucun compte utilisateur requis. Vos données biométriques (Art. 9 RGPD) ne quittent jamais votre téléphone. Conformité totale avec l'APD Bruxelles.
           </p>
-          <div class="bento-meta">Privacy by Design (Art. 25 RGPD)</div>
+          <div class="bento-meta">Privacy by Design (Art. 25 GDPR)</div>
         </div>
       </div>
     </section>
@@ -1119,7 +1231,7 @@
             <span class="chip"><span class="dot"></span>Suunto Race / Vertical</span>
             <span class="chip"><span class="dot"></span>Amazfit / Zepp OS</span>
             <span class="chip"><span class="dot"></span>Samsung Galaxy Watch / Wear OS</span>
-            <span class="chip"><span class="dot"></span>Mode Téléphone Seul (Sans montre)</span>
+            <span class="chip"><span class="dot"></span>Mode Sans Montre (Fade & Shake)</span>
           </div>
         </div>
 
@@ -1154,38 +1266,38 @@
       <div class="pricing-grid">
         <div class="price-card">
           <div>
-            <span class="price-badge" style="background:rgba(38,166,154,0.15);color:var(--teal);">Essai Gratuit</span>
-            <h3>Découverte — 5 Nuits</h3>
-            <div class="price-amount">0 € <small>sans carte bancaire</small></div>
-            <p style="color:var(--text-secondary);font-size:0.9rem;">
+            <span class="price-badge" style="background:rgba(38,166,154,0.15);color:var(--teal);" data-i18n="p1_badge">Essai Gratuit</span>
+            <h3 data-i18n="p1_title">Découverte — 5 Nuits</h3>
+            <div class="price-amount">0 € <small data-i18n="p1_sub">sans carte bancaire</small></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem;" data-i18n="p1_desc">
               Idéal pour tester la détection biométrique avec votre montre Garmin, Whoop ou Polar.
             </p>
             <ul class="price-list">
-              <li>✅ <span><strong>5 nuits complètes</strong> d'endormissement détecté</span></li>
-              <li>✅ <span>Accès intégral au <strong>Mode Montre BLE</strong> et <strong>Mode Sans Montre</strong></span></li>
-              <li>✅ <span>Journal de sommeil, courbe BPM et signet média</span></li>
-              <li>✅ <span>Aucune création de compte ni inscription</span></li>
+              <li>✅ <span data-i18n="p1_li1"><strong>5 nuits complètes</strong> d'endormissement détecté</span></li>
+              <li>✅ <span data-i18n="p1_li2">Accès intégral au <strong>Mode Montre BLE</strong> et <strong>Mode Sans Montre</strong></span></li>
+              <li>✅ <span data-i18n="p1_li3">Journal de sommeil, courbe BPM et signet média</span></li>
+              <li>✅ <span data-i18n="p1_li4">Aucune création de compte ni inscription</span></li>
             </ul>
           </div>
-          <a href="#how" class="btn-secondary" style="justify-content:center;">Inclus dès le téléchargement</a>
+          <a href="#how" class="btn-secondary" style="justify-content:center;" data-i18n="p1_btn">Inclus dès le téléchargement</a>
         </div>
 
         <div class="price-card featured">
           <div>
-            <span class="price-badge">💎 Licence À Vie • Zéro Abonnement</span>
+            <span class="price-badge" data-i18n="p2_badge">💎 Licence À Vie • Zéro Abonnement</span>
             <h3>SleepStop Pro (Lifetime)</h3>
-            <div class="price-amount">9,99 € <small>paiement unique TTC</small></div>
-            <p style="color:var(--text-secondary);font-size:0.9rem;">
+            <div class="price-amount">9,99 € <small data-i18n="p2_sub">paiement unique TTC</small></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem;" data-i18n="p2_desc">
               Payez une seule fois via Google Play et profitez de SleepStop à vie sur tous vos appareils Android.
             </p>
             <ul class="price-list">
-              <li>✨ <span><strong>Nuits et sessions illimitées</strong> à vie</span></li>
-              <li>✨ <span>Calibration adaptative Firstbeat (BPM + variabilité R-R HRV)</span></li>
-              <li>✨ <span>Fermeture forcée des applications & sortie du plein écran</span></li>
-              <li>✨ <span>Restauration automatique des achats via Google Play</span></li>
+              <li>✨ <span data-i18n="p2_li1"><strong>Nuits et sessions illimitées</strong> à vie</span></li>
+              <li>✨ <span data-i18n="p2_li2">Calibration adaptative Firstbeat (BPM + variabilité R-R HRV)</span></li>
+              <li>✨ <span data-i18n="p2_li3">Fermeture forcée des applications & sortie du plein écran</span></li>
+              <li>✨ <span data-i18n="p2_li4">Restauration automatique des achats via Google Play</span></li>
             </ul>
           </div>
-          <a href="#how" class="btn-primary" style="justify-content:center;">Disponible dans l'application Android</a>
+          <a href="#how" class="btn-primary" style="justify-content:center;" data-i18n="p2_btn">Disponible dans l'application Android</a>
         </div>
       </div>
     </section>
@@ -1193,35 +1305,35 @@
     <!-- FAQ -->
     <section id="faq">
       <div class="section-head">
-        <span class="section-tag">Questions Fréquentes</span>
-        <h2>Tout savoir sur SleepStop</h2>
+        <span class="section-tag" data-i18n="faq_tag">Questions Fréquentes</span>
+        <h2 data-i18n="faq_title">Tout savoir sur SleepStop</h2>
       </div>
 
       <div class="faq-list">
         <details class="faq-item" open>
-          <summary>Comment connecter ma montre Garmin, Whoop ou Polar ?</summary>
-          <p>
-            Il suffit d'activer l'option <strong>« Diffuser la fréquence cardiaque » (Broadcast Heart Rate)</strong> dans les réglages de votre montre. SleepStop détecte automatiquement le flux Bluetooth Low Energy standard (<code>0x180D</code>) sans avoir besoin de créer de compte ni d'installer d'application supplémentaire. Un guide illustré marque par marque est intégré dans l'application.
+          <summary data-i18n="faq1_q">Comment connecter ma montre Garmin, Whoop ou Polar ?</summary>
+          <p data-i18n="faq1_a">
+            Il suffit d'activer l'option <strong>« Diffuser la fréquence cardiaque » (Broadcast Heart Rate)</strong> dans les réglages de votre montre. SleepStop détecte automatiquement le flux Bluetooth Low Energy standard (<code>0x180D</code>) sans avoir besoin de créer de compte ni d'installer d'application supplémentaire.
           </p>
         </details>
 
         <details class="faq-item">
-          <summary>Pourquoi SleepStop propose-t-il un service d'Accessibilité Android ?</summary>
-          <p>
-            Lorsque vous regardez YouTube, Netflix ou Twitch en plein écran, Android empêche l'écran de s'éteindre tant que le lecteur vidéo est ouvert. Le service d'accessibilité local permet à SleepStop de revenir automatiquement à l'écran d'accueil et de fermer les applications sélectionnées dès que vous dormez, économisant ainsi votre batterie toute la nuit.
+          <summary data-i18n="faq2_q">Pourquoi SleepStop propose-t-il un service d'Accessibilité Android ?</summary>
+          <p data-i18n="faq2_a">
+            Lorsque vous regardez YouTube, Netflix ou Twitch en plein écran, Android empêche l'écran de s'éteindre tant que le lecteur vidéo est ouvert. Le service d'accessibilité local permet à SleepStop de revenir automatiquement à l'écran d'accueil et de fermer les applications sélectionnées dès que vous dormez.
           </p>
         </details>
 
         <details class="faq-item">
-          <summary>Mes données cardiaques sont-elles envoyées sur un serveur ?</summary>
-          <p>
+          <summary data-i18n="faq3_q">Mes données cardiaques sont-elles envoyées sur un serveur ?</summary>
+          <p data-i18n="faq3_a">
             <strong>Jamais.</strong> Vos mesures de pouls (BPM), votre variabilité cardiaque (HRV) et les titres de vos livres audio ou vidéos sont traités et stockés <strong>100 % localement sur votre téléphone</strong>, conformément au RGPD européen et à la loi belge du 30 juillet 2018.
           </p>
         </details>
 
         <details class="faq-item">
-          <summary>Que se passe-t-il si je change de téléphone ?</summary>
-          <p>
+          <summary data-i18n="faq4_q">Que se passe-t-il si je change de téléphone ?</summary>
+          <p data-i18n="faq4_a">
             Votre achat <strong>SleepStop Pro à vie (9,99 €)</strong> est rattaché à votre compte Google Play. Il est restauré automatiquement et gratuitement sur tout nouveau smartphone ou tablette Android.
           </p>
         </details>
@@ -1231,11 +1343,12 @@
     <!-- FOOTER -->
     <footer>
       <div class="footer-inner">
-        <div>
-          <strong>© 2026 SleepStop (sleepstop.eu)</strong> — Conçu en Belgique 🇧🇪 • Tous droits réservés.
+        <div class="footer-brand">
+          <img src="/icon-512.png?v=2" alt="SleepStop" />
+          <span data-i18n="footer_copy"><strong>© 2026 SleepStop (sleepstop.eu)</strong> — Conçu en Belgique • Tous droits réservés.</span>
         </div>
         <div class="footer-links">
-          <a href="/privacy">Politique de Confidentialité (RGPD Belgique)</a>
+          <a href="/privacy" data-i18n="footer_privacy">Politique de Confidentialité (RGPD Belgique)</a>
           <a href="https://github.com/lud0veek/sleepstop" target="_blank" rel="noopener">GitHub</a>
           <a href="mailto:support@sleepstop.eu">support@sleepstop.eu</a>
         </div>
@@ -1244,21 +1357,39 @@
   </div>
 
   <script>
+    let currentLang = "fr";
+    let currentMockupMode = "watch";
+
     const I18N = {
       fr: {
         nav_how: "Fonctionnement",
         nav_features: "Technologie",
         nav_compat: "Compatibilité",
         nav_pricing: "Tarif",
-        nav_privacy: "Confidentialité RGPD",
-        hero_eyebrow: "🇧🇪 Conçu en Belgique • 100 % Local & Privé • Compatible Garmin, Whoop, Polar & Sans Montre",
+        nav_privacy: "RGPD",
+        hero_eyebrow: "Conçu en Belgique • 100 % Local & Privé",
+        hero_compat_sub: "Compatible Garmin • Whoop • Polar • Coros • Mode Sans Montre",
         hero_title: "Vos médias s'arrêtent <span class=\"accent\">à la seconde précise</span> où vous dormez.",
         hero_sub: "Fini les livres audio Audible qui tournent toute la nuit ou les vidéos YouTube qui vident votre batterie. SleepStop analyse la baisse de votre rythme cardiaque en temps réel (ou vos micro-mouvements) et coupe vos applications dès que vous vous endormez.",
         cta_primary: "✨ Essayer gratuitement (5 nuits offertes)",
         cta_secondary: "🛡️ Confidentialité & RGPD Belge",
+        stat_trial_val: "5 nuits",
         stat_trial: "Essai 100 % gratuit sans compte",
         stat_price: "Accès Pro à vie • Zéro abonnement",
         stat_privacy: "Aucun BPM envoyé dans le Cloud",
+        mock_pro_badge: "PRO ACTIF",
+        mock_tab_watch: "⌚ Mode Montre BLE",
+        mock_tab_phone: "📳 Mode Sans Montre",
+        mock_status_ok: "Calibration OK",
+        mock_metric_title: "Fréquence Cardiaque & HRV",
+        mock_delta_badge: "−18 % • Seuil atteint",
+        mock_chart_start: "23:18 (Repos : 66 BPM)",
+        mock_chart_thresh: "Seuil : 56 BPM",
+        mock_chart_end: "23:42 (Sommeil)",
+        mock_media_sub: "Signet sauvegardé à 23:42",
+        mock_paused: "PAUSÉ",
+        mock_banner_watch: "<span>😴</span><div><strong>Sommeil détecté :</strong> Fondu sonore terminé, plein écran fermé et écran verrouillé.</div>",
+        mock_banner_phone: "<span>📳</span><div><strong>Mode Sans Montre :</strong> Aucun mouvement détecté pendant le fondu de 60 s — média arrêté.</div>",
         how_tag: "Fonctionnement en 3 étapes",
         how_title: "Ne cherchez plus jamais à quel chapitre vous vous êtes endormi.",
         how_sub: "Contrairement à un minuteur classique qui coupe au milieu d'une phrase ou continue 45 minutes après votre endormissement, SleepStop écoute votre physiologie.",
@@ -1267,22 +1398,91 @@
         step2_title: "Calibration biométrique (90 s)",
         step2_desc: "SleepStop mesure votre pouls de repos au coucher et calcule votre seuil personnel d'endormissement ainsi que votre variabilité cardiaque (HRV R-R).",
         step3_title: "Coupure douce & signet précis",
-        step3_desc: "Dès que votre pouls se stabilise sous le seuil, le volume baisse en douceur, le plein écran vidéo est fermé pour éteindre l'écran, et l'heure exacte est notée dans votre journal."
+        step3_desc: "Dès que votre pouls se stabilise sous le seuil, le volume baisse en douceur, le plein écran vidéo est fermé pour éteindre l'écran, et l'heure exacte est notée dans votre journal.",
+        feat_tag: "Ingénierie & Détails",
+        feat_title: "Conçu pour les nuits OLED et la précision physiologique.",
+        feat_sub: "Chaque détail a été pensé pour préserver votre sommeil, la batterie de votre téléphone et votre vie privée.",
+        f1_title: "Algorithme Adaptatif Firstbeat",
+        f1_desc: "Combine la baisse du rythme cardiaque (BPM) et l'analyse parasympathique des intervalles R-R (RMSSD HRV) via le profil Bluetooth standard 0x180D / 0x2A37.",
+        f2_title: "Sortie du Plein Écran & Fermeture",
+        f2_desc: "Coupe le flux audio, ramène automatiquement YouTube, Netflix ou Twitch à l'écran d'accueil pour permettre la mise en veille de l'écran, et ferme les apps choisies.",
+        f3_title: "Mode Sans Montre « Fade & Shake »",
+        f3_desc: "Vous ne portez pas votre montre ce soir ? Toutes les X minutes, le volume baisse progressivement sur 60 secondes. Bougez légèrement le téléphone pour relancer l'écoute.",
+        f4_title: "Journal & Signet Intelligent",
+        f4_desc: "Consultez au réveil l'heure exacte de votre endormissement, le titre du chapitre ou de la vidéo en cours, et la courbe complète de votre rythme cardiaque.",
+        f5_title: "Tuile Rapide Android & Réveil Doux",
+        f5_desc: "Activez la veille en 1 clic depuis le volet de raccourcis rapides d'Android sans quitter votre livre audio, et programmez une alarme matinale progressive.",
+        f6_title: "RGPD Belge & Zéro Cloud Santé",
+        f6_desc: "Aucun compte utilisateur requis. Vos données biométriques (Art. 9 RGPD) ne quittent jamais votre téléphone. Conformité totale avec l'APD Bruxelles.",
+        compat_tag: "Écosystème Ouvert",
+        compat_title: "Compatible avec votre montre et toutes vos applications.",
+        compat_sub: "Aucune application propriétaire tierce n'est requise : SleepStop communique directement en Bluetooth Low Energy avec votre capteur.",
+        compat_watch_title: "⌚ Montres & Capteurs Cardiaques BLE",
+        compat_watch_sub: "Activez simplement la « Diffusion de fréquence cardiaque » (Broadcast HR) sur votre montre :",
+        compat_app_title: "🎧 Lecteurs Audio & Vidéo Supportés",
+        compat_app_sub: "Fonctionne automatiquement avec toutes les applications multimédias Android :",
+        price_tag: "Tarif Transparent",
+        price_title: "5 nuits offertes, puis un seul paiement à vie.",
+        price_sub: "Nous détestons les abonnements autant que vous. Testez SleepStop en conditions réelles pendant 5 nuits complètes avant de décider.",
+        p1_badge: "Essai Gratuit",
+        p1_title: "Découverte — 5 Nuits",
+        p1_sub: "sans carte bancaire",
+        p1_desc: "Idéal pour tester la détection biométrique avec votre montre Garmin, Whoop ou Polar.",
+        p1_li1: "<strong>5 nuits complètes</strong> d'endormissement détecté",
+        p1_li2: "Accès intégral au <strong>Mode Montre BLE</strong> et <strong>Mode Sans Montre</strong>",
+        p1_li3: "Journal de sommeil, courbe BPM et signet média",
+        p1_li4: "Aucune création de compte ni inscription",
+        p1_btn: "Inclus dès le téléchargement",
+        p2_badge: "💎 Licence À Vie • Zéro Abonnement",
+        p2_sub: "paiement unique TTC",
+        p2_desc: "Payez une seule fois via Google Play et profitez de SleepStop à vie sur tous vos appareils Android.",
+        p2_li1: "<strong>Nuits et sessions illimitées</strong> à vie",
+        p2_li2: "Calibration adaptative Firstbeat (BPM + variabilité R-R HRV)",
+        p2_li3: "Fermeture forcée des applications & sortie du plein écran",
+        p2_li4: "Restauration automatique des achats via Google Play",
+        p2_btn: "Disponible dans l'application Android",
+        faq_tag: "Questions Fréquentes",
+        faq_title: "Tout savoir sur SleepStop",
+        faq1_q: "Comment connecter ma montre Garmin, Whoop ou Polar ?",
+        faq1_a: "Il suffit d'activer l'option <strong>« Diffuser la fréquence cardiaque » (Broadcast Heart Rate)</strong> dans les réglages de votre montre. SleepStop détecte automatiquement le flux Bluetooth Low Energy standard (<code>0x180D</code>) sans avoir besoin de créer de compte.",
+        faq2_q: "Pourquoi SleepStop propose-t-il un service d'Accessibilité Android ?",
+        faq2_a: "Lorsque vous regardez YouTube, Netflix ou Twitch en plein écran, Android empêche l'écran de s'éteindre. Le service d'accessibilité local permet à SleepStop de revenir automatiquement à l'écran d'accueil et de fermer les applications sélectionnées dès que vous dormez.",
+        faq3_q: "Mes données cardiaques sont-elles envoyées sur un serveur ?",
+        faq3_a: "<strong>Jamais.</strong> Vos mesures de pouls (BPM), votre variabilité cardiaque (HRV) et les titres de vos médias sont traités et stockés <strong>100 % localement sur votre téléphone</strong>, conformément au RGPD européen et à la loi belge du 30 juillet 2018.",
+        faq4_q: "Que se passe-t-il si je change de téléphone ?",
+        faq4_a: "Votre achat <strong>SleepStop Pro à vie (9,99 €)</strong> est rattaché à votre compte Google Play. Il est restauré automatiquement et gratuitement sur tout nouveau smartphone Android.",
+        footer_copy: "<strong>© 2026 SleepStop (sleepstop.eu)</strong> — Conçu en Belgique • Tous droits réservés.",
+        footer_privacy: "Politique de Confidentialité (RGPD Belgique)"
       },
       nl: {
-        nav_how: "Hoe het werkt",
+        nav_how: "Werking",
         nav_features: "Technologie",
         nav_compat: "Compatibiliteit",
         nav_pricing: "Prijs",
-        nav_privacy: "AVG / GDPR Privacy",
-        hero_eyebrow: "🇧🇪 Ontworpen in België • 100% Lokaal & Privé • Garmin, Whoop, Polar & Zonder Horloge",
+        nav_privacy: "AVG / GDPR",
+        hero_eyebrow: "Ontworpen in België • 100% Lokaal & Privé",
+        hero_compat_sub: "Compatibel met Garmin • Whoop • Polar • Coros • Zonder Horloge",
         hero_title: "Je media stopt <span class=\"accent\">op de exacte seconde</span> dat je in slaap valt.",
         hero_sub: "Geen Audible-luisterboeken meer die de hele nacht doorlopen of YouTube-video's die je batterij leegtrekken. SleepStop analyseert je hartslagdaling in realtime en pauzeert je apps zodra je slaapt.",
         cta_primary: "✨ Gratis proberen (5 nachten cadeau)",
         cta_secondary: "🛡️ Belgisch AVG / GDPR-beleid",
+        stat_trial_val: "5 nachten",
         stat_trial: "100% gratis proef zonder account",
         stat_price: "Levenslang Pro • Geen abonnement",
         stat_privacy: "Geen hartslagdata in de cloud",
+        mock_pro_badge: "PRO ACTIEF",
+        mock_tab_watch: "⌚ Horloge BLE",
+        mock_tab_phone: "📳 Zonder Horloge",
+        mock_status_ok: "Kalibratie OK",
+        mock_metric_title: "Hartslag & HRV",
+        mock_delta_badge: "−18% • Slaapdrempel bereikt",
+        mock_chart_start: "23:18 (Rust: 66 BPM)",
+        mock_chart_thresh: "Drempel: 56 BPM",
+        mock_chart_end: "23:42 (Slaap)",
+        mock_media_sub: "Bladwijzer opgeslagen om 23:42",
+        mock_paused: "GEPAUZEERD",
+        mock_banner_watch: "<span>😴</span><div><strong>Slaap gedetecteerd:</strong> Geluid gedempt, volledig scherm gesloten en scherm vergrendeld.</div>",
+        mock_banner_phone: "<span>📳</span><div><strong>Zonder Horloge:</strong> Geen beweging gedetecteerd tijdens de fade-out van 60 s — media gestopt.</div>",
         how_tag: "Werking in 3 stappen",
         how_title: "Zoek nooit meer bij welk hoofdstuk je in slaap bent gevallen.",
         how_sub: "In tegenstelling tot een gewone sleeptimer luistert SleepStop naar je fysiologie en hartslagvariabiliteit.",
@@ -1291,22 +1491,91 @@
         step2_title: "Biometrische kalibratie (90 s)",
         step2_desc: "SleepStop meet je rusthartslag in bed en berekent automatisch je persoonlijke slaapdrempel (BPM + R-R HRV).",
         step3_title: "Zachte fade-out & bladwijzer",
-        step3_desc: "Zodra je hartslag onder de drempel zakt, dempt het geluid zachtjes, sluit het volledige scherm en wordt het exacte tijdstip opgeslagen."
+        step3_desc: "Zodra je hartslag onder de drempel zakt, dempt het geluid zachtjes, sluit het volledige scherm en wordt het exacte tijdstip opgeslagen.",
+        feat_tag: "Engineering & Details",
+        feat_title: "Ontworpen voor OLED-nachten en fysiologische precisie.",
+        feat_sub: "Elk detail is ontworpen om je slaap, je batterij en je privacy te beschermen.",
+        f1_title: "Adaptief Firstbeat-algoritme",
+        f1_desc: "Combineert hartslagdaling (BPM) met parasympathische R-R-intervalanalyse (HRV) via het standaard Bluetooth 0x180D-profiel.",
+        f2_title: "Volledig scherm sluiten & Apps stoppen",
+        f2_desc: "Pauzeert audio, verlaat automatisch het volledige scherm van YouTube, Netflix of Twitch zodat het scherm uitgaat, en sluit gekozen apps.",
+        f3_title: "Zonder Horloge « Fade & Shake »",
+        f3_desc: "Draag je vanavond geen horloge? Om de X minuten daalt het volume zachtjes gedurende 60 seconden. Beweeg de telefoon lichtjes om verder te luisteren.",
+        f4_title: "Slaaplogboek & Slimme Bladwijzer",
+        f4_desc: "Bekijk 's ochtends het exacte tijdstip waarop je in slaap viel, de titel van het hoofdstuk en je volledige hartslagcurve.",
+        f5_title: "Snelle Android-tegel & Zachte Wekker",
+        f5_desc: "Start de bewaking met 1 tik vanuit de snelle Android-instellingen en stel een progressieve ochtendwekker in.",
+        f6_title: "Belgische AVG / GDPR & 100% Lokaal",
+        f6_desc: "Geen account nodig. Je biometrische gegevens (Art. 9 AVG) verlaten nooit je telefoon. Volledig conform de GBA Brussel.",
+        compat_tag: "Open Ecosysteem",
+        compat_title: "Compatibel met je horloge en al je media-apps.",
+        compat_sub: "Geen externe account-apps vereist: SleepStop maakt rechtstreeks verbinding via Bluetooth Low Energy.",
+        compat_watch_title: "⌚ BLE-horloges & Hartslagsensoren",
+        compat_watch_sub: "Schakel eenvoudig « Hartslag uitzenden » (Broadcast HR) in op je horloge:",
+        compat_app_title: "🎧 Ondersteunde Audio- & Videospelers",
+        compat_app_sub: "Werkt automatisch met alle multimediaspelers op Android:",
+        price_tag: "Transparante Prijs",
+        price_title: "5 nachten gratis, daarna éénmalig voor het leven.",
+        price_sub: "Wij haten abonnementen net zo erg als jij. Test SleepStop gedurende 5 volledige nachten.",
+        p1_badge: "Gratis Proef",
+        p1_title: "Ontdekking — 5 Nachten",
+        p1_sub: "zonder betaalkaart",
+        p1_desc: "Ideaal om de biometrische detectie te testen met je Garmin, Whoop of Polar.",
+        p1_li1: "<strong>5 volledige nachten</strong> slaapdetectie",
+        p1_li2: "Volledige toegang tot <strong>Horloge BLE</strong> en <strong>Zonder Horloge</strong>",
+        p1_li3: "Slaaplogboek, BPM-curve en mediabladwijzer",
+        p1_li4: "Geen account of registratie vereist",
+        p1_btn: "Direct inbegrepen bij download",
+        p2_badge: "💎 Levenslange Licentie • Geen Abo",
+        p2_sub: "eenmalige betaling incl. btw",
+        p2_desc: "Betaal één keer via Google Play en gebruik SleepStop levenslang op al je Android-toestellen.",
+        p2_li1: "<strong>Onbeperkte nachten en sessies</strong> voor het leven",
+        p2_li2: "Adaptieve Firstbeat-kalibratie (BPM + R-R HRV)",
+        p2_li3: "Geforceerd sluiten van apps & volledig scherm verlaten",
+        p2_li4: "Automatisch herstel van aankoop via Google Play",
+        p2_btn: "Beschikbaar in de Android-app",
+        faq_tag: "Veelgestelde Vragen",
+        faq_title: "Alles over SleepStop",
+        faq1_q: "Hoe verbind ik mijn Garmin-, Whoop- of Polar-horloge?",
+        faq1_a: "Schakel de optie <strong>« Hartslag uitzenden » (Broadcast Heart Rate)</strong> in op je horloge. SleepStop detecteert automatisch het standaard Bluetooth Low Energy-signaal (<code>0x180D</code>).",
+        faq2_q: "Waarom gebruikt SleepStop een Android Toegankelijkheidsservice?",
+        faq2_a: "Wanneer je YouTube of Netflix op volledig scherm bekijkt, blijft het scherm aan. De lokale toegankelijkheidsservice brengt je telefoon terug naar het startscherm en sluit gekozen apps zodra je slaapt.",
+        faq3_q: "Worden mijn hartslaggegevens naar een server gestuurd?",
+        faq3_a: "<strong>Nooit.</strong> Je hartslag (BPM), HRV en mediatitels worden <strong>100% lokaal op je telefoon</strong> verwerkt en bewaard, conform de Europese AVG en de Belgische wet van 30 juli 2018.",
+        faq4_q: "Wat gebeurt er als ik van telefoon verander?",
+        faq4_a: "Je <strong>SleepStop Pro levenslange aankoop (9,99 €)</strong> is gekoppeld aan je Google Play-account en wordt automatisch hersteld op elke nieuwe Android-telefoon.",
+        footer_copy: "<strong>© 2026 SleepStop (sleepstop.eu)</strong> — Ontworpen in België • Alle rechten voorbehouden.",
+        footer_privacy: "Privacybeleid (AVG / GDPR België)"
       },
       de: {
-        nav_how: "Funktionsweise",
-        nav_features: "Technologie",
-        nav_compat: "Kompatibilität",
+        nav_how: "Ablauf",
+        nav_features: "Technik",
+        nav_compat: "Geräte",
         nav_pricing: "Preis",
-        nav_privacy: "DSGVO Datenschutz",
-        hero_eyebrow: "🇧🇪 Entwickelt in Belgien • 100 % Lokal & Privat • Garmin, Whoop, Polar & Ohne Uhr",
+        nav_privacy: "DSGVO",
+        hero_eyebrow: "Entwickelt in Belgien • 100 % Lokal & Privat",
+        hero_compat_sub: "Kompatibel mit Garmin • Whoop • Polar • Coros • Ohne Uhr",
         hero_title: "Deine Medien stoppen <span class=\"accent\">in der exakten Sekunde</span>, in der du einschläfst.",
         hero_sub: "Keine Audible-Hörbücher mehr, die die ganze Nacht weiterlaufen, oder YouTube-Videos, die deinen Akku leeren. SleepStop erkennt deinen Pulsabfall in Echtzeit und pausiert deine Apps beim Einschlafen.",
         cta_primary: "✨ Kostenlos testen (5 Nächte gratis)",
         cta_secondary: "🛡️ DSGVO & Datenschutz",
+        stat_trial_val: "5 Nächte",
         stat_trial: "100 % kostenlos testen ohne Konto",
         stat_price: "Lebenslang Pro • Kein Abo",
         stat_privacy: "Keine Pulsdaten in der Cloud",
+        mock_pro_badge: "PRO AKTIV",
+        mock_tab_watch: "⌚ Uhr-Modus BLE",
+        mock_tab_phone: "📳 Ohne Uhr",
+        mock_status_ok: "Kalibrierung OK",
+        mock_metric_title: "Herzfrequenz & HRV",
+        mock_delta_badge: "−18 % • Schwelle erreicht",
+        mock_chart_start: "23:18 (Ruhe: 66 BPM)",
+        mock_chart_thresh: "Schwelle: 56 BPM",
+        mock_chart_end: "23:42 (Schlaf)",
+        mock_media_sub: "Lesezeichen gespeichert um 23:42",
+        mock_paused: "PAUSIERT",
+        mock_banner_watch: "<span>😴</span><div><strong>Schlaf erkannt:</strong> Sanftes Ausblenden beendet, Vollbild geschlossen & Bildschirm gesperrt.</div>",
+        mock_banner_phone: "<span>📳</span><div><strong>Ohne Uhr:</strong> Keine Bewegung während des 60-s-Fade-outs — Wiedergabe gestoppt.</div>",
         how_tag: "In 3 Schritten",
         how_title: "Suche nie wieder das Kapitel, bei dem du eingeschlafen bist.",
         how_sub: "Im Gegensatz zu einem starren Timer erkennt SleepStop deinen tatsächlichen Übergang in den Leichtschlaf.",
@@ -1315,22 +1584,91 @@
         step2_title: "Biometrische Kalibrierung (90 s)",
         step2_desc: "SleepStop misst deinen Ruhepuls beim Hinlegen und berechnet deine individuelle Einschlafschwelle (BPM + HRV).",
         step3_title: "Sanftes Ausblenden & Lesezeichen",
-        step3_desc: "Sobald dein Puls unter die Schwelle sinkt, wird die Lautstärke sanft reduziert, das Vollbild geschlossen und die exakte Uhrzeit gespeichert."
+        step3_desc: "Sobald dein Puls unter die Schwelle sinkt, wird die Lautstärke sanft reduziert, das Vollbild geschlossen und die exakte Uhrzeit gespeichert.",
+        feat_tag: "Engineering & Details",
+        feat_title: "Entwickelt für OLED-Nächte und physiologische Präzision.",
+        feat_sub: "Jedes Detail wurde durchdacht, um deinen Schlaf, deinen Akku und deine Privatsphäre zu schützen.",
+        f1_title: "Adaptiver Firstbeat-Algorithmus",
+        f1_desc: "Kombiniert den Abfall der Herzfrequenz (BPM) mit der parasympathischen R-R-Intervallanalyse (HRV) über das Bluetooth-Standardprofil 0x180D.",
+        f2_title: "Vollbild beenden & Apps schließen",
+        f2_desc: "Pausiert Audio, verlässt automatisch den Vollbildmodus von YouTube, Netflix oder Twitch und schließt ausgewählte Apps.",
+        f3_title: "Modus Ohne Uhr « Fade & Shake »",
+        f3_desc: "Heute Nacht ohne Uhr? Alle X Minuten senkt sich die Lautstärke sanft über 60 Sekunden. Bewege das Telefon leicht, um weiterzuhören.",
+        f4_title: "Schlafprotokoll & Smart-Lesezeichen",
+        f4_desc: "Sieh am Morgen die exakte Einschlafzeit, den aktuellen Kapitel- oder Videotitel sowie deine vollständige Pulskurve.",
+        f5_title: "Android-Schnellkachel & Sanfter Wecker",
+        f5_desc: "Starte die Überwachung mit 1 Tipp aus den Android-Schnelleinstellungen und nutze den sanften Morgenwecker.",
+        f6_title: "Belgische DSGVO & 100 % Lokal",
+        f6_desc: "Kein Benutzerkonto erforderlich. Deine biometrischen Daten (Art. 9 DSGVO) verlassen niemals dein Smartphone.",
+        compat_tag: "Offenes Ökosystem",
+        compat_title: "Kompatibel mit deiner Uhr und all deinen Medien-Apps.",
+        compat_sub: "Keine Drittanbieter-Cloud nötig: SleepStop kommuniziert direkt per Bluetooth Low Energy mit deinem Sensor.",
+        compat_watch_title: "⌚ BLE-Uhren & Herzfrequenzsensoren",
+        compat_watch_sub: "Aktiviere einfach « Herzfrequenz senden » (Broadcast HR) auf deiner Uhr:",
+        compat_app_title: "🎧 Unterstützte Audio- & Video-Player",
+        compat_app_sub: "Funktioniert automatisch mit allen Android-Medien-Apps:",
+        price_tag: "Transparenter Preis",
+        price_title: "5 Nächte gratis, danach einmalige Zahlung auf Lebenszeit.",
+        price_sub: "Wir hassen Abos genauso wie du. Teste SleepStop 5 volle Nächte lang kostenlos.",
+        p1_badge: "Gratis-Test",
+        p1_title: "Entdeckung — 5 Nächte",
+        p1_sub: "ohne Kreditkarte",
+        p1_desc: "Ideal zum Testen der biometrischen Erkennung mit deiner Garmin-, Whoop- oder Polar-Uhr.",
+        p1_li1: "<strong>5 vollständige Nächte</strong> Schlaferkennung",
+        p1_li2: "Voller Zugriff auf <strong>Uhr-Modus BLE</strong> und <strong>Ohne Uhr</strong>",
+        p1_li3: "Schlafprotokoll, BPM-Kurve und Medien-Lesezeichen",
+        p1_li4: "Kein Konto und keine Registrierung nötig",
+        p1_btn: "Direkt beim Download enthalten",
+        p2_badge: "💎 Lebenslange Lizenz • Kein Abo",
+        p2_sub: "einmalige Zahlung inkl. MwSt.",
+        p2_desc: "Einmal über Google Play bezahlen und SleepStop lebenslang auf allen Android-Geräten nutzen.",
+        p2_li1: "<strong>Unbegrenzte Nächte & Sitzungen</strong> auf Lebenszeit",
+        p2_li2: "Adaptive Firstbeat-Kalibrierung (BPM + R-R HRV)",
+        p2_li3: "Erzwungenes Schließen von Apps & Vollbild beenden",
+        p2_li4: "Automatische Kaufwiederherstellung über Google Play",
+        p2_btn: "In der Android-App verfügbar",
+        faq_tag: "Häufige Fragen",
+        faq_title: "Alles über SleepStop",
+        faq1_q: "Wie verbinde ich meine Garmin-, Whoop- oder Polar-Uhr?",
+        faq1_a: "Aktiviere einfach <strong>« Herzfrequenz senden » (Broadcast Heart Rate)</strong> in den Einstellungen deiner Uhr. SleepStop erkennt das Bluetooth Low Energy Signal (<code>0x180D</code>) automatisch.",
+        faq2_q: "Warum nutzt SleepStop den Android-Bedienungshilfedienst?",
+        faq2_a: "Wenn YouTube oder Netflix im Vollbildmodus läuft, bleibt das Display aktiv. Der lokale Dienst bringt dein Smartphone beim Einschlafen zum Startbildschirm zurück und schließt gewählte Apps.",
+        faq3_q: "Werden meine Pulsdaten an einen Server gesendet?",
+        faq3_a: "<strong>Niemals.</strong> Deine Pulsdaten (BPM), HRV und Medientitel werden <strong>zu 100 % lokal auf deinem Telefon</strong> verarbeitet und gespeichert (Art. 9 DSGVO).",
+        faq4_q: "Was passiert, wenn ich mein Telefon wechsle?",
+        faq4_a: "Dein <strong>SleepStop Pro Kauf auf Lebenszeit (9,99 €)</strong> ist mit deinem Google Play-Konto verknüpft und wird auf jedem neuen Android-Gerät kostenlos wiederhergestellt.",
+        footer_copy: "<strong>© 2026 SleepStop (sleepstop.eu)</strong> — Entwickelt in Belgien • Alle Rechte vorbehalten.",
+        footer_privacy: "Datenschutzerklärung (DSGVO Belgien)"
       },
       es: {
-        nav_how: "Cómo funciona",
+        nav_how: "Funcionamiento",
         nav_features: "Tecnología",
         nav_compat: "Compatibilidad",
         nav_pricing: "Precio",
-        nav_privacy: "Privacidad RGPD",
-        hero_eyebrow: "🇧🇪 Diseñado en Bélgica • 100 % Local y Privado • Garmin, Whoop, Polar y Sin Reloj",
+        nav_privacy: "RGPD",
+        hero_eyebrow: "Diseñado en Bélgica • 100 % Local y Privado",
+        hero_compat_sub: "Compatible con Garmin • Whoop • Polar • Coros • Sin Reloj",
         hero_title: "Tus medios se detienen <span class=\"accent\">en el segundo exacto</span> en que te duermes.",
         hero_sub: "Olvídate de los audiolibros de Audible reproduciéndose toda la noche o vídeos de YouTube agotando tu batería. SleepStop analiza el descenso de tu pulso en tiempo real y pausa tus apps al dormirte.",
         cta_primary: "✨ Probar gratis (5 noches incluidas)",
         cta_secondary: "🛡️ Privacidad RGPD Bélgica",
+        stat_trial_val: "5 noches",
         stat_trial: "Prueba 100 % gratis sin cuenta",
         stat_price: "Pro de por vida • Sin suscripción",
         stat_privacy: "Ningún BPM enviado a la nube",
+        mock_pro_badge: "PRO ACTIVO",
+        mock_tab_watch: "⌚ Modo Reloj BLE",
+        mock_tab_phone: "📳 Modo Sin Reloj",
+        mock_status_ok: "Calibración OK",
+        mock_metric_title: "Frecuencia Cardíaca y HRV",
+        mock_delta_badge: "−18 % • Umbral alcanzado",
+        mock_chart_start: "23:18 (Reposo: 66 BPM)",
+        mock_chart_thresh: "Umbral: 56 BPM",
+        mock_chart_end: "23:42 (Sueño)",
+        mock_media_sub: "Marcador guardado a las 23:42",
+        mock_paused: "PAUSADO",
+        mock_banner_watch: "<span>😴</span><div><strong>Sueño detectado:</strong> Atenuación completada, pantalla completa cerrada y pantalla bloqueada.</div>",
+        mock_banner_phone: "<span>📳</span><div><strong>Modo Sin Reloj:</strong> Sin movimiento durante la atenuación de 60 s — reproducción detenida.</div>",
         how_tag: "Cómo funciona en 3 pasos",
         how_title: "No vuelvas a buscar en qué capítulo te quedaste dormido.",
         how_sub: "A diferencia de un temporizador fijo, SleepStop detecta el momento fisiológico exacto en que concilias el sueño.",
@@ -1339,11 +1677,66 @@
         step2_title: "Calibración biométrica (90 s)",
         step2_desc: "SleepStop mide tu pulso en reposo y calcula tu umbral personal de sueño junto con la variabilidad cardíaca (HRV).",
         step3_title: "Atenuación suave y marcador",
-        step3_desc: "Cuando tu pulso baja del umbral, el volumen disminuye suavemente, se cierra la pantalla completa y se guarda la hora exacta."
+        step3_desc: "Cuando tu pulso baja del umbral, el volumen disminuye suavemente, se cierra la pantalla completa y se guarda la hora exacta.",
+        feat_tag: "Ingeniería y Detalles",
+        feat_title: "Diseñado para pantallas OLED y precisión fisiológica.",
+        feat_sub: "Cada detalle está pensado para proteger tu descanso, la batería de tu móvil y tu privacidad.",
+        f1_title: "Algoritmo Adaptativo Firstbeat",
+        f1_desc: "Combina el descenso del pulso (BPM) con el análisis parasimpático de intervalos R-R (HRV) mediante el perfil estándar Bluetooth 0x180D.",
+        f2_title: "Salir de Pantalla Completa y Cerrar",
+        f2_desc: "Pausa el audio, sale automáticamente de la pantalla completa de YouTube, Netflix o Twitch para apagar la pantalla y cierra las apps elegidas.",
+        f3_title: "Modo Sin Reloj « Fade & Shake »",
+        f3_desc: "¿No llevas el reloj esta noche? Cada X minutos el volumen baja suavemente durante 60 segundos. Mueve ligeramente el móvil para seguir escuchando.",
+        f4_title: "Diario de Sueño y Marcador",
+        f4_desc: "Consulta al despertar la hora exacta en que te dormiste, el título del capítulo o vídeo y tu curva cardíaca completa.",
+        f5_title: "Ajuste Rápido Android y Alarma Suave",
+        f5_desc: "Activa la vigilancia con 1 toque desde el panel rápido de Android y programa una alarma matinal progresiva.",
+        f6_title: "RGPD Belga y Cero Nube de Salud",
+        f6_desc: "Sin cuenta de usuario. Tus datos biométricos (Art. 9 RGPD) nunca salen de tu teléfono. Cumplimiento total con la APD de Bruselas.",
+        compat_tag: "Ecosistema Abierto",
+        compat_title: "Compatible con tu reloj y todas tus aplicaciones.",
+        compat_sub: "Sin aplicaciones intermedias: SleepStop se comunica directamente por Bluetooth Low Energy con tu sensor.",
+        compat_watch_title: "⌚ Relojes y Sensores Cardíacos BLE",
+        compat_watch_sub: "Activa simplemente « Transmitir frecuencia cardíaca » (Broadcast HR) en tu reloj:",
+        compat_app_title: "🎧 Reproductores de Audio y Vídeo",
+        compat_app_sub: "Funciona automáticamente con todas las aplicaciones multimedia de Android:",
+        price_tag: "Precio Transparente",
+        price_title: "5 noches gratis, luego un único pago de por vida.",
+        price_sub: "Odiamos las suscripciones tanto como tú. Prueba SleepStop durante 5 noches completas antes de decidir.",
+        p1_badge: "Prueba Gratis",
+        p1_title: "Descubrimiento — 5 Noches",
+        p1_sub: "sin tarjeta bancaria",
+        p1_desc: "Ideal para probar la detección biométrica con tu reloj Garmin, Whoop o Polar.",
+        p1_li1: "<strong>5 noches completas</strong> de detección de sueño",
+        p1_li2: "Acceso total al <strong>Modo Reloj BLE</strong> y <strong>Modo Sin Reloj</strong>",
+        p1_li3: "Diario de sueño, curva BPM y marcador multimedia",
+        p1_li4: "Sin creación de cuenta ni registro",
+        p1_btn: "Incluido al descargar",
+        p2_badge: "💎 Licencia de por Vida • Sin Suscripción",
+        p2_sub: "pago único impuestos incl.",
+        p2_desc: "Paga una sola vez mediante Google Play y disfruta de SleepStop de por vida en todos tus dispositivos Android.",
+        p2_li1: "<strong>Noches y sesiones ilimitadas</strong> de por vida",
+        p2_li2: "Calibración adaptativa Firstbeat (BPM + HRV R-R)",
+        p2_li3: "Cierre forzado de aplicaciones y salida de pantalla completa",
+        p2_li4: "Restauración automática de compras vía Google Play",
+        p2_btn: "Disponible en la app Android",
+        faq_tag: "Preguntas Frecuentes",
+        faq_title: "Todo sobre SleepStop",
+        faq1_q: "¿Cómo conecto mi reloj Garmin, Whoop o Polar?",
+        faq1_a: "Solo tienes que activar <strong>« Transmitir frecuencia cardíaca » (Broadcast Heart Rate)</strong> en los ajustes de tu reloj. SleepStop detecta automáticamente la señal Bluetooth Low Energy (<code>0x180D</code>).",
+        faq2_q: "¿Por qué SleepStop ofrece un servicio de Accesibilidad de Android?",
+        faq2_a: "Cuando ves YouTube o Netflix en pantalla completa, Android mantiene la pantalla encendida. El servicio local de accesibilidad vuelve a la pantalla de inicio y cierra las apps elegidas en cuanto te duermes.",
+        faq3_q: "¿Se envían mis datos cardíacos a algún servidor?",
+        faq3_a: "<strong>Jamás.</strong> Tu pulso (BPM), variabilidad (HRV) y títulos multimedia se procesan y guardan <strong>100 % localmente en tu teléfono</strong> (Art. 9 RGPD).",
+        faq4_q: "¿Qué ocurre si cambio de teléfono?",
+        faq4_a: "Tu compra de <strong>SleepStop Pro de por vida (9,99 €)</strong> está vinculada a tu cuenta de Google Play y se restaura gratis en cualquier nuevo móvil Android.",
+        footer_copy: "<strong>© 2026 SleepStop (sleepstop.eu)</strong> — Diseñado en Bélgica • Todos los derechos reservados.",
+        footer_privacy: "Política de Privacidad (RGPD Bélgica)"
       }
     };
 
     function setSiteLang(lang) {
+      currentLang = lang;
       const dict = I18N[lang] || I18N.fr;
       document.documentElement.lang = lang;
       document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -1356,27 +1749,30 @@
         const btn = document.getElementById("btn-" + code);
         if (btn) btn.classList.toggle("active", code === lang);
       });
+      switchMockupMode(currentMockupMode);
     }
 
     function switchMockupMode(mode) {
+      currentMockupMode = mode;
       const isWatch = mode === "watch";
+      const dict = I18N[currentLang] || I18N.fr;
       document.getElementById("tabWatch").classList.toggle("active", isWatch);
       document.getElementById("tabPhone").classList.toggle("active", !isWatch);
 
       if (isWatch) {
         document.getElementById("mockSensorLabel").innerHTML = '<span class="live-dot"></span>Garmin Fenix 7 • BLE 0x180D';
-        document.getElementById("mockStatusBadge").textContent = "Calibration OK";
-        document.getElementById("mockMetricTitle").textContent = "Fréquence Cardiaque & HRV";
+        document.getElementById("mockStatusBadge").textContent = dict.mock_status_ok;
+        document.getElementById("mockMetricTitle").textContent = dict.mock_metric_title;
         document.getElementById("mockMetricValue").innerHTML = "54<small>BPM</small>";
-        document.getElementById("mockDeltaBadge").textContent = "−18 % • Seuil sommeil atteint";
-        document.getElementById("mockBannerText").innerHTML = "<span>😴</span><div><strong>Sommeil détecté :</strong> Fondu sonore terminé, plein écran fermé et écran verrouillé.</div>";
+        document.getElementById("mockDeltaBadge").textContent = dict.mock_delta_badge;
+        document.getElementById("mockBannerText").innerHTML = dict.mock_banner_watch;
       } else {
-        document.getElementById("mockSensorLabel").innerHTML = '<span class="live-dot"></span>Accéléromètre 3D • Fade & Shake';
+        document.getElementById("mockSensorLabel").innerHTML = '<span class="live-dot"></span>3D Accelerometer • Fade & Shake';
         document.getElementById("mockStatusBadge").textContent = "Cycle 20 min";
-        document.getElementById("mockMetricTitle").textContent = "Atténuation progressive du volume";
+        document.getElementById("mockMetricTitle").textContent = "Fade & Shake (60 s)";
         document.getElementById("mockMetricValue").innerHTML = "60<small>sec</small>";
-        document.getElementById("mockDeltaBadge").textContent = "Aucune secousse • Mise en pause";
-        document.getElementById("mockBannerText").innerHTML = "<span>📳</span><div><strong>Mode Sans Montre :</strong> Aucun mouvement détecté pendant le fondu de 60 s — média arrêté.</div>";
+        document.getElementById("mockDeltaBadge").textContent = dict.mock_paused;
+        document.getElementById("mockBannerText").innerHTML = dict.mock_banner_phone;
       }
     }
   </script>
