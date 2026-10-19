@@ -1510,4 +1510,62 @@ class AppStrings {
     de: 'POST JSON {"event":"sleep_detected","timestamp":"…"} ohne personenbezogene Daten. Mit Geheimnis: Header X-SleepStop-Signature = sha256=HMAC-SHA256(Geheimnis, Body). Timeout 10 s, ein Wiederholungsversuch.',
     es: 'POST JSON {"event":"sleep_detected","timestamp":"…"} sin datos personales. Con secreto: cabecera X-SleepStop-Signature = sha256=HMAC-SHA256(secreto, cuerpo). Tiempo 10 s, un solo reintento.',
   );
+
+  // Lights (Google Home)
+  String get lightsStatusChecking => tr(fr: 'Vérification…', nl: 'Controleren…', de: 'Prüfung…', es: 'Comprobando…');
+  String get lightsStatusSdkMissing => tr(
+    fr: 'Indisponible dans cette version (SDK Google Home non inclus).',
+    nl: 'Niet beschikbaar in deze versie (Google Home SDK niet inbegrepen).',
+    de: 'In dieser Version nicht verfügbar (Google Home SDK nicht enthalten).',
+    es: 'No disponible en esta versión (SDK de Google Home no incluido).',
+  );
+  String get lightsStatusUnsupported => tr(fr: 'Nécessite Android 10 ou plus.', nl: 'Vereist Android 10 of hoger.', de: 'Benötigt Android 10 oder neuer.', es: 'Requiere Android 10 o superior.');
+  String get lightsStatusPlayServices => tr(
+    fr: 'Services Google Play absents ou trop anciens.',
+    nl: 'Google Play-services ontbreken of zijn verouderd.',
+    de: 'Google Play-Dienste fehlen oder sind veraltet.',
+    es: 'Servicios de Google Play ausentes o desactualizados.',
+  );
+  String get lightsStatusError => tr(fr: 'Erreur :', nl: 'Fout:', de: 'Fehler:', es: 'Error:');
+  String lightsStatusConnected(String structure) => tr(
+    fr: 'Connecté à « $structure »',
+    nl: 'Verbonden met "$structure"',
+    de: 'Verbunden mit „$structure“',
+    es: 'Conectado a «$structure»',
+  );
+  String get lightsStatusNotConnected => tr(fr: 'Non connecté à Google Home', nl: 'Niet verbonden met Google Home', de: 'Nicht mit Google Home verbunden', es: 'No conectado a Google Home');
+  String get lightsStatusUnavailable => tr(
+    fr: 'Permission Google Home indisponible ou révoquée.',
+    nl: 'Google Home-toestemming niet beschikbaar of ingetrokken.',
+    de: 'Google Home-Berechtigung nicht verfügbar oder widerrufen.',
+    es: 'Permiso de Google Home no disponible o revocado.',
+  );
+  String get lightsRefresh => tr(fr: 'Actualiser', nl: 'Vernieuwen', de: 'Aktualisieren', es: 'Actualizar');
+  String get lightsConnect => tr(fr: 'Connecter Google Home', nl: 'Google Home koppelen', de: 'Google Home verbinden', es: 'Conectar Google Home');
+  String get lightsFadeLabel => tr(fr: 'Durée du fondu', nl: 'Dimduur', de: 'Dimmdauer', es: 'Duración de la atenuación');
+  String lightsFadeOption(LightsFadeDuration f) => switch (f) {
+    LightsFadeDuration.instant => tr(fr: 'Instantané', nl: 'Direct', de: 'Sofort', es: 'Instantáneo'),
+    LightsFadeDuration.s30 => '30 s',
+    LightsFadeDuration.m1 => '1 min',
+    LightsFadeDuration.m2 => '2 min',
+  };
+  String get lightsSelectionLabel => tr(fr: 'Lumières à éteindre', nl: 'Uit te schakelen lichten', de: 'Auszuschaltende Lichter', es: 'Luces a apagar');
+  String get lightsWholeRoom => tr(fr: 'toute la pièce', nl: 'hele kamer', de: 'ganzer Raum', es: 'toda la habitación');
+  String get lightsDimmable => tr(fr: 'variateur', nl: 'dimbaar', de: 'dimmbar', es: 'regulable');
+  String get lightsOffline => tr(fr: 'hors ligne', nl: 'offline', de: 'offline', es: 'sin conexión');
+  String get lightsNoDevice => tr(
+    fr: 'Aucune lumière compatible (OnOff) trouvée dans cette maison.',
+    nl: 'Geen compatibel licht (OnOff) gevonden in dit huis.',
+    de: 'Kein kompatibles Licht (OnOff) in diesem Zuhause gefunden.',
+    es: 'No se encontró ninguna luz compatible (OnOff) en esta casa.',
+  );
+  String get lightsNotifTitle => tr(fr: 'SleepStop éteint les lumières', nl: 'SleepStop doet de lichten uit', de: 'SleepStop schaltet das Licht aus', es: 'SleepStop apaga las luces');
+  String get lightsNotifBody => tr(
+    fr: 'Fondu en cours. Annuler pour tout rallumer comme avant.',
+    nl: 'Dimmen bezig. Annuleren om alles weer aan te zetten zoals voorheen.',
+    de: 'Dimmen läuft. Abbrechen, um alles wie vorher einzuschalten.',
+    es: 'Atenuación en curso. Cancelar para volver a encender todo como antes.',
+  );
+  String get lightsNotifCancel => tr(fr: 'Annuler', nl: 'Annuleren', de: 'Abbrechen', es: 'Cancelar');
+  String get lightsChannelName => tr(fr: 'Lumières SleepStop', nl: 'SleepStop-lichten', de: 'SleepStop-Licht', es: 'Luces de SleepStop');
 }

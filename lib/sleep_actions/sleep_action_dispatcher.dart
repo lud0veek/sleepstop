@@ -3,7 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/sleep_settings.dart';
 import '../providers/settings_provider.dart';
+import '../l10n/app_strings.dart';
 import 'actions/broadcast_intent_action.dart';
+import 'actions/lights_off_action.dart';
 import 'actions/webhook_action.dart';
 import 'sleep_action.dart';
 import 'sleep_action_status.dart';
@@ -172,9 +174,23 @@ final webhookSecretStoreProvider = Provider<WebhookSecretStore>(
   (ref) => const SecureWebhookSecretStore(),
 );
 
-/// The registered actions (lights are added by the Google Home step).
+final lightsBridgeProvider = Provider<LightsBridge>((ref) => const LightsBridge());
+
+/// The registered actions.
 final sleepActionsProvider = Provider<List<SleepAction>>(
   (ref) => [
+    LightsOffAction(
+      bridge: ref.read(lightsBridgeProvider),
+      labels: () {
+        final s = AppStrings(ref.read(settingsProvider).languageCode);
+        return LightsNotificationLabels(
+          title: s.lightsNotifTitle,
+          body: s.lightsNotifBody,
+          cancelButton: s.lightsNotifCancel,
+          channelName: s.lightsChannelName,
+        );
+      },
+    ),
     const BroadcastIntentAction(),
     WebhookAction(secretStore: ref.read(webhookSecretStoreProvider)),
   ],

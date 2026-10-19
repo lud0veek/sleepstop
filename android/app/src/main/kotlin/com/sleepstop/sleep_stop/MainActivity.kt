@@ -72,6 +72,8 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Google Home permission UI must be registered before the activity is started.
+        HomeActionsChannel.bindActivity(this)
         checkQuickTileIntent(intent)
     }
 

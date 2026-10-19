@@ -14,10 +14,24 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// Google Home APIs SDK is distributed as AAR files (not on Maven). When they
+// are dropped in app/libs/homeapis the real Google Home controller is
+// compiled; otherwise a stub reports "sdkMissing". See libs/homeapis/README.md.
+val homeApisDir = file("libs/homeapis")
+val homeApisPresent =
+    homeApisDir.isDirectory && (homeApisDir.listFiles()?.any { it.name.endsWith(".aar") } ?: false)
+logger.lifecycle("SleepStop: Home APIs SDK ${if (homeApisPresent) "present" else "absent"} (libs/homeapis)")
+
 android {
     namespace = "com.sleepstop.sleep_stop"
     compileSdk = maxOf(35, flutter.compileSdkVersion)
     ndkVersion = flutter.ndkVersion
+
+    sourceSets {
+        getByName("main") {
+            kotlin.srcDir(if (homeApisPresent) "src/homeapis/kotlin" else "src/homeapis-stub/kotlin")
+        }
+    }
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -27,6 +41,10 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
+        if (homeApisPresent) {
+            // Home APIs 1.11 ships Kotlin 2.4 metadata; the project is on 2.2.
+            freeCompilerArgs += "-Xskip-metadata-version-check"
+        }
     }
 
     defaultConfig {
@@ -67,6 +85,13 @@ android {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    if (homeApisPresent) {
+        implementation(fileTree(mapOf("dir" to "libs/homeapis", "include" to listOf("*.aar"))))
+        // Required by the Home APIs SDK (explicit import mandated since 1.11).
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+        implementation("com.google.android.gms:play-services-base:18.7.2")
+        implementation("androidx.activity:activity-ktx:1.10.1")
+    }
 }
 
 flutter {

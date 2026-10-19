@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_strings.dart';
 import '../models/sleep_settings.dart';
 import '../providers/settings_provider.dart';
+import '../sleep_actions/actions/lights_off_action.dart';
 import '../sleep_actions/actions/webhook_action.dart';
 import '../sleep_actions/sleep_action_dispatcher.dart';
 import '../sleep_actions/sleep_action_status.dart';
@@ -91,6 +92,7 @@ class SleepActionsScreen extends ConsumerWidget {
               (c) => c.copyWith(lights: c.lights.copyWith(enabled: v)),
             ),
             onTest: () => _test(ref, 'lights', settings),
+            details: _LightsDetails(s: s, settings: settings.sleepActions.lights),
           ),
           _ActionSection(
             id: 'intent',
@@ -505,6 +507,226 @@ class _WebhookDetailsState extends ConsumerState<_WebhookDetails> {
             color: OledColors.textSecondary,
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Google Home connection, status, device/room selection and fade duration.
+class _LightsDetails extends ConsumerStatefulWidget {
+  final AppStrings s;
+  final LightsActionSettings settings;
+  const _LightsDetails({required this.s, required this.settings});
+
+  @override
+  ConsumerState<_LightsDetails> createState() => _LightsDetailsState();
+}
+
+class _LightsDetailsState extends ConsumerState<_LightsDetails> {
+  LightsAvailability? _availability;
+  String? _availabilityDetail;
+  LightsPermission? _permission;
+  String? _structureName;
+  List<LightStructure>? _structures;
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  LightsBridge get _bridge => ref.read(lightsBridgeProvider);
+
+  Future<void> _refresh() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final (a, detail) = await _bridge.checkAvailability();
+      _availability = a;
+      _availabilityDetail = detail;
+      if (a == LightsAvailability.available) {
+        final (p, name) = await _bridge.permissionState();
+        _permission = p;
+        _structureName = name;
+        if (p == LightsPermission.granted) {
+          _structures = await _bridge.listLights();
+        } else {
+          _structures = null;
+          // Revoked / never granted: the action must not stay enabled.
+          if (widget.settings.enabled) {
+            await ref.read(settingsProvider.notifier).updateSleepActions(
+              (c) => c.copyWith(lights: c.lights.copyWith(enabled: false)),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      _error = e.runtimeType.toString();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _connect() async {
+    setState(() => _busy = true);
+    try {
+      await _bridge.requestPermissions();
+    } catch (_) {}
+    await _refresh();
+  }
+
+  Future<void> _toggleDevice(String id, bool selected) {
+    return ref.read(settingsProvider.notifier).updateSleepActions((c) {
+      final ids = [...c.lights.deviceIds];
+      selected ? ids.add(id) : ids.remove(id);
+      return c.copyWith(lights: c.lights.copyWith(deviceIds: ids.toSet().toList()));
+    });
+  }
+
+  Future<void> _toggleRoom(String id, bool selected) {
+    return ref.read(settingsProvider.notifier).updateSleepActions((c) {
+      final ids = [...c.lights.roomIds];
+      selected ? ids.add(id) : ids.remove(id);
+      return c.copyWith(lights: c.lights.copyWith(roomIds: ids.toSet().toList()));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.s;
+    final lights = widget.settings;
+
+    final (statusText, statusColor) = switch ((_availability, _permission)) {
+      (null, _) => (s.lightsStatusChecking, OledColors.textMuted),
+      (LightsAvailability.sdkMissing, _) => (s.lightsStatusSdkMissing, OledColors.textMuted),
+      (LightsAvailability.unsupportedAndroid, _) => (s.lightsStatusUnsupported, OledColors.mutedRose),
+      (LightsAvailability.playServicesMissing, _) ||
+      (LightsAvailability.playServicesOutdated, _) => (s.lightsStatusPlayServices, OledColors.mutedRose),
+      (LightsAvailability.sdkError, _) => ('${s.lightsStatusError} ${_availabilityDetail ?? ''}', OledColors.mutedRose),
+      (LightsAvailability.available, LightsPermission.granted) =>
+        (s.lightsStatusConnected(_structureName ?? ''), OledColors.calmTeal),
+      (LightsAvailability.available, LightsPermission.notGranted) => (s.lightsStatusNotConnected, OledColors.warmAmber),
+      (LightsAvailability.available, LightsPermission.unavailable) => (s.lightsStatusUnavailable, OledColors.mutedRose),
+      (LightsAvailability.available, _) => (s.lightsStatusChecking, OledColors.textMuted),
+    };
+    final canConnect = _availability == LightsAvailability.available &&
+        _permission != LightsPermission.granted;
+    final connected = _permission == LightsPermission.granted;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(shape: BoxShape.circle, color: statusColor),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _error != null ? '${s.lightsStatusError} $_error' : statusText,
+                style: TextStyle(fontSize: 12.5, color: statusColor),
+              ),
+            ),
+            if (_busy)
+              const SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: s.lightsRefresh,
+                onPressed: _refresh,
+                icon: const Icon(Icons.refresh_rounded, size: 18, color: OledColors.textSecondary),
+              ),
+          ],
+        ),
+        if (canConnect) ...[
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            onPressed: _busy ? null : _connect,
+            style: FilledButton.styleFrom(
+              backgroundColor: OledColors.warmAmber,
+              foregroundColor: OledColors.trueBlack,
+            ),
+            icon: const Icon(Icons.home_rounded, size: 18),
+            label: Text(s.lightsConnect),
+          ),
+        ],
+        if (connected) ...[
+          const SizedBox(height: 12),
+          SettingsLabel(s.lightsFadeLabel),
+          const SizedBox(height: 6),
+          SegmentedButton<LightsFadeDuration>(
+            segments: [
+              for (final f in LightsFadeDuration.values)
+                ButtonSegment(value: f, label: Text(s.lightsFadeOption(f))),
+            ],
+            selected: {lights.fade},
+            showSelectedIcon: false,
+            onSelectionChanged: (sel) => ref
+                .read(settingsProvider.notifier)
+                .updateSleepActions((c) => c.copyWith(lights: c.lights.copyWith(fade: sel.first))),
+          ),
+          const SizedBox(height: 12),
+          SettingsLabel(s.lightsSelectionLabel),
+          const SizedBox(height: 4),
+          if (_structures == null || _structures!.isEmpty)
+            Text(
+              s.lightsNoDevice,
+              style: const TextStyle(fontSize: 12.5, color: OledColors.textSecondary),
+            )
+          else
+            for (final st in _structures!) ...[
+              for (final room in st.rooms) ...[
+                CheckboxListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  activeColor: OledColors.warmAmber,
+                  title: Text(
+                    '${room.name} • ${s.lightsWholeRoom}',
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: OledColors.textPrimary),
+                  ),
+                  value: lights.roomIds.contains(room.id),
+                  onChanged: (v) => _toggleRoom(room.id, v ?? false),
+                ),
+                for (final d in room.devices)
+                  CheckboxListTile(
+                    dense: true,
+                    contentPadding: const EdgeInsets.only(left: 24),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    activeColor: OledColors.warmAmber,
+                    enabled: !lights.roomIds.contains(room.id),
+                    title: Text(d.name, style: const TextStyle(fontSize: 13, color: OledColors.textPrimary)),
+                    subtitle: Text(
+                      [if (d.hasLevel) s.lightsDimmable, if (!d.online) s.lightsOffline].join(' • '),
+                      style: const TextStyle(fontSize: 11, color: OledColors.textSecondary),
+                    ),
+                    value: lights.roomIds.contains(room.id) || lights.deviceIds.contains(d.id),
+                    onChanged: (v) => _toggleDevice(d.id, v ?? false),
+                  ),
+              ],
+              for (final d in st.unassigned)
+                CheckboxListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  activeColor: OledColors.warmAmber,
+                  title: Text(d.name, style: const TextStyle(fontSize: 13, color: OledColors.textPrimary)),
+                  value: lights.deviceIds.contains(d.id),
+                  onChanged: (v) => _toggleDevice(d.id, v ?? false),
+                ),
+            ],
+        ],
       ],
     );
   }
