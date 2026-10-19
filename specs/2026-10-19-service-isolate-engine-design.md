@@ -33,9 +33,13 @@ Une veille lancée à 22:00 doit survivre à : la fermeture de l'app, l'écran �
 - `onStart(starter == TaskStarter.system)` : si un snapshot existe et date de moins de 8 h → **reprise** : notification « Veille reprise après une interruption à HH:MM », reconnexion directe à la montre sauvegardée (pas de scan complet), recalibration courte (60 s) si la référence est absente, reprise des compteurs, même `startedAt` pour le journal du matin. Si aucun snapshot ou trop vieux → notification « Surveillance interrompue » (comportement actuel) et arrêt.
 - Le mode téléphone reprend son compte à rebours à l'intervalle configuré.
 
-### D. Garde-fou et Samsung
+### D. Résilience aux kills, garde-fou et aide ciblée
+Principe : **ne jamais dépendre d'un réglage que l'utilisateur doit trouver lui-même.** La nuit doit fonctionner même si Samsung tue le processus.
+- Reprise automatique (section C) : après un kill, le service collant redémarre et reprend la veille en quelques secondes ; le média n'est pas touché ; le matin, le journal mentionne « reprise à HH:MM ». Le redémarrage est accéléré par `START_STICKY` + une alarme de secours (`AlarmManager.setExactAndAllowWhileIdle`, +30 s) armée au démarrage de chaque veille et annulée à la fin, pour éviter les relances tardives observées (1 h 30).
+- Mémoire : le premier test réel se fait en **release** (le debug Flutter pèse 2 à 3 fois plus et attire le gestionnaire mémoire Samsung). Objectif < 150 Mo RSS en veille ; la courbe BPM et les buffers sont déjà bornés.
 - Le battement de cœur du service écrit `lastHeartbeatAt` ; l'UI affiche « Service inactif » si l'horodatage a plus de 20 s alors qu'une veille est censée tourner.
-- Détection `Build.MANUFACTURER == samsung` : ligne dans l'écran de permissions, l'onboarding et Réglages → « Samsung : ne jamais mettre SleepStop en veille » ouvrant `Paramètres → Batterie → Applications jamais mises en veille` (intent `com.samsung.android.sm.ACTION_BATTERY` avec repli vers les réglages batterie génériques). Après une nuit interrompue, bannière sur le dashboard le lendemain.
+- **Constat des kills** : au lancement, lecture de `ActivityManager.getHistoricalProcessExitReasons` (Android 11+) pour notre package ; si un kill (`SIGNALED`, `LOW_MEMORY`, `OTHER`) est survenu pendant une veille (snapshot présent à ce moment), l'app le journalise avec l'heure et la raison.
+- **Aide ciblée, pas tutoriel** : seulement après un kill constaté, bannière sur le dashboard « Android a interrompu SleepStop cette nuit à 22:22 (veille reprise) » avec, sur Samsung, un bouton « Empêcher la mise en veille » ouvrant directement l'écran Batterie (`com.samsung.android.sm.ACTION_BATTERY`, repli `Settings.ACTION_APPLICATION_DETAILS_SETTINGS`) et une capture annotée. La ligne reste accessible dans Réglages → À l'endormissement pour qui veut la faire d'avance, sans y être poussé.
 
 ### E. Ponts natifs accessibles depuis les deux moteurs
 Aujourd'hui les `MethodChannel` (volume, pause, reprise, voile, tuile, broadcast, Google Home) sont enregistrés dans `MainActivity.configureFlutterEngine`, donc seulement sur le moteur de l'activité. Le moteur du service n'y a pas accès.
