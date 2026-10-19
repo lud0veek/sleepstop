@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/sleep_settings.dart';
 import '../providers/settings_provider.dart';
 import 'actions/broadcast_intent_action.dart';
+import 'actions/webhook_action.dart';
 import 'sleep_action.dart';
 import 'sleep_action_status.dart';
 import 'sleep_event_bus.dart';
@@ -166,9 +167,17 @@ class SleepActionStatusesNotifier
   }
 }
 
-/// The registered actions (webhook and lights are added by later steps).
+/// Secret storage for the webhook (Keystore-backed on device).
+final webhookSecretStoreProvider = Provider<WebhookSecretStore>(
+  (ref) => const SecureWebhookSecretStore(),
+);
+
+/// The registered actions (lights are added by the Google Home step).
 final sleepActionsProvider = Provider<List<SleepAction>>(
-  (ref) => const [BroadcastIntentAction()],
+  (ref) => [
+    const BroadcastIntentAction(),
+    WebhookAction(secretStore: ref.read(webhookSecretStoreProvider)),
+  ],
 );
 
 /// Builds the dispatcher and subscribes it to the sleep event bus. Must be

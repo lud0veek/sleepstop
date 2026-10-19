@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_strings.dart';
 import '../models/sleep_settings.dart';
 import '../providers/settings_provider.dart';
+import '../sleep_actions/actions/webhook_action.dart';
 import '../sleep_actions/sleep_action_dispatcher.dart';
 import '../sleep_actions/sleep_action_status.dart';
 import '../sleep_actions/sleep_event_bus.dart';
@@ -123,6 +124,7 @@ class SleepActionsScreen extends ConsumerWidget {
               (c) => c.copyWith(webhook: c.webhook.copyWith(enabled: v)),
             ),
             onTest: () => _test(ref, 'webhook', settings),
+            details: _WebhookDetails(s: s, settings: settings.sleepActions.webhook),
           ),
         ],
       ),
@@ -321,6 +323,189 @@ class _IntentDetails extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Webhook URL (HTTPS only) and optional HMAC secret.
+class _WebhookDetails extends ConsumerStatefulWidget {
+  final AppStrings s;
+  final WebhookActionSettings settings;
+  const _WebhookDetails({required this.s, required this.settings});
+
+  @override
+  ConsumerState<_WebhookDetails> createState() => _WebhookDetailsState();
+}
+
+class _WebhookDetailsState extends ConsumerState<_WebhookDetails> {
+  late final TextEditingController _url = TextEditingController(
+    text: widget.settings.url,
+  );
+  final TextEditingController _secret = TextEditingController();
+  String? _urlError;
+  bool _savingSecret = false;
+
+  @override
+  void dispose() {
+    _url.dispose();
+    _secret.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveUrl() async {
+    final s = widget.s;
+    final raw = _url.text.trim();
+    final problem = raw.isEmpty ? null : WebhookUrlValidator.validate(raw);
+    setState(() {
+      _urlError = switch (problem) {
+        null => null,
+        'not_https' => s.webhookHttpsOnly,
+        _ => s.webhookInvalidUrl,
+      };
+    });
+    if (problem != null) return;
+    await ref.read(settingsProvider.notifier).updateSleepActions(
+      (c) => c.copyWith(webhook: c.webhook.copyWith(url: raw)),
+    );
+  }
+
+  Future<void> _saveSecret() async {
+    final value = _secret.text.trim();
+    if (value.isEmpty) return;
+    setState(() => _savingSecret = true);
+    await ref.read(webhookSecretStoreProvider).write(value);
+    await ref.read(settingsProvider.notifier).updateSleepActions(
+      (c) => c.copyWith(webhook: c.webhook.copyWith(hasSecret: true)),
+    );
+    _secret.clear();
+    if (mounted) setState(() => _savingSecret = false);
+  }
+
+  Future<void> _clearSecret() async {
+    await ref.read(webhookSecretStoreProvider).clear();
+    await ref.read(settingsProvider.notifier).updateSleepActions(
+      (c) => c.copyWith(webhook: c.webhook.copyWith(hasSecret: false)),
+    );
+  }
+
+  InputDecoration _decoration(String hint, {String? error, Widget? suffix}) =>
+      InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: OledColors.textMuted, fontSize: 13),
+        errorText: error,
+        isDense: true,
+        filled: true,
+        fillColor: OledColors.elevatedSurface,
+        suffixIcon: suffix,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: OledColors.subtleBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: OledColors.calmTeal),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: OledColors.mutedRose),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: OledColors.mutedRose),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.s;
+    final hasSecret = widget.settings.hasSecret;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingsLabel(s.webhookUrlLabel),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _url,
+          keyboardType: TextInputType.url,
+          autocorrect: false,
+          style: const TextStyle(fontSize: 13.5, color: OledColors.textPrimary),
+          decoration: _decoration('https://…', error: _urlError),
+          onEditingComplete: _saveUrl,
+          onTapOutside: (_) {
+            FocusScope.of(context).unfocus();
+            _saveUrl();
+          },
+        ),
+        const SizedBox(height: 12),
+        SettingsLabel(s.webhookSecretLabel),
+        const SizedBox(height: 6),
+        if (hasSecret)
+          Row(
+            children: [
+              const Icon(
+                Icons.lock_rounded,
+                size: 16,
+                color: OledColors.calmTeal,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  s.webhookSecretStored,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: OledColors.textPrimary,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: _clearSecret,
+                child: Text(
+                  s.webhookSecretRemove,
+                  style: const TextStyle(color: OledColors.mutedRose),
+                ),
+              ),
+            ],
+          )
+        else
+          TextField(
+            controller: _secret,
+            obscureText: true,
+            autocorrect: false,
+            enableSuggestions: false,
+            style: const TextStyle(fontSize: 13.5, color: OledColors.textPrimary),
+            decoration: _decoration(
+              s.webhookSecretHint,
+              suffix: IconButton(
+                tooltip: s.webhookSecretSave,
+                icon: _savingSecret
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(
+                        Icons.check_rounded,
+                        color: OledColors.calmTeal,
+                      ),
+                onPressed: _savingSecret ? null : _saveSecret,
+              ),
+            ),
+            onSubmitted: (_) => _saveSecret(),
+          ),
+        const SizedBox(height: 6),
+        Text(
+          s.webhookHelp,
+          style: const TextStyle(
+            fontSize: 11.5,
+            height: 1.35,
+            color: OledColors.textSecondary,
+          ),
+        ),
+      ],
     );
   }
 }

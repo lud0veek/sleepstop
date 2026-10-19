@@ -1484,4 +1484,30 @@ class AppStrings {
     de: 'Meldet, wenn die Überwachung vom System unterbrochen wurde.',
     es: 'Avisa cuando el sistema ha interrumpido la vigilancia.',
   );
+
+  // Webhook
+  String get webhookUrlLabel => tr(fr: 'URL du webhook (HTTPS)', nl: 'Webhook-URL (HTTPS)', de: 'Webhook-URL (HTTPS)', es: 'URL del webhook (HTTPS)');
+  String get webhookHttpsOnly => tr(
+    fr: 'HTTPS obligatoire : http:// est refusé.',
+    nl: 'HTTPS verplicht: http:// wordt geweigerd.',
+    de: 'HTTPS erforderlich: http:// wird abgelehnt.',
+    es: 'HTTPS obligatorio: se rechaza http://.',
+  );
+  String get webhookInvalidUrl => tr(fr: 'URL invalide.', nl: 'Ongeldige URL.', de: 'Ungültige URL.', es: 'URL no válida.');
+  String get webhookSecretLabel => tr(fr: 'Secret de signature (optionnel)', nl: 'Handtekeninggeheim (optioneel)', de: 'Signatur-Geheimnis (optional)', es: 'Secreto de firma (opcional)');
+  String get webhookSecretHint => tr(fr: 'Saisis un secret puis valide', nl: 'Voer een geheim in en bevestig', de: 'Geheimnis eingeben und bestätigen', es: 'Introduce un secreto y valida');
+  String get webhookSecretSave => tr(fr: 'Enregistrer le secret', nl: 'Geheim opslaan', de: 'Geheimnis speichern', es: 'Guardar el secreto');
+  String get webhookSecretStored => tr(
+    fr: 'Secret enregistré (chiffré, jamais affiché).',
+    nl: 'Geheim opgeslagen (versleuteld, nooit getoond).',
+    de: 'Geheimnis gespeichert (verschlüsselt, nie angezeigt).',
+    es: 'Secreto guardado (cifrado, nunca se muestra).',
+  );
+  String get webhookSecretRemove => tr(fr: 'Supprimer', nl: 'Verwijderen', de: 'Entfernen', es: 'Eliminar');
+  String get webhookHelp => tr(
+    fr: 'POST JSON {"event":"sleep_detected","timestamp":"…"} sans aucune donnée personnelle. Avec un secret : en-tête X-SleepStop-Signature = sha256=HMAC-SHA256(secret, corps). Délai 10 s, une seule nouvelle tentative.',
+    nl: 'POST JSON {"event":"sleep_detected","timestamp":"…"} zonder persoonsgegevens. Met geheim: header X-SleepStop-Signature = sha256=HMAC-SHA256(geheim, body). Time-out 10 s, één herhaling.',
+    de: 'POST JSON {"event":"sleep_detected","timestamp":"…"} ohne personenbezogene Daten. Mit Geheimnis: Header X-SleepStop-Signature = sha256=HMAC-SHA256(Geheimnis, Body). Timeout 10 s, ein Wiederholungsversuch.',
+    es: 'POST JSON {"event":"sleep_detected","timestamp":"…"} sin datos personales. Con secreto: cabecera X-SleepStop-Signature = sha256=HMAC-SHA256(secreto, cuerpo). Tiempo 10 s, un solo reintento.',
+  );
 }
