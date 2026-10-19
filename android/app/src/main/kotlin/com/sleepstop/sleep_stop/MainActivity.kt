@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import com.sleepstop.sleep_stop.homeactions.HomeActionsChannel
 
 class MainActivity : FlutterActivity() {
     companion object {
@@ -99,6 +100,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        HomeActionsChannel(this).register(flutterEngine)
 
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
         activeChannel = channel

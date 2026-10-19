@@ -1441,4 +1441,19 @@ class AppStrings {
   String get actionStatusSuccess => tr(fr: 'OK', nl: 'OK', de: 'OK', es: 'OK');
   String get actionStatusFailed => tr(fr: 'Échec', nl: 'Mislukt', de: 'Fehlgeschlagen', es: 'Error');
   String get actionStatusTimeout => tr(fr: 'Délai dépassé (10 s)', nl: 'Time-out (10 s)', de: 'Zeitüberschreitung (10 s)', es: 'Tiempo agotado (10 s)');
+
+  String get intentActionLabel => tr(
+    fr: 'ACTION À INTERCEPTER',
+    nl: 'OP TE VANGEN ACTIE',
+    de: 'ABZUFANGENDE ACTION',
+    es: 'ACCIÓN A INTERCEPTAR',
+  );
+  String get intentExtrasHelp => tr(
+    fr: 'Extras : « timestamp » (heure d\'endormissement, epoch ms) et « source » (session ou test). Tasker : Événement → Système → Intent reçu. Automate : bloc « Broadcast receive ».',
+    nl: 'Extra\'s: "timestamp" (inslaaptijd, epoch ms) en "source" (session of test). Tasker: Event → System → Intent Received. Automate: blok "Broadcast receive".',
+    de: 'Extras: „timestamp“ (Einschlafzeit, Epoch ms) und „source“ (session oder test). Tasker: Ereignis → System → Intent empfangen. Automate: Block „Broadcast receive“.',
+    es: 'Extras: «timestamp» (hora de dormirse, epoch ms) y «source» (session o test). Tasker: Evento → Sistema → Intent recibido. Automate: bloque «Broadcast receive».',
+  );
+  String get copyLabel => tr(fr: 'Copier', nl: 'Kopiëren', de: 'Kopieren', es: 'Copiar');
+  String get copiedToast => tr(fr: 'Copié', nl: 'Gekopieerd', de: 'Kopiert', es: 'Copiado');
 }

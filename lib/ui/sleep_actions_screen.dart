@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../app_info.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_strings.dart';
 import '../models/sleep_settings.dart';
@@ -104,6 +106,7 @@ class SleepActionsScreen extends ConsumerWidget {
               (c) => c.copyWith(intent: c.intent.copyWith(enabled: v)),
             ),
             onTest: () => _test(ref, 'intent', settings),
+            details: _IntentDetails(s: s),
           ),
           _ActionSection(
             id: 'webhook',
@@ -151,6 +154,7 @@ class _ActionSection extends StatelessWidget {
   final AppStrings s;
   final ValueChanged<bool> onToggle;
   final VoidCallback onTest;
+  final Widget? details;
 
   const _ActionSection({
     required this.id,
@@ -165,6 +169,7 @@ class _ActionSection extends StatelessWidget {
     required this.s,
     required this.onToggle,
     required this.onTest,
+    this.details,
   });
 
   @override
@@ -194,6 +199,10 @@ class _ActionSection extends StatelessWidget {
           value: enabled && available,
           onChanged: available ? onToggle : null,
         ),
+        if (available && details != null) ...[
+          const SizedBox(height: 4),
+          details!,
+        ],
         if (available) ...[
           const SizedBox(height: 6),
           Row(
@@ -234,6 +243,84 @@ class _ActionSection extends StatelessWidget {
             ),
         ],
       ],
+    );
+  }
+}
+
+/// Exact broadcast action + extras, with a copy button, for Tasker/Automate.
+class _IntentDetails extends StatelessWidget {
+  final AppStrings s;
+  const _IntentDetails({required this.s});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+      decoration: BoxDecoration(
+        color: OledColors.elevatedSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: OledColors.subtleBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.intentActionLabel,
+            style: const TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.6,
+              color: OledColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Expanded(
+                child: SelectableText(
+                  kSleepDetectedAction,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontFamily: 'monospace',
+                    color: OledColors.textPrimary,
+                  ),
+                ),
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: s.copyLabel,
+                icon: const Icon(
+                  Icons.copy_rounded,
+                  size: 18,
+                  color: OledColors.softIndigo,
+                ),
+                onPressed: () async {
+                  await Clipboard.setData(
+                    const ClipboardData(text: kSleepDetectedAction),
+                  );
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(s.copiedToast),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: OledColors.elevatedSurface,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            s.intentExtrasHelp,
+            style: const TextStyle(
+              fontSize: 11.5,
+              height: 1.35,
+              color: OledColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

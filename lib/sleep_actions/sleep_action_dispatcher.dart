@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/sleep_settings.dart';
 import '../providers/settings_provider.dart';
+import 'actions/broadcast_intent_action.dart';
 import 'sleep_action.dart';
 import 'sleep_action_status.dart';
 import 'sleep_event_bus.dart';
@@ -165,9 +166,10 @@ class SleepActionStatusesNotifier
   }
 }
 
-/// The registered actions. Filled in by later steps (intent, webhook,
-/// lights); the socle ships with an empty list so nothing can run yet.
-final sleepActionsProvider = Provider<List<SleepAction>>((ref) => const []);
+/// The registered actions (webhook and lights are added by later steps).
+final sleepActionsProvider = Provider<List<SleepAction>>(
+  (ref) => const [BroadcastIntentAction()],
+);
 
 /// Builds the dispatcher and subscribes it to the sleep event bus. Must be
 /// read once at app start (HomeScreen does it) so the subscription exists
