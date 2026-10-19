@@ -1456,4 +1456,32 @@ class AppStrings {
   );
   String get copyLabel => tr(fr: 'Copier', nl: 'Kopiëren', de: 'Kopieren', es: 'Copiar');
   String get copiedToast => tr(fr: 'Copié', nl: 'Gekopieerd', de: 'Kopiert', es: 'Copiado');
+
+  // ===========================================================================
+  // Interruption (process killed during a night)
+  // ===========================================================================
+  String get interruptedTitle => tr(
+    fr: 'SleepStop • Surveillance interrompue',
+    nl: 'SleepStop • Bewaking onderbroken',
+    de: 'SleepStop • Überwachung unterbrochen',
+    es: 'SleepStop • Vigilancia interrumpida',
+  );
+  String interruptedBody(String time) => tr(
+    fr: 'Android a arrêté SleepStop vers $time. Rouvre l\'app pour relancer la veille. Sur Samsung, ajoute SleepStop aux applications « jamais en veille ».',
+    nl: 'Android heeft SleepStop rond $time gestopt. Open de app opnieuw om de bewaking te hervatten. Op Samsung: voeg SleepStop toe aan "nooit slapende apps".',
+    de: 'Android hat SleepStop gegen $time beendet. Öffne die App erneut, um die Überwachung fortzusetzen. Auf Samsung: SleepStop zu „Nie in den Ruhezustand“ hinzufügen.',
+    es: 'Android detuvo SleepStop hacia las $time. Vuelve a abrir la app para reanudar la vigilancia. En Samsung, añade SleepStop a «apps nunca en reposo».',
+  );
+  String get alertsChannelName => tr(
+    fr: 'Alertes SleepStop',
+    nl: 'SleepStop-meldingen',
+    de: 'SleepStop-Hinweise',
+    es: 'Alertas de SleepStop',
+  );
+  String get alertsChannelDesc => tr(
+    fr: 'Prévient quand la surveillance a été interrompue par le système.',
+    nl: 'Waarschuwt wanneer de bewaking door het systeem is onderbroken.',
+    de: 'Meldet, wenn die Überwachung vom System unterbrochen wurde.',
+    es: 'Avisa cuando el sistema ha interrumpido la vigilancia.',
+  );
 }

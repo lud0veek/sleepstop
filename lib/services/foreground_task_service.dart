@@ -1,4 +1,9 @@
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_strings.dart';
+import '../models/sleep_settings.dart';
 
 @pragma('vm:entry-point')
 void startSleepStopForegroundCallback() {
@@ -7,7 +12,49 @@ void startSleepStopForegroundCallback() {
 
 class SleepStopTaskHandler extends TaskHandler {
   @override
-  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {}
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
+    if (starter == TaskStarter.system) {
+      // Android restarted the sticky service after our process was killed
+      // (OEM power management, memory...). The monitoring logic lived in
+      // the main isolate and is gone: say so instead of showing a stale
+      // "monitoring..." notification all night, then release the service.
+      await _announceInterruption(timestamp);
+      await FlutterForegroundTask.stopService();
+    }
+  }
+
+  Future<void> _announceInterruption(DateTime at) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString('sleepstop_settings_v1');
+      final lang = raw == null ? 'fr' : SleepSettings.decode(raw).languageCode;
+      final s = AppStrings(lang);
+      final plugin = FlutterLocalNotificationsPlugin();
+      await plugin.initialize(
+        settings: const InitializationSettings(
+          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        ),
+      );
+      await plugin.show(
+        id: 1002,
+        title: s.interruptedTitle,
+        body: s.interruptedBody(DateFormat('HH:mm').format(at)),
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            'sleepstop_alerts',
+            s.alertsChannelName,
+            channelDescription: s.alertsChannelDesc,
+            importance: Importance.high,
+            priority: Priority.high,
+            playSound: false,
+            enableVibration: false,
+          ),
+        ),
+      );
+    } catch (_) {
+      // Best effort: never crash the restarted service.
+    }
+  }
 
   @override
   void onRepeatEvent(DateTime timestamp) {
